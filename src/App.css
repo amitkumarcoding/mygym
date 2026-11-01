@@ -191,3 +191,131 @@
   .gym .row>button{gap:14px}
   .gym .meal{gap:12px}
 }
+
+.gym .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.gym .slot-note{color:var(--mute);font-size:14px}
+.gym .tabs button[aria-pressed='true']{background:linear-gradient(135deg,var(--gold-hi),var(--gold-lo));color:#14100a}
+.gym .diet-note{margin:0 0 24px;color:var(--mute)}
+.gym .calc{margin-top:56px}
+.gym .calc h3{margin-bottom:28px;font-size:38px}
+.gym .calc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 32px}
+.gym .results{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin:8px 0 20px;padding-top:28px;border-top:1px solid var(--line)}
+.gym .results div{display:grid;gap:4px}
+.gym .results b{color:var(--gold-hi);font:500 clamp(34px,4vw,48px)/1 'Cormorant Garamond',serif}
+.gym .results span{color:var(--mute);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+@media (max-width:980px){.gym .cards{grid-template-columns:1fr 1fr}.gym .calc-grid{grid-template-columns:1fr 1fr}.gym .results{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.gym .cards,.gym .calc-grid{grid-template-columns:1fr}.gym .results{grid-template-columns:1fr 1fr}}
+
+.gym .logo svg{width:22px;height:22px;color:var(--gold)}
+.gym .hero{position:relative;overflow:hidden}
+.gym .hero-ic{position:absolute;top:30px;right:-120px;width:640px;height:640px;color:var(--gold);opacity:.06;transform:rotate(-18deg);stroke-width:.35;pointer-events:none}
+.gym .amen .ic{display:grid;width:52px;height:52px;place-items:center;margin-bottom:36px;border:1px solid rgb(216 185 131/40%);border-radius:50%;background:rgb(216 185 131/8%);color:var(--gold)}
+.gym .amen .ic svg{width:24px;height:24px}
+.gym .amen h3 a{text-decoration:none}
+.gym .cards.ex{grid-template-columns:repeat(2,1fr);gap:20px}
+.gym .ex-card{padding:14px 14px 30px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(180deg,rgb(255 255 255/4%),transparent),var(--card);transition:transform .4s,border-color .4s}
+.gym .ex-card:hover{transform:translateY(-6px);border-color:rgb(216 185 131/45%)}
+.gym .fig-wrap{position:relative;aspect-ratio:3/2;margin-bottom:24px;overflow:hidden;border-radius:18px;background:radial-gradient(circle at 50% 30%,rgb(216 185 131/18%),transparent 65%),linear-gradient(rgb(255 255 255/3%) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,rgb(255 255 255/3%) 1px,transparent 1px) 0 0/28px 28px,#0a0b0e}
+.gym .fig{display:block;width:100%;height:100%}
+.gym .fig .bg{fill:none;stroke:rgb(255 255 255/22%);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.gym .fig .body{fill:none;stroke:var(--gold-hi);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgb(216 185 131/45%))}
+.gym .fig .ghost{fill:none;stroke:rgb(216 185 131/16%);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 11}
+.gym .fig .trail{fill:none;stroke:rgb(216 185 131/35%);stroke-width:1.5;stroke-dasharray:3 5;stroke-linecap:round}
+.gym .fig .head{fill:var(--gold)}
+.gym .fig .eq{fill:#1b1f25;stroke:var(--gold);stroke-width:2.5}
+.gym .fig .cab{stroke:rgb(255 255 255/45%);stroke-width:1.5}
+.gym .fig .pul{fill:none;stroke:rgb(255 255 255/45%);stroke-width:2}
+.gym .chip{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid rgb(216 185 131/35%);border-radius:999px;background:rgb(7 8 10/70%);backdrop-filter:blur(8px);color:var(--gold-hi);font-size:12px;font-weight:600;letter-spacing:.06em}
+.gym .chip svg{width:14px;height:14px}
+.gym .ex-card h3{padding:0 14px;font-size:34px}
+.gym .ex-card p{margin:10px 0 0;padding:0 14px;color:var(--mute);font-size:14px}
+@media (max-width:560px){.gym .cards.ex{grid-template-columns:1fr}.gym .hero-ic{width:420px;height:420px;right:-140px}}
+
+.gym .coaches{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.gym .coach{display:flex;flex-direction:column;align-items:flex-start;gap:20px;padding:28px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,rgb(255 255 255/4%),transparent),var(--card);color:inherit;font-family:inherit;text-align:left;cursor:pointer;transition:transform .35s,border-color .35s,box-shadow .35s}
+.gym .coach:hover{transform:translateY(-4px)}
+.gym .coach[aria-checked='true']{border-color:rgb(216 185 131/65%);background:radial-gradient(420px 220px at 0% 0%,rgb(216 185 131/18%),transparent 70%),var(--card);box-shadow:0 20px 50px -25px rgb(216 185 131/45%)}
+.gym .coach-av{display:grid;flex:none;width:64px;height:64px;place-items:center;border-radius:50%;background:linear-gradient(135deg,var(--gold-hi),var(--gold-lo));color:#14100a;font:italic 600 34px 'Cormorant Garamond',serif}
+.gym .coach-av.sm{width:48px;height:48px;font-size:26px}
+.gym .coach-info b{display:block;font:500 32px/1 'Cormorant Garamond',serif}
+.gym .coach-info small{color:var(--mute);font-size:13px}
+.gym .level{display:inline-flex;align-items:center;gap:4px;color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.gym .level svg{width:14px;height:14px;fill:currentColor}
+.gym .plan{padding:clamp(20px,4vw,44px)}
+.gym .say{display:flex;gap:16px;align-items:flex-start;margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.gym .say p{margin:0;color:var(--mute);font-size:15px}
+.gym .say b{display:block;margin-bottom:4px;color:var(--gold-hi);font:500 24px/1.1 'Cormorant Garamond',serif}
+.gym .stepper{display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:40px}
+.gym .stepper .fig-wrap{margin:0}
+.gym .step-info h3{margin-bottom:16px;font-size:clamp(36px,4vw,54px)}
+.gym .step-info>p:not(.eyebrow){margin:0;color:var(--mute);font-size:15px}
+.gym .facts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;padding:0;list-style:none}
+.gym .facts li{padding:6px 14px;border:1px solid rgb(216 185 131/35%);border-radius:999px;background:rgb(216 185 131/8%);color:var(--gold-hi);font-size:13px;font-weight:600}
+.gym .step-nav{display:flex;gap:12px;margin-top:28px}
+.gym .step-nav .btn:disabled{cursor:not-allowed;opacity:.35;transform:none}
+.gym .dots{display:flex;gap:6px;margin-top:32px}
+.gym .dots button{flex:1;height:16px;padding:6px 0;border:0;background:none;cursor:pointer}
+.gym .dots button::after{display:block;height:4px;border-radius:4px;background:var(--line2);content:'';transition:background .3s}
+.gym .dots .on::after{background:var(--gold-hi)}
+.gym .dots .past::after{background:var(--gold-lo)}
+.gym .done{padding:32px 0;text-align:center}
+.gym .done h3{margin-bottom:14px;font-size:clamp(40px,6vw,64px)}
+.gym .done p{max-width:40ch;margin:0 auto 28px;color:var(--mute)}
+.gym .tabbar{display:none}
+
+@media (max-width:980px){
+  .gym .tabs{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .gym .tabs::-webkit-scrollbar{display:none}
+  .gym .tabs button{flex:none;padding:12px 20px;white-space:nowrap}
+  .gym .stepper{grid-template-columns:1fr;gap:24px}
+  .gym .coaches{grid-template-columns:1fr;gap:12px;margin-bottom:24px}
+  .gym .coach{flex-direction:row;align-items:center;gap:16px;padding:16px 18px}
+  .gym .coach-av{width:52px;height:52px;font-size:28px}
+  .gym .coach-info b{font-size:28px}
+  .gym .level{margin-left:auto;flex-wrap:wrap;justify-content:flex-end;max-width:92px;font-size:10px}
+  .gym .tabbar{position:fixed;z-index:25;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:12px;display:grid;grid-template-columns:repeat(5,1fr);padding:6px;border:1px solid var(--line2);border-radius:26px;background:rgb(12 14 17/82%);backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 20px 50px -15px #000}
+  .gym .tabbar a{display:grid;justify-items:center;gap:2px;padding:8px 0;border-radius:20px;color:var(--mute);font-size:10px;font-weight:600;letter-spacing:.04em;text-decoration:none;transition:color .2s,background .2s}
+  .gym .tabbar a:active{background:rgb(216 185 131/14%);color:var(--gold-hi)}
+  .gym .tabbar svg{width:22px;height:22px}
+  .gym footer{padding-bottom:84px}
+  .gym .toast{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:560px){
+  .gym .wrap{width:min(100% - 32px,1180px)}
+  .gym section{padding:64px 0}
+  .gym .amen{padding-bottom:64px}
+  .gym h2{font-size:clamp(40px,12vw,56px)}
+  .gym .lead{margin-bottom:36px;font-size:16px}
+  .gym .eyebrow{margin-bottom:18px;font-size:11px}
+  .gym .site-nav{padding:10px 0}
+  .gym .nav-pill{width:calc(100% - 24px);padding:7px 7px 7px 18px}
+  .gym .logo{font-size:23px}
+  .gym .hero{padding:28px 0 64px}
+  .gym .hero h1{font-size:clamp(52px,17vw,76px);margin-bottom:20px}
+  .gym .hero-copy{margin-bottom:28px;font-size:16px}
+  .gym .actions .btn{flex:1 1 100%}
+  .gym .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:40px;padding-top:24px}
+  .gym .stats dt{font-size:38px}
+  .gym .stats dd{font-size:10px;letter-spacing:.1em}
+  .gym .rack{padding:20px;border-radius:24px}
+  .gym .total{font-size:64px}
+  .gym .plates button{padding:11px 2px;font-size:11px}
+  .gym .amen .wrap{grid-template-columns:1fr 1fr;gap:12px}
+  .gym .amen .wrap>div{padding:20px 16px 24px;border-radius:20px}
+  .gym .amen .ic{width:44px;height:44px;margin-bottom:20px}
+  .gym .amen h3{font-size:22px}
+  .gym .amen p{font-size:12px;line-height:1.5}
+  .gym .ex-card{padding:10px 10px 24px;border-radius:24px}
+  .gym .ex-card h3{padding:0 10px;font-size:30px}
+  .gym .ex-card p{padding:0 10px}
+  .gym .fig-wrap{aspect-ratio:4/3}
+  .gym .plan{border-radius:26px}
+  .gym .step-nav .btn{flex:1}
+  .gym .rem-card{padding:22px}
+  .gym .free-card{padding:28px 22px;border-radius:28px}
+  .gym .card,.gym .ok{padding:24px 20px;border-radius:26px}
+  .gym .calc h3{font-size:32px}
+  .gym .results b{font-size:34px}
+  .gym .wordmark{margin-top:36px}
+  .gym footer .wrap{flex-direction:column;gap:20px}
+}
