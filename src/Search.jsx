@@ -12,17 +12,17 @@ const SUGGESTIONS = ['bench press', 'biceps', 'creatine', 'paneer', 'running sho
 // Each muscle lists which exercises train it. `test` gets the exercise name and its library group.
 const muscles = [
   { n: 'Chest', alias: 'pecs pectorals pec', role: 'Pushes your arms forward and together. Big part of any press or push-up.', test: (n, g) => g === 'Chest' },
-  { n: 'Back (lats and upper back)', alias: 'lats latissimus traps trapezius rhomboids rear', role: 'Pulls your arms down and back and holds your posture. Think rows and pulldowns.', test: (n, g) => g === 'Back' && !/back extension|deadlift/i.test(n) },
+  { n: 'Back (lats and upper back)', alias: 'lats latissimus traps trapezius rhomboids rear', role: 'Pulls your arms down and back and holds your posture. Think rows and pulldowns.', test: (n, g) => g === 'Back' && !/back extension|deadlift|rack pull|good morning|superman/i.test(n) },
   { n: 'Shoulders', alias: 'delts deltoids', role: 'Lifts your arms overhead and to the side and stabilises every press.', test: (n, g) => g === 'Shoulders' },
-  { n: 'Biceps', alias: 'bicep arms arm front', role: 'Bends your elbow and helps in every pulling move.', test: (n) => /curl|pull-up|pulldown|row/i.test(n) },
-  { n: 'Triceps', alias: 'tricep arms arm back of arm', role: 'Straightens your elbow. Makes up about two thirds of your upper arm.', test: (n) => /pushdown|skull|triceps|dip|bench press|push-up|overhead press|push press/i.test(n) },
-  { n: 'Forearms and grip', alias: 'forearm grip wrists', role: 'Hold the bar. Grip often limits rows, pull-ups and deadlifts.', test: (n) => /curl|deadlift|pull-up|swing|row/i.test(n) },
-  { n: 'Quads', alias: 'quadriceps thighs front of thigh legs leg', role: 'Straighten your knee. The main muscle in squats, lunges and leg presses.', test: (n) => /squat|leg press|lunge|leg extension/i.test(n) },
-  { n: 'Hamstrings', alias: 'hamstring back of thigh legs leg', role: 'Bend your knee and extend your hip. Key for sprinting, jumping and deadlifts.', test: (n) => /romanian|deadlift|leg curl|hip thrust/i.test(n) },
-  { n: 'Glutes', alias: 'glute butt hips bum gluteus', role: 'Extend your hip and power your standing, climbing and lifting.', test: (n) => /hip thrust|squat|lunge|deadlift|romanian|swing|leg press/i.test(n) },
+  { n: 'Biceps', alias: 'bicep arms arm front', role: 'Bends your elbow and helps in every pulling move.', test: (n) => /curl|pull-up|chin-up|pulldown|row/i.test(n) },
+  { n: 'Triceps', alias: 'tricep arms arm back of arm', role: 'Straightens your elbow. Makes up about two thirds of your upper arm.', test: (n) => /pushdown|skull|triceps|dip|bench press|push-up|overhead press|push press|kickback|close-grip/i.test(n) },
+  { n: 'Forearms and grip', alias: 'forearm grip wrists', role: 'Hold the bar. Grip often limits rows, pull-ups and deadlifts.', test: (n) => /curl|deadlift|rack pull|pull-up|chin-up|swing|row/i.test(n) },
+  { n: 'Quads', alias: 'quadriceps thighs front of thigh legs leg', role: 'Straighten your knee. The main muscle in squats, lunges and leg presses.', test: (n) => /squat|leg press|lunge|leg extension|wall sit/i.test(n) },
+  { n: 'Hamstrings', alias: 'hamstring back of thigh legs leg', role: 'Bend your knee and extend your hip. Key for sprinting, jumping and deadlifts.', test: (n) => /romanian|deadlift|rack pull|good morning|leg curl|hip thrust|glute bridge/i.test(n) },
+  { n: 'Glutes', alias: 'glute butt hips bum gluteus', role: 'Extend your hip and power your standing, climbing and lifting.', test: (n) => /hip thrust|glute bridge|squat|lunge|deadlift|rack pull|good morning|romanian|swing|leg press/i.test(n) },
   { n: 'Calves', alias: 'calf lower leg soleus gastrocnemius', role: 'Point your toes and absorb impact when you walk, run and jump.', test: (n) => /calf|jump|high knees/i.test(n) },
   { n: 'Abs and core', alias: 'abs core abdominals abdomen six pack stomach belly obliques', role: 'Brace your spine and transfer force between your upper and lower body.', test: (n, g) => g === 'Core' || /plank|mountain climber/i.test(n) },
-  { n: 'Lower back', alias: 'spine erectors lumbar back', role: 'Keeps your spine straight under load and extends your torso.', test: (n) => /deadlift|back extension|romanian|swing|bent-over/i.test(n) },
+  { n: 'Lower back', alias: 'spine erectors lumbar back', role: 'Keeps your spine straight under load and extends your torso.', test: (n) => /deadlift|rack pull|good morning|superman|back extension|romanian|swing|bent-over|pendlay/i.test(n) },
 ]
 
 const norm = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
