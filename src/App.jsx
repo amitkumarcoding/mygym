@@ -818,15 +818,15 @@ export default function App() {
             <a href="#diet" onClick={closeMenu}>Diet</a>
             <a href="#supplements" onClick={closeMenu}>Supplements</a>
             <a href="#gear" onClick={closeMenu}>Gear</a>
-            <a href="#records" onClick={closeMenu}>PRs</a>
-            <a href="#progress" onClick={closeMenu}>Progress</a>
+            <a className="only-menu" href="#records" onClick={closeMenu}>PRs</a>
+            <a className="only-menu" href="#progress" onClick={closeMenu}>Progress</a>
             <a className="only-menu" href="#plans" onClick={closeMenu}>Workout plans</a>
             <a className="only-menu" href="#avoid" onClick={closeMenu}>What to avoid</a>
             <a className="only-menu" href="#reminders" onClick={closeMenu}>Reminders</a>
             <a className="only-menu" href="#faq" onClick={closeMenu}>FAQ</a>
           </div>
           <button type="button" className="nav-search" onClick={() => { closeMenu(); setSearchOpen(true) }} aria-label="Search (press slash)" aria-haspopup="dialog"><Icon n="search" /><span>Search</span><kbd aria-hidden="true">/</kbd></button>
-          <a href="#join" className="btn gold sm nav-cta" onClick={closeMenu}>Free plan</a>
+          <a href="#join" className="btn gold sm nav-cta" onClick={closeMenu}>Start free</a>
           <button className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="site-links" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'} onClick={() => setMenuOpen((isOpen) => !isOpen)}>
             <span />
             <span />
@@ -849,13 +849,17 @@ export default function App() {
             <button type="button" className="hero-search" onClick={() => setSearchOpen(true)} aria-haspopup="dialog">
               <Icon n="search" /><span>Search exercises, muscles, foods, supplements…</span><kbd aria-hidden="true">/</kbd>
             </button>
-            <dl className="stats">
-              <div><dt>{Object.values(exercises).flat().length}</dt><dd>Exercises</dd></div>
-              <div><dt>{Object.keys(plans).length}</dt><dd>Workout plans</dd></div>
-              <div><dt>{Object.keys(diets).length}</dt><dd>Diet plans</dd></div>
-            </dl>
           </div>
           <Barbell />
+        </div>
+        <div className="wrap hero-foot">
+          <dl className="stats">
+            <div><dt>{Object.values(exercises).flat().length}</dt><dd>Exercises</dd></div>
+            <div><dt>{Object.keys(plans).length}</dt><dd>Workout plans</dd></div>
+            <div><dt>{Object.keys(diets).length}</dt><dd>Diet plans</dd></div>
+            <div><dt>Free</dt><dd>Always</dd></div>
+          </dl>
+          <a href="#trainer" className="scroll-cue" aria-label="Scroll to your trainer"><span>Scroll</span><i aria-hidden="true" /></a>
         </div>
       </header>
 
@@ -867,8 +871,8 @@ export default function App() {
             ['calendar', 'plans', 'Workout plans', 'Full body, push pull legs and upper lower.'],
             ['apple', 'diet', 'Diet and macros', 'Meal plans plus a calorie calculator.'],
             ['trophy', 'records', 'PR tracker', 'Log lifts, beat your best and track progress.'],
-          ].map(([icon, id, title, text]) => (
-            <div key={id}><span className="ic"><Icon n={icon} /></span><h3><a href={`#${id}`}>{title}</a></h3><p>{text}</p></div>
+          ].map(([icon, id, title, text], i) => (
+            <div key={id}><span className="n" aria-hidden="true">0{i + 1}</span><span className="ic"><Icon n={icon} /></span><h3><a href={`#${id}`}>{title}</a></h3><p>{text}</p></div>
           ))}
         </div>
       </section>
