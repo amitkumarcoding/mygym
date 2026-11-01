@@ -1,0 +1,770 @@
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Hanken+Grotesk:wght@400;500;600&display=swap');
+
+.gym {
+  --forest: #0d1b17;
+  --bone: #ebe6da;
+  --paper: #f5f1e7;
+  --brass: #b8975a;
+  --mist: #9fada6;
+  --ink: #111715;
+  min-height: 100vh;
+  overflow: clip;
+  background: var(--forest);
+  color: var(--bone);
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.gym *,
+.gym *::before,
+.gym *::after {
+  box-sizing: border-box;
+}
+
+.gym h1,
+.gym h2,
+.gym h3 {
+  margin: 0;
+  font-family: 'Bodoni Moda', Georgia, serif;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+
+.gym a {
+  color: inherit;
+}
+
+.gym :focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 4px;
+}
+
+.gym .wrap {
+  width: min(100% - 56px, 1160px);
+  margin: 0 auto;
+}
+
+.gym section {
+  padding: 104px 0;
+  scroll-margin-top: 76px;
+}
+
+.gym h2 {
+  margin-bottom: 16px;
+  font-size: clamp(38px, 5vw, 60px);
+}
+
+.gym .lead {
+  max-width: 50ch;
+  margin: 0 0 56px;
+  color: var(--mist);
+  font-size: 17px;
+}
+
+.gym .light {
+  background: var(--bone);
+  color: var(--ink);
+}
+
+.gym .light .lead {
+  color: #55605b;
+}
+
+.gym .btn {
+  display: inline-block;
+  padding: 14px 30px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font: 500 15px 'Hanken Grotesk', sans-serif;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.gym .btn.blue {
+  border-color: var(--brass);
+  background: var(--brass);
+  color: var(--forest);
+}
+
+.gym .btn.blue:hover,
+.gym .plan.featured .btn:hover {
+  border-color: #cdb07a;
+  background: #cdb07a;
+}
+
+.gym .btn.ghost:hover {
+  background: var(--bone);
+  color: var(--forest);
+}
+
+.gym .site-nav {
+  position: sticky;
+  z-index: 5;
+  top: 0;
+  border-bottom: 1px solid rgb(184 151 90 / 25%);
+  background: rgb(13 27 23 / 92%);
+  backdrop-filter: blur(12px);
+}
+
+.gym .site-nav .wrap {
+  display: flex;
+  height: 76px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gym .logo {
+  font: 500 28px 'Bodoni Moda', serif;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+}
+
+.gym .links {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  font-size: 14px;
+}
+
+.gym .links a {
+  color: var(--mist);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.gym .links a:hover {
+  color: var(--bone);
+}
+
+.gym .links .btn {
+  padding: 10px 22px;
+  color: var(--forest);
+}
+
+.gym .hero {
+  position: relative;
+  overflow: hidden;
+  padding: 112px 0 96px;
+  background:
+    radial-gradient(800px 520px at 80% 25%, rgb(184 151 90 / 14%), transparent 65%),
+    radial-gradient(900px 600px at 0% 100%, #1c443a, transparent 60%),
+    var(--forest);
+}
+
+.gym .hero::before {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  content: '';
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.gym .hero .wrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+  gap: 72px;
+}
+
+.gym .eyebrow {
+  margin: 0 0 18px;
+  color: var(--brass);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.gym .hero h1 {
+  max-width: 740px;
+  font-size: clamp(52px, 7.4vw, 104px);
+}
+
+.gym .hero-copy {
+  max-width: 42ch;
+  margin: 28px 0 40px;
+  color: var(--mist);
+  font-size: 18px;
+}
+
+.gym .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.gym .rack {
+  padding: 36px;
+  border: 1px solid rgb(184 151 90 / 40%);
+  background: linear-gradient(160deg, rgb(255 255 255 / 5%), rgb(255 255 255 / 1%));
+}
+
+.gym .rack > small {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--brass);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.gym .rack svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.gym .rack-label {
+  margin: 6px 0 0;
+  color: var(--mist);
+}
+
+.gym .total {
+  margin-top: 8px;
+  font: 400 76px/1 'Bodoni Moda', serif;
+}
+
+.gym .plates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.gym .plates button {
+  padding: 8px 14px;
+  border: 1px solid rgb(235 230 218 / 35%);
+  background: transparent;
+  color: var(--bone);
+  font: 500 13px 'Hanken Grotesk', sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.gym .plates button:hover:not(:disabled) {
+  border-color: var(--brass);
+  color: var(--brass);
+}
+
+.gym .plates button:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.gym .amen {
+  padding: 0;
+  border-top: 1px solid rgb(184 151 90 / 25%);
+  border-bottom: 1px solid rgb(184 151 90 / 25%);
+}
+
+.gym .amen .wrap {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.gym .amen .wrap > div {
+  padding: 40px 28px;
+  border-left: 1px solid rgb(184 151 90 / 25%);
+}
+
+.gym .amen .wrap > div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.gym .amen h3 {
+  margin-bottom: 8px;
+  font-size: 24px;
+}
+
+.gym .amen p {
+  margin: 0;
+  color: var(--mist);
+  font-size: 15px;
+}
+
+.gym .rows {
+  border-top: 1px solid rgb(184 151 90 / 30%);
+}
+
+.gym .row {
+  border-bottom: 1px solid rgb(184 151 90 / 30%);
+}
+
+.gym .row > button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gym .row > button:focus-visible {
+  outline-offset: 2px;
+}
+
+.gym .row-title {
+  font: 400 clamp(30px, 4.4vw, 52px)/1.2 'Bodoni Moda', serif;
+  letter-spacing: -0.015em;
+  transition: color 0.2s;
+}
+
+.gym .row > button:hover .row-title,
+.gym .row.open .row-title {
+  color: var(--brass);
+}
+
+.gym .plus {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.gym .plus::before,
+.gym .plus::after {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--brass);
+  content: '';
+  transition: transform 0.3s;
+}
+
+.gym .plus::after {
+  transform: rotate(90deg);
+}
+
+.gym .row.open .plus::after {
+  transform: rotate(0);
+}
+
+.gym .more {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+
+.gym .row.open .more {
+  grid-template-rows: 1fr;
+}
+
+.gym .more p {
+  min-height: 0;
+  overflow: hidden;
+  max-width: 56ch;
+  margin: 0;
+  color: var(--mist);
+  font-size: 17px;
+}
+
+.gym .row.open .more p {
+  padding-bottom: 32px;
+}
+
+.gym .tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgb(17 23 21 / 20%);
+}
+
+.gym .tabs button {
+  margin-bottom: -1px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #55605b;
+  font: 500 15px 'Hanken Grotesk', sans-serif;
+  cursor: pointer;
+}
+
+.gym .tabs button[aria-selected='true'] {
+  border-bottom-color: var(--brass);
+  color: var(--ink);
+}
+
+.gym .slot {
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  align-items: baseline;
+  gap: 20px;
+  padding: 26px 0;
+  border-bottom: 1px solid rgb(17 23 21 / 14%);
+}
+
+.gym .slot strong {
+  font: 400 32px 'Bodoni Moda', serif;
+  letter-spacing: -0.01em;
+}
+
+.gym .slot span {
+  color: #55605b;
+}
+
+.gym .trainers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.gym .avatar {
+  display: grid;
+  aspect-ratio: 3 / 4;
+  place-items: center;
+  margin-bottom: 22px;
+  border: 1px solid rgb(184 151 90 / 30%);
+  background: radial-gradient(circle at 30% 20%, #245246, var(--forest) 70%);
+  color: var(--brass);
+  font: italic 400 140px 'Bodoni Moda', serif;
+}
+
+.gym .trainers h3 {
+  font-size: 30px;
+}
+
+.gym .trainers em {
+  color: var(--brass);
+  font-size: 14px;
+  font-style: normal;
+  letter-spacing: 0.03em;
+}
+
+.gym .trainers p {
+  margin: 10px 0 0;
+  color: var(--mist);
+  font-size: 15px;
+}
+
+.gym .toggle {
+  display: inline-flex;
+  margin-bottom: 48px;
+  padding: 3px;
+  border: 1px solid rgb(17 23 21 / 30%);
+  border-radius: 99px;
+}
+
+.gym .toggle button {
+  padding: 9px 22px;
+  border: 0;
+  border-radius: 99px;
+  background: transparent;
+  color: var(--ink);
+  font: 500 14px 'Hanken Grotesk', sans-serif;
+  cursor: pointer;
+}
+
+.gym .toggle button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--bone);
+}
+
+.gym .plans {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  gap: 24px;
+}
+
+.gym .plan {
+  display: flex;
+  flex-direction: column;
+  padding: 40px 34px;
+  border: 1px solid rgb(17 23 21 / 18%);
+  background: var(--paper);
+}
+
+.gym .plan.featured {
+  padding: 56px 34px;
+  border-color: var(--brass);
+  background: var(--forest);
+  color: var(--bone);
+  box-shadow: 0 30px 60px -30px rgb(13 27 23 / 60%);
+}
+
+.gym .plan h3 {
+  font-size: 30px;
+}
+
+.gym .price {
+  margin: 18px 0 4px;
+  font: 400 64px/1 'Bodoni Moda', serif;
+}
+
+.gym .price small {
+  font: 400 15px 'Hanken Grotesk', sans-serif;
+}
+
+.gym .plan > small {
+  color: #55605b;
+}
+
+.gym .plan.featured > small {
+  color: var(--mist);
+}
+
+.gym .plan ul {
+  flex: 1;
+  margin: 24px 0 32px;
+  padding: 20px 0 0;
+  border-top: 1px solid rgb(128 128 128 / 30%);
+  list-style: none;
+}
+
+.gym .plan li {
+  position: relative;
+  padding: 6px 0 6px 20px;
+}
+
+.gym .plan li::before {
+  position: absolute;
+  top: 17px;
+  left: 0;
+  width: 8px;
+  height: 1px;
+  background: var(--brass);
+  content: '';
+}
+
+.gym .plan .btn {
+  text-align: center;
+}
+
+.gym .plan.featured .btn {
+  border-color: var(--brass);
+  background: var(--brass);
+  color: var(--forest);
+}
+
+.gym .join {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+}
+
+.gym label {
+  display: block;
+  margin-bottom: 28px;
+  color: var(--mist);
+  font-size: 14px;
+}
+
+.gym input,
+.gym select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 1px solid rgb(235 230 218 / 40%);
+  border-radius: 0;
+  background: transparent;
+  color: var(--bone);
+  font: 400 18px 'Hanken Grotesk', sans-serif;
+}
+
+.gym input:focus,
+.gym select:focus {
+  border-bottom-color: var(--brass);
+  outline: 0;
+}
+
+.gym select option {
+  color: #111;
+}
+
+.gym .err {
+  margin: -12px 0 24px;
+  color: #e7a39b;
+}
+
+.gym .ok {
+  padding: 40px;
+  border: 1px solid var(--brass);
+}
+
+.gym .ok h3 {
+  margin-bottom: 10px;
+  font-size: 36px;
+}
+
+.gym .ok p {
+  margin: 0;
+  color: var(--mist);
+}
+
+.gym footer {
+  padding: 56px 0;
+  border-top: 1px solid rgb(184 151 90 / 25%);
+  color: var(--mist);
+  font-size: 14px;
+}
+
+.gym footer .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.gym footer strong {
+  color: var(--bone);
+  font: 400 22px 'Bodoni Moda', serif;
+}
+
+.gym footer a {
+  text-decoration: none;
+}
+
+.gym footer a:hover {
+  color: var(--bone);
+}
+
+@media (max-width: 860px) {
+  .gym .hero .wrap,
+  .gym .join,
+  .gym .trainers,
+  .gym .plans {
+    grid-template-columns: 1fr;
+  }
+
+  .gym .hero {
+    padding: 72px 0;
+  }
+
+  .gym .join {
+    gap: 32px;
+  }
+
+  .gym .amen .wrap {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .gym .amen .wrap > div:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .gym .links {
+    gap: 18px;
+  }
+
+  .gym .links a:not(.btn) {
+    display: none;
+  }
+
+  .gym section {
+    padding: 72px 0;
+  }
+
+  .gym .slot {
+    grid-template-columns: 96px 1fr;
+  }
+
+  .gym .slot span:last-child {
+    grid-column: 2;
+  }
+
+  .gym .plan.featured {
+    padding: 40px 34px;
+  }
+}
+
+@media (max-width: 520px) {
+  .gym .wrap {
+    width: min(100% - 36px, 1160px);
+  }
+
+  .gym .site-nav .wrap {
+    height: 68px;
+  }
+
+  .gym .logo {
+    font-size: 24px;
+  }
+
+  .gym .links .btn {
+    padding: 9px 13px;
+    font-size: 13px;
+  }
+
+  .gym .hero h1 {
+    font-size: clamp(48px, 14vw, 68px);
+  }
+
+  .gym .rack {
+    padding: 24px 18px;
+  }
+
+  .gym .total {
+    font-size: 62px;
+  }
+
+  .gym .amen .wrap > div {
+    padding: 28px 16px;
+  }
+
+  .gym .amen h3 {
+    font-size: 20px;
+  }
+
+  .gym .tabs {
+    gap: 20px;
+  }
+
+  .gym .slot {
+    grid-template-columns: 82px 1fr;
+    gap: 12px;
+  }
+
+  .gym .slot strong {
+    font-size: 27px;
+  }
+
+  .gym .toggle button {
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gym svg rect.plate {
+    animation: plate-drop 0.3s ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gym *,
+  .gym *::before,
+  .gym *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+
+@keyframes plate-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
