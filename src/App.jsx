@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { registerPush, saveSubscription } from './push'
 import { exercises, frames, DUR } from './exercises'
+import { supplements, skipList, goalsList, dietsList, buildStack } from './supplements'
 import './App.css'
 
 const BRAND = 'Ironline'
@@ -135,6 +136,7 @@ function Figure({ ex }) {
   const still = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const pts = (f) => ['W', 'E', 'N', 'P', 'K', 'A', 'F'].map((key) => f[key].join(',')).join(' ')
   const kt = fr.map((f) => f.kt.toFixed(4)).join(';')
+  const rpts = (f) => ['P', 'K2', 'A2'].map((key) => f[key].join(',')).join(' ')
   const an = (attr, get) => (still ? null : <animate attributeName={attr} values={fr.map(get).join(';')} keyTimes={kt} dur={`${DUR}s`} repeatCount="indefinite" />)
   const dot = (key, r, cls) => (
     <circle className={cls} r={r} cx={fr[0][key][0]} cy={fr[0][key][1]}>
@@ -164,6 +166,7 @@ function Figure({ ex }) {
       {ex.q === 'bar' && dot('W', 13, 'eq')}
       {ex.q === 'db' && dot('W', 7, 'eq')}
       {ex.q === 'ank' && dot('A', 11, 'eq')}
+      {fr[0].K2 && <polyline className="body rear" points={rpts(fr[0])}>{an('points', rpts)}</polyline>}
       <polyline className="body" points={pts(fr[0])}>{an('points', pts)}</polyline>
       {dot('H', 9, 'head')}
     </svg>
@@ -260,6 +263,91 @@ function Trainer() {
         <div className="dots">
           {list.map((item, i) => <button key={item.n} type="button" aria-label={`Go to ${item.n}`} className={i === step ? 'on' : i < step ? 'past' : ''} onClick={() => setStep(i)} />)}
         </div>
+      </div>
+    </>
+  )
+}
+
+function Art({ kind }) {
+  const sw = { fill: 'rgb(216 185 131/10%)', stroke: 'currentColor', strokeWidth: 2.2, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  const shapes = {
+    tub: <><rect x="26" y="34" width="68" height="62" rx="8" {...sw} /><rect x="22" y="20" width="76" height="18" rx="6" {...sw} /><rect x="34" y="52" width="52" height="26" rx="4" fill="none" stroke="currentColor" strokeWidth="1.6" /><path d="M46 65h28" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></>,
+    jar: <><rect x="30" y="38" width="60" height="58" rx="10" {...sw} /><rect x="34" y="24" width="52" height="16" rx="5" {...sw} /><path d="M44 62h32M44 74h20" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></>,
+    shaker: <><path d="M36 42l6 52a6 6 0 0 0 6 5h24a6 6 0 0 0 6-5l6-52z" {...sw} /><rect x="32" y="26" width="56" height="16" rx="6" {...sw} /><path d="M66 56l-12 18h10l-4 14 14-20H64z" fill="currentColor" stroke="none" opacity=".85" /></>,
+    bottle: <><rect x="40" y="16" width="40" height="14" rx="4" {...sw} /><path d="M44 30h32l6 12v50a6 6 0 0 1-6 6H44a6 6 0 0 1-6-6V42z" {...sw} /><rect x="44" y="56" width="32" height="22" rx="3" fill="none" stroke="currentColor" strokeWidth="1.6" /></>,
+    pills: <><rect x="18" y="56" width="62" height="26" rx="13" transform="rotate(-35 49 69)" {...sw} /><path d="M49 69l15-21" transform="rotate(-35 49 69)" stroke="currentColor" strokeWidth="2" /><circle cx="86" cy="82" r="14" {...sw} /><path d="M78 82h16" stroke="currentColor" strokeWidth="2" /></>,
+    softgel: <><ellipse cx="60" cy="60" rx="32" ry="20" transform="rotate(-25 60 60)" {...sw} /><path d="M44 52c6-8 16-10 24-8" fill="none" stroke="currentColor" strokeWidth="2" opacity=".6" /></>,
+    sun: <><circle cx="60" cy="60" r="20" {...sw} />{Array.from({ length: 8 }, (_, i) => { const a = (i * Math.PI) / 4; return <path key={i} d={`M${60 + Math.cos(a) * 30} ${60 + Math.sin(a) * 30}L${60 + Math.cos(a) * 42} ${60 + Math.sin(a) * 42}`} stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /> })}</>,
+  }
+  return <svg className="s-art" viewBox="0 0 120 120" aria-hidden="true">{shapes[kind]}</svg>
+}
+
+function Supps() {
+  const [goal, setGoal] = useState(goalsList[0])
+  const [diet, setDiet] = useState(dietsList[0])
+  const [kg, setKg] = useState(70)
+  const [open, setOpen] = useState('creatine')
+  const stack = buildStack(goal, diet, kg)
+  const byId = Object.fromEntries(supplements.map((item) => [item.id, item]))
+  const cls = (tag) => tag.toLowerCase().replace(' ', '-')
+
+  return (
+    <>
+      <div className="s-pick card">
+        <h3>Build my stack</h3>
+        <p className="s-lbl">Your goal</p>
+        <Tabs items={goalsList} value={goal} onChange={setGoal} label="Supplement goal" />
+        <p className="s-lbl">Your diet</p>
+        <Tabs items={dietsList} value={diet} onChange={setDiet} label="Diet type" />
+        <label className="s-kg">Bodyweight (kg)<input type="number" min="30" max="200" value={kg} onChange={(event) => setKg(event.target.value)} /></label>
+        <div className="s-stack" aria-live="polite">
+          {stack.map((row) => {
+            const item = byId[row.id]
+            return (
+              <div className={`s-row ${cls(row.tag)}`} key={row.id}>
+                <Art kind={item.art} />
+                <div>
+                  <b>{item.name}</b>
+                  <p>{row.dose}</p>
+                  <small>{row.note}</small>
+                </div>
+                <span className={`s-tag ${cls(row.tag)}`}>{row.tag}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      <h3 className="s-sub">Every supplement, explained</h3>
+      <div className="s-grid">
+        {supplements.map((item) => {
+          const isOpen = open === item.id
+          return (
+            <article className={`s-card${isOpen ? ' open' : ''}`} key={item.id}>
+              <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? '' : item.id)}>
+                <Art kind={item.art} />
+                <span className="s-name">{item.name}</span>
+                <span className={`s-tag ${item.tier}`}>{item.verdict}</span>
+              </button>
+              <div className="s-more" aria-hidden={!isOpen}>
+                <dl>
+                  <div><dt>What it does</dt><dd>{item.what}</dd></div>
+                  <div><dt>Best form</dt><dd>{item.form}</dd></div>
+                  <div><dt>How much</dt><dd>{item.dose}</dd></div>
+                  <div><dt>When</dt><dd>{item.when}</dd></div>
+                  <div><dt>Who needs it</dt><dd>{item.who}</dd></div>
+                  <div><dt>Be careful</dt><dd>{item.care}</dd></div>
+                </dl>
+              </div>
+            </article>
+          )
+        })}
+      </div>
+
+      <div className="s-skip">
+        <h3>Skip these</h3>
+        <ul>{skipList.map(([name, why]) => <li key={name}><b>{name}</b>{why}</li>)}</ul>
+        <p className="note">Food first. Supplements fill gaps, they do not replace training, sleep or meals. Check with a doctor before starting if you are under 18, pregnant, on medication, or have a health condition. Pick brands with a lab report or third-party testing.</p>
       </div>
     </>
   )
@@ -630,6 +718,7 @@ export default function App() {
             <a href="#exercises" onClick={closeMenu}>Exercises</a>
             <a href="#plans" onClick={closeMenu}>Plans</a>
             <a href="#diet" onClick={closeMenu}>Diet</a>
+            <a href="#supplements" onClick={closeMenu}>Supplements</a>
             <a href="#reminders" onClick={closeMenu}>Reminders</a>
             <a href="#faq" onClick={closeMenu}>FAQ</a>
           </div>
@@ -703,7 +792,14 @@ export default function App() {
         </div>
       </section>
 
-      <section id="reminders" className="alt">
+      <section id="supplements" className="alt">
+        <div className="wrap">
+          {head('Supplements', 'Know what', 'works', 'Protein, creatine, pre-workout, BCAA, multivitamin and more. What each one does, which is worth your money, and what to take for your body and goal.')}
+          <Supps />
+        </div>
+      </section>
+
+      <section id="reminders">
         <div className="wrap"><Reminders /></div>
       </section>
 
