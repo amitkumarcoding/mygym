@@ -3,7 +3,6 @@ import { registerPush, saveSubscription } from './push'
 import './App.css'
 
 const BRAND = 'Ironline'
-const CURRENCY = '$'
 const REMINDER_KEY = 'ironline-reminders'
 
 const programs = [
@@ -27,12 +26,6 @@ const trainers = [
   { name: 'Dev Malhotra', role: 'Head coach, strength', bio: 'Ten years coaching powerlifters and first timers. Believes the squat fixes most things.' },
   { name: 'Rhea Sethi', role: 'Mobility and rehab', bio: 'Former physio assistant. Writes programs around your injuries instead of ignoring them.' },
   { name: 'Kabir Anand', role: 'Boxing and conditioning', bio: 'Amateur boxer turned coach. Runs the loudest, friendliest room in the building.' },
-]
-
-const plans = [
-  { id: 'Off-peak', monthly: 29, perks: ['Gym floor 10 am to 4 pm', 'Locker room and showers', 'One free coach intro'] },
-  { id: 'Full access', monthly: 49, perks: ['Gym floor, every hour', 'All group classes', 'Monthly body check-in'], featured: true },
-  { id: 'Coached', monthly: 119, perks: ['Everything in Full access', '4 one-to-one sessions a month', 'Written training plan'] },
 ]
 
 const plates = { 5: [64, 0.55], 10: [92, 0.75], 15: [120, 0.9], 20: [150, 1] }
@@ -83,16 +76,17 @@ function Barbell() {
 
   return (
     <div className="rack">
-      <small>Load the bar</small>
+      <small>Interactive · Load the bar</small>
       <svg viewBox="0 0 520 190" role="img" aria-label={`Barbell loaded to ${total} kilograms`}>
-        <rect x="10" y="92" width="500" height="8" fill="#9FADA6" />
-        <rect x="200" y="86" width="120" height="20" fill="#B8975A" opacity=".4" />
+        <defs><linearGradient id="steel" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#e8e6e1"/><stop offset="1" stopColor="#6c6f75"/></linearGradient><linearGradient id="gold" x1="0" x2="1"><stop offset="0" stopColor="#ecd3a5"/><stop offset="1" stopColor="#b08d57"/></linearGradient></defs>
+        <rect x="10" y="92" width="500" height="8" fill="url(#steel)" />
+        <rect x="200" y="86" width="120" height="20" fill="#3a3d42" />
         {load.map((weight, index) => {
           const [height, opacity] = plates[weight]
           return (
             <g key={`${weight}-${index}`}>
-              <rect className="plate" x={190 - (index + 1) * 22} y={96 - height / 2} width="18" height={height} fill="#B8975A" fillOpacity={opacity} stroke="#EBE6DA" strokeOpacity=".45" />
-              <rect className="plate" x={330 + index * 22} y={96 - height / 2} width="18" height={height} fill="#B8975A" fillOpacity={opacity} stroke="#EBE6DA" strokeOpacity=".45" />
+              <rect className="plate" x={190 - (index + 1) * 22} y={96 - height / 2} width="18" height={height} fill="url(#gold)" fillOpacity={opacity} stroke="#f1ede6" strokeOpacity=".25" />
+              <rect className="plate" x={330 + index * 22} y={96 - height / 2} width="18" height={height} fill="url(#gold)" fillOpacity={opacity} stroke="#f1ede6" strokeOpacity=".25" />
             </g>
           )
         })}
@@ -147,9 +141,9 @@ function Schedule() {
       <div id="schedule-panel" role="tabpanel" aria-labelledby={`schedule-tab-${day}`} tabIndex={0}>
         {schedule[day].map(([time, name, coach]) => (
           <div className="slot" key={`${time}-${name}`}>
-            <span>{time}</span>
+            <span className="slot-time">{time}</span>
             <strong>{name}</strong>
-            <span>with {coach}</span>
+            <span className="slot-coach">{coach}</span>
           </div>
         ))}
       </div>
@@ -157,31 +151,8 @@ function Schedule() {
   )
 }
 
-function Pricing({ onPick }) {
-  const [annual, setAnnual] = useState(false)
-
-  return (
-    <>
-      <div className="toggle" role="group" aria-label="Billing period">
-        <button aria-pressed={!annual} onClick={() => setAnnual(false)}>Monthly</button>
-        <button aria-pressed={annual} onClick={() => setAnnual(true)}>Yearly, save 20%</button>
-      </div>
-      <div className="plans">
-        {plans.map((plan) => (
-          <article key={plan.id} className={`plan${plan.featured ? ' featured' : ''}`}>
-            <h3>{plan.id}</h3>
-            <div className="price">{CURRENCY}{annual ? Math.round(plan.monthly * 0.8) : plan.monthly}<small> /month</small></div>
-            <small>{annual ? 'Billed yearly' : 'Cancel any month'}</small>
-            <ul>{plan.perks.map((perk) => <li key={perk}>{perk}</li>)}</ul>
-            <a href="#join" className="btn" onClick={() => onPick(plan.id)}>Choose {plan.id}</a>
-          </article>
-        ))}
-      </div>
-    </>
-  )
-}
-
-function Join({ plan, setPlan }) {
+function Join() {
+  const [interest, setInterest] = useState(programs[0].name)
   const [form, setForm] = useState({ name: '', email: '' })
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -197,16 +168,17 @@ function Join({ plan, setPlan }) {
   return (
     <div className="join">
       <div>
-        <h2>Book a free first session</h2>
-        <p className="lead">Tour the floor, meet a coach and try a class. No card needed. We reply within one working day.</p>
+        <p className="eyebrow"><i aria-hidden="true" />Get started</p>
+        <h2>Join free. <em>Start this week.</em></h2>
+        <p className="lead">Membership costs nothing. Tell us what you want to train and a coach will set up your first session. We reply within one working day.</p>
       </div>
       {submitted ? (
         <div className="ok" role="status">
           <h3>Thanks, {form.name.trim().split(/\s+/)[0]}.</h3>
-          <p>Your request is ready, but this demo does not send bookings yet. Email <a href={`mailto:hello@ironline.example?subject=${encodeURIComponent('Free first session')}&body=${encodeURIComponent(`Name: ${form.name.trim()}\nEmail: ${form.email.trim()}\nPlan: ${plan}`)}`}>hello@ironline.example</a> to arrange your {plan} intro.</p>
+          <p>Your request is ready, but this demo does not send bookings yet. Email <a href={`mailto:hello@ironline.example?subject=${encodeURIComponent('Free first session')}&body=${encodeURIComponent(`Name: ${form.name.trim()}\nEmail: ${form.email.trim()}\nInterest: ${interest}`)}`}>hello@ironline.example</a> to arrange your {interest} intro.</p>
         </div>
       ) : (
-        <form onSubmit={submit} noValidate>
+        <form className="card" onSubmit={submit} noValidate>
           <label>
             Full name
             <input name="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} autoComplete="name" />
@@ -216,13 +188,13 @@ function Join({ plan, setPlan }) {
             <input name="email" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} autoComplete="email" />
           </label>
           <label>
-            Plan you&apos;re curious about
-            <select value={plan} onChange={(event) => setPlan(event.target.value)}>
-              {plans.map((item) => <option key={item.id}>{item.id}</option>)}
+            What do you want to train?
+            <select value={interest} onChange={(event) => setInterest(event.target.value)}>
+              {programs.map((item) => <option key={item.name}>{item.name}</option>)}
             </select>
           </label>
           {error && <p className="err" role="alert">{error}</p>}
-          <button className="btn blue" type="submit">Prepare my request</button>
+          <button className="btn gold" type="submit">Join for free</button>
         </form>
       )}
     </div>
@@ -352,17 +324,17 @@ function Reminders() {
     <>
       <div className="rem">
         <div className="rem-intro">
-          <p className="eyebrow">Good habits, built in</p>
-          <h2>Stay on plan</h2>
+          <p className="eyebrow"><i aria-hidden="true" />Good habits, built in</p>
+          <h2>Stay <em>on plan</em></h2>
           <p className="lead">Set water and meal reminders. Turn on notifications and we'll send them to your device even when this site is closed.</p>
-          {permission === 'default' && <button className="btn blue" onClick={enableNotifications}>Turn on notifications</button>}
+          {permission === 'default' && <button className="btn gold" onClick={enableNotifications}>Turn on notifications</button>}
           {permission === 'granted' && <p className="note">Browser notifications are on.</p>}
           {permission === 'denied' && <p className="note">Notifications are blocked. Allow them in your browser&apos;s site settings, or rely on on-page alerts.</p>}
           {permission === 'unsupported' && <p className="note">This browser does not support notifications. On-page reminders remain available.</p>}
           {pushStatus === 'on' && <p className="note">Background reminders are connected.</p>}
           {pushStatus === 'error' && <p className="note" role="status">Background reminders are unavailable. Check your Firebase and web-push configuration; on-page reminders remain available.</p>}
           {storageError && <p className="note" role="status">Reminder settings could not be saved in this browser.</p>}
-          <button className="btn reminder-test" onClick={() => notify('Test reminder', 'This is how your reminders will look.')}>Send a test reminder</button>
+          <button className="btn ghost reminder-test" onClick={() => notify('Test reminder', 'This is how your reminders will look.')}>Send a test reminder</button>
         </div>
         <div className="rem-settings">
           <div className="rem-card">
@@ -429,6 +401,7 @@ function Accordion() {
               aria-controls={`program-panel-${index}`}
               onClick={() => setOpen(isOpen ? -1 : index)}
             >
+              <span className="row-num">0{index + 1}</span>
               <span className="row-title">{program.name}</span>
               <span className="plus" aria-hidden="true" />
             </button>
@@ -443,15 +416,23 @@ function Accordion() {
 }
 
 export default function App() {
-  const [plan, setPlan] = useState('Full access')
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = () => setMenuOpen(false)
 
   return (
     <div className="gym">
+      <div className="aura" aria-hidden="true" />
       <nav className="site-nav" aria-label="Main navigation">
-        <div className="wrap">
-          <a href="#top" className="logo" onClick={closeMenu}>{BRAND}</a>
+        <div className="nav-pill">
+          <a href="#top" className="logo" onClick={closeMenu}><i aria-hidden="true" />{BRAND}</a>
+          <div className={`links${menuOpen ? ' is-open' : ''}`} id="site-links">
+            <a href="#programs" onClick={closeMenu}>Programs</a>
+            <a href="#schedule" onClick={closeMenu}>Schedule</a>
+            <a href="#coaches" onClick={closeMenu}>Coaches</a>
+            <a href="#reminders" onClick={closeMenu}>Reminders</a>
+            <a href="#free" onClick={closeMenu}>Membership</a>
+          </div>
+          <a href="#join" className="btn gold sm nav-cta" onClick={closeMenu}>Join free</a>
           <button
             className="menu-toggle"
             type="button"
@@ -463,27 +444,24 @@ export default function App() {
             <span />
             <span />
           </button>
-          <div className={`links${menuOpen ? ' is-open' : ''}`} id="site-links">
-            <a href="#programs" onClick={closeMenu}>Programs</a>
-            <a href="#schedule" onClick={closeMenu}>Schedule</a>
-            <a href="#coaches" onClick={closeMenu}>Coaches</a>
-            <a href="#reminders" onClick={closeMenu}>Reminders</a>
-            <a href="#pricing" onClick={closeMenu}>Pricing</a>
-            <a href="#join" className="btn blue" onClick={closeMenu}>Free session</a>
-          </div>
         </div>
       </nav>
 
       <header className="hero" id="top">
         <div className="wrap">
           <div className="hero-content">
-            <p className="eyebrow">A private strength club</p>
-            <h1>Serious training, quietly done.</h1>
+            <p className="eyebrow"><i aria-hidden="true" />A private strength club</p>
+            <h1>Strength,<br /><em>refined.</em></h1>
             <p className="hero-copy">A private, coached strength club with competition equipment, small classes and a recovery suite. It feels like yours by the second week.</p>
             <div className="actions">
-              <a href="#join" className="btn blue">Book a free session</a>
-              <a href="#pricing" className="btn ghost">See pricing</a>
+              <a href="#join" className="btn gold">Join for free</a>
+              <a href="#schedule" className="btn ghost">See classes</a>
             </div>
+            <dl className="stats">
+              <div><dt>12</dt><dd>Max per class</dd></div>
+              <div><dt>4</dt><dd>Programs</dd></div>
+              <div><dt>3</dt><dd>Head coaches</dd></div>
+            </dl>
           </div>
           <Barbell />
         </div>
@@ -492,40 +470,49 @@ export default function App() {
       <section className="amen" aria-label="Club amenities">
         <div className="wrap">
           {[
-            ['Competition racks', 'Calibrated plates, deadlift platforms and chalk welcome.'],
-            ['Recovery suite', 'Sauna and cold plunge, included with every plan.'],
-            ['Private lockers', 'Full length lockers, fresh towels and showers.'],
-            ['Small classes', 'Twelve people at most, always with a coach.'],
-          ].map(([title, description]) => (
-            <div key={title}><h3>{title}</h3><p>{description}</p></div>
+            ['01', 'Competition racks', 'Calibrated plates, deadlift platforms and chalk welcome.'],
+            ['02', 'Recovery suite', 'Sauna and cold plunge, included for every member.'],
+            ['03', 'Private lockers', 'Full length lockers, fresh towels and showers.'],
+            ['04', 'Small classes', 'Twelve people at most, always with a coach.'],
+          ].map(([n, title, description]) => (
+            <div key={title}><span className="n">{n}</span><h3>{title}</h3><p>{description}</p></div>
           ))}
         </div>
       </section>
 
       <section id="programs">
-        <div className="wrap">
-          <h2>Four ways to train</h2>
-          <p className="lead">Pick one or mix them. Every session is coached and scaled to you.</p>
+        <div className="wrap split">
+          <div className="sec-head">
+            <p className="eyebrow"><i aria-hidden="true" />Programs</p>
+            <h2>Four ways <em>to train</em></h2>
+            <p className="lead">Pick one or mix them. Every session is coached and scaled to you.</p>
+          </div>
           <Accordion />
         </div>
       </section>
 
-      <section id="schedule" className="light">
+      <section id="schedule" className="alt">
         <div className="wrap">
-          <h2>This week&apos;s classes</h2>
-          <p className="lead">Classes cap at 12 people. Members reserve a spot in the app.</p>
+          <div className="sec-head">
+            <p className="eyebrow"><i aria-hidden="true" />Schedule</p>
+            <h2>This week&apos;s <em>classes</em></h2>
+            <p className="lead">Classes cap at 12 people. Members reserve a spot in the app.</p>
+          </div>
           <Schedule />
         </div>
       </section>
 
       <section id="coaches">
         <div className="wrap">
-          <h2>Your coaches</h2>
-          <p className="lead">Certified, patient and genuinely into this.</p>
+          <div className="sec-head">
+            <p className="eyebrow"><i aria-hidden="true" />Coaches</p>
+            <h2>Your <em>coaches</em></h2>
+            <p className="lead">Certified, patient and genuinely into this.</p>
+          </div>
           <div className="trainers">
             {trainers.map((trainer) => (
               <article key={trainer.name}>
-                <div className="avatar" aria-hidden="true">{trainer.name[0]}</div>
+                <div className="avatar" aria-hidden="true"><span>{trainer.name[0]}</span></div>
                 <h3>{trainer.name}</h3>
                 <em>{trainer.role}</em>
                 <p>{trainer.bio}</p>
@@ -535,20 +522,28 @@ export default function App() {
         </div>
       </section>
 
-      <section id="reminders" className="moss">
+      <section id="reminders" className="alt">
         <div className="wrap"><Reminders /></div>
       </section>
 
-      <section id="pricing" className="light">
+      <section id="free">
         <div className="wrap">
-          <h2>Simple pricing</h2>
-          <p className="lead">No joining fee. Pause or cancel from your account.</p>
-          <Pricing onPick={setPlan} />
+          <div className="free-card">
+            <div>
+              <p className="eyebrow"><i aria-hidden="true" />Membership</p>
+              <h2>Free to join.<br /><em>Free to stay.</em></h2>
+              <p className="lead">There is no joining fee and no monthly fee. Sign up, pick a program and start training with a coach.</p>
+              <a href="#join" className="btn gold">Join for free</a>
+            </div>
+            <ul className="perks">
+              {['The full gym floor, every open hour', 'Every group class on the schedule', 'Recovery suite and private lockers', 'An intro session with a coach'].map((perk) => <li key={perk}>{perk}</li>)}
+            </ul>
+          </div>
         </div>
       </section>
 
-      <section id="join">
-        <div className="wrap"><Join plan={plan} setPlan={setPlan} /></div>
+      <section id="join" className="alt">
+        <div className="wrap"><Join /></div>
       </section>
 
       <footer>
@@ -557,6 +552,7 @@ export default function App() {
           <div>Mon to Fri 5:30 am to 10 pm<br />Sat and Sun 7 am to 8 pm</div>
           <div><a href="mailto:hello@ironline.example">hello@ironline.example</a><br /><a href="tel:+00000000000">+00 000 000 0000</a></div>
         </div>
+        <div className="wordmark" aria-hidden="true">{BRAND}</div>
       </footer>
     </div>
   )
