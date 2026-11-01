@@ -1,0 +1,14 @@
+@'
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /reminderSubs/{token} {
+      allow read: if false;
+      allow create, update: if request.resource.data.keys().hasOnly(['token', 'tz', 'water', 'meals', 'updatedAt'])
+        && request.resource.data.token == token
+        && request.resource.data.meals.size() <= 8;
+      allow delete: if true;
+    }
+  }
+}
+'@ | Set-Content -Path firestore.rules -Encoding ascii

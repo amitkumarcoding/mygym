@@ -44,7 +44,7 @@ const defaultMeals = [
 ]
 
 function readReminderSettings() {
-  const defaults = { water: { on: false, mins: 60 }, meals: defaultMeals }
+  const defaults = { water: { on: false, mins: 60, since: Date.now() }, meals: defaultMeals }
 
   try {
     const stored = JSON.parse(localStorage.getItem(REMINDER_KEY) || 'null')
@@ -53,7 +53,7 @@ function readReminderSettings() {
     const meals = stored.meals
     return {
       water: water && typeof water.on === 'boolean' && [30, 45, 60, 90, 120].includes(water.mins)
-        ? water
+        ? { ...water, since: water.since || Date.now() }
         : defaults.water,
       meals: Array.isArray(meals) && meals.every((meal) =>
         meal && typeof meal.id === 'string' && typeof meal.label === 'string'
@@ -250,7 +250,11 @@ function Reminders() {
     if (backgroundPushEnabled.current && document.hidden) return
     setToast({ title, body })
     if (permission === 'granted' && typeof Notification !== 'undefined') {
-      new Notification(title, { body })
+      try {
+        new Notification(title, { body })
+      } catch {
+        // Some mobile browsers only allow notifications through a service worker.
+      }
     }
   }
   const liveNotify = useRef(notify)
@@ -350,7 +354,7 @@ function Reminders() {
         <div className="rem-intro">
           <p className="eyebrow">Good habits, built in</p>
           <h2>Stay on plan</h2>
-          <p className="lead">Set water and meal reminders. Browser notifications can help while this page is open; background delivery needs Firebase setup.</p>
+          <p className="lead">Set water and meal reminders. Turn on notifications and we'll send them to your device even when this site is closed.</p>
           {permission === 'default' && <button className="btn blue" onClick={enableNotifications}>Turn on notifications</button>}
           {permission === 'granted' && <p className="note">Browser notifications are on.</p>}
           {permission === 'denied' && <p className="note">Notifications are blocked. Allow them in your browser&apos;s site settings, or rely on on-page alerts.</p>}
@@ -370,12 +374,12 @@ function Reminders() {
                 role="switch"
                 aria-checked={water.on}
                 aria-label="Water reminders"
-                onClick={() => setWater((current) => ({ ...current, on: !current.on }))}
+                onClick={() => setWater((current) => ({ ...current, on: !current.on, since: Date.now() }))}
               />
             </div>
             <label>
               Remind me every
-              <select value={water.mins} onChange={(event) => setWater((current) => ({ ...current, mins: Number(event.target.value) }))}>
+              <select value={water.mins} onChange={(event) => setWater((current) => ({ ...current, mins: Number(event.target.value), since: Date.now() }))}>
                 {[30, 45, 60, 90, 120].map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
               </select>
             </label>
