@@ -23,10 +23,10 @@
 .gym .btn.sm{padding:10px 22px;font-size:13px}
 
 .gym .site-nav{position:sticky;z-index:10;top:0;padding:16px 0;pointer-events:none}
-.gym .nav-pill{pointer-events:auto;position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;width:min(100% - 32px,1000px);margin:0 auto;padding:10px 12px 10px 28px;border:1px solid var(--line);border-radius:999px;background:rgb(12 14 17/68%);backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 20px 50px -25px #000}
+.gym .nav-pill{pointer-events:auto;position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;width:min(100% - 32px,1180px);margin:0 auto;padding:10px 12px 10px 28px;border:1px solid var(--line);border-radius:999px;background:rgb(12 14 17/68%);backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 20px 50px -25px #000}
 .gym .logo{display:flex;align-items:center;gap:10px;font:600 26px 'Cormorant Garamond',serif;letter-spacing:.02em;text-decoration:none}
 .gym .logo i{width:9px;height:9px;transform:rotate(45deg);background:linear-gradient(135deg,var(--gold-hi),var(--gold-lo))}
-.gym .links{display:flex;align-items:center;gap:30px;font-size:13px;font-weight:500}
+.gym .links{display:flex;align-items:center;gap:22px;font-size:13px;font-weight:500}
 .gym .links a{color:var(--mute);text-decoration:none;transition:color .2s}
 .gym .links a:hover{color:var(--gold-hi)}
 .gym .menu-toggle{display:none}
@@ -419,4 +419,173 @@
   .gym .log-list li>button{grid-column:3;grid-row:1/span 2}
   .gym .pr-stats{gap:28px}
   .gym .prog-goal{font-size:38px!important}
+}
+
+/* Cinematic hero media */
+.gym .hero-media{position:absolute;inset:0;z-index:0;overflow:hidden;background:radial-gradient(900px 520px at 75% 20%,rgb(216 185 131/14%),transparent 70%),var(--bg)}
+.gym .hero-img,.gym .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:grayscale(.35) contrast(1.08) brightness(.8) saturate(.9)}
+.gym .hero-video{animation:heroFade 1.4s ease both}
+.gym .hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgb(7 8 10/92%) 0%,rgb(7 8 10/70%) 45%,rgb(7 8 10/30%) 100%),linear-gradient(180deg,rgb(7 8 10/55%) 0%,transparent 28%,transparent 62%,var(--bg) 100%)}
+.gym .hero .wrap{position:relative;z-index:1}
+.gym .hero-ic{z-index:0}
+.gym .hero h1{text-shadow:0 6px 40px rgb(0 0 0/55%)}
+.gym .hero-copy{color:#c9c6bf}
+@keyframes heroFade{from{opacity:0}to{opacity:1}}
+@media (max-width:980px){.gym .hero-shade{background:linear-gradient(180deg,rgb(7 8 10/78%) 0%,rgb(7 8 10/62%) 55%,var(--bg) 100%)}}
+
+/* Search */
+.gym .only-menu{display:none}
+.gym .nav-search{display:inline-flex;align-items:center;gap:10px;margin-left:auto;padding:9px 14px;border:1px solid var(--line2);border-radius:999px;background:rgb(255 255 255/4%);color:var(--mute);font:600 13px 'Manrope',sans-serif;cursor:pointer;transition:border-color .2s,color .2s}
+.gym .nav-search:hover{border-color:var(--gold);color:var(--gold-hi)}
+.gym .nav-search svg{width:18px;height:18px}
+.gym kbd{padding:1px 7px;border:1px solid var(--line2);border-radius:6px;color:var(--mute);font:600 11px 'Manrope',sans-serif}
+.gym .hero-search{display:flex;align-items:center;gap:14px;width:min(100%,520px);margin-top:28px;padding:16px 22px;border:1px solid var(--line2);border-radius:999px;background:rgb(12 14 17/55%);backdrop-filter:blur(14px);color:var(--mute);font:500 15px 'Manrope',sans-serif;text-align:left;cursor:pointer;transition:border-color .25s,color .25s}
+.gym .hero-search:hover{border-color:var(--gold);color:var(--txt)}
+.gym .hero-search svg{flex:none;width:20px;height:20px;color:var(--gold)}
+.gym .hero-search span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gym .srch{position:fixed;inset:0;z-index:60;display:grid;align-items:start;justify-items:center;padding:6vh 16px 16px;background:rgb(4 5 7/72%);backdrop-filter:blur(10px);animation:heroFade .2s ease both}
+.gym .srch-panel{display:flex;flex-direction:column;width:min(100%,1040px);max-height:min(86vh,760px);overflow:hidden;border:1px solid var(--line2);border-radius:28px;background:linear-gradient(160deg,rgb(255 255 255/6%),transparent 50%),var(--card);box-shadow:0 60px 120px -30px #000}
+.gym .srch-input{display:flex;align-items:center;gap:14px;padding:6px 20px;border-bottom:1px solid var(--line)}
+.gym .srch-input svg{flex:none;width:22px;height:22px;color:var(--gold)}
+.gym .srch-input input{flex:1;min-width:0;margin:0;padding:18px 0;border:0;font-size:18px}
+.gym .srch-input input::-webkit-search-cancel-button{display:none}
+.gym .srch-x{padding:5px 10px;border:1px solid var(--line2);border-radius:8px;background:transparent;color:var(--mute);font:600 11px 'Manrope',sans-serif;cursor:pointer}
+.gym .srch-types{display:flex;gap:8px;padding:12px 20px;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none}
+.gym .srch-types button{flex:none;padding:7px 14px;border:1px solid var(--line2);border-radius:999px;background:transparent;color:var(--mute);font:600 12px 'Manrope',sans-serif;cursor:pointer}
+.gym .srch-types button i{margin-left:4px;font-style:normal;opacity:.7}
+.gym .srch-types button[aria-pressed='true']{border-color:transparent;background:linear-gradient(135deg,var(--gold-hi),var(--gold-lo));color:#14100a}
+.gym .srch-types button:disabled{opacity:.35;cursor:default}
+.gym .srch-body{display:grid;grid-template-columns:minmax(260px,.9fr) 1.1fr;min-height:0;flex:1}
+.gym .srch-results{min-height:0;overflow-y:auto;padding:10px;border-right:1px solid var(--line)}
+.gym .srch-results ul{margin:0;padding:0;list-style:none}
+.gym .srch-results li{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:14px;cursor:pointer}
+.gym .srch-results li.on{background:rgb(216 185 131/12%)}
+.gym .srch-type{flex:none;width:76px;color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.gym .srch-name{display:grid;min-width:0}
+.gym .srch-name b{overflow:hidden;font-weight:600;font-size:15px;text-overflow:ellipsis;white-space:nowrap}
+.gym .srch-name small{overflow:hidden;color:var(--mute);font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+.gym .srch mark{padding:0;background:transparent;color:var(--gold-hi);text-decoration:underline;text-decoration-color:rgb(216 185 131/60%);text-underline-offset:3px}
+.gym .srch-empty{padding:14px 12px;color:var(--mute);font-size:14px}
+.gym .srch-empty p{margin:0 0 10px}
+.gym .recent-lbl{display:flex;justify-content:space-between;margin-top:22px!important}
+.gym .recent-lbl button{border:0;background:transparent;color:var(--mute);font:600 11px 'Manrope',sans-serif;text-decoration:underline;cursor:pointer}
+.gym .srch-detail{min-height:0;overflow-y:auto;padding:26px 28px 32px}
+.gym .srch-detail h3{margin:0 0 14px;font-size:40px}
+.gym .srch-detail p{color:var(--mute);font-size:15px}
+.gym .srch-hint{margin-top:40px;text-align:center}
+.gym .sd-type,.gym .sd-lbl{margin:0 0 10px;color:var(--gold)!important;font-size:11px!important;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+.gym .sd-lbl{margin-top:22px}
+.gym .sd-fig{margin:0 0 16px}
+.gym .sd-chips{display:flex;flex-wrap:wrap;gap:8px}
+.gym .sd-chips button{padding:8px 16px;border:1px solid var(--line2);border-radius:999px;background:transparent;color:var(--txt);font:600 13px 'Manrope',sans-serif;cursor:pointer;transition:all .2s}
+.gym .sd-chips button:hover{border-color:var(--gold);color:var(--gold-hi)}
+.gym .sd-list{display:grid;gap:6px}
+.gym .sd-list button{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:transparent;color:var(--txt);font:500 14px 'Manrope',sans-serif;text-align:left;cursor:pointer}
+.gym .sd-list button:hover{border-color:rgb(216 185 131/45%)}
+.gym .sd-list span{color:var(--mute)}
+.gym .sd-dl{display:grid;gap:14px;margin:18px 0 0}
+.gym .sd-dl dt{color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.gym .sd-dl dd{margin:2px 0 0;color:var(--mute);font-size:14px}
+.gym .sd-macros{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 20px}
+.gym .sd-macros div{display:grid;gap:2px}
+.gym .sd-macros b{color:var(--gold-hi);font:500 38px/1 'Cormorant Garamond',serif}
+.gym .sd-macros span{color:var(--mute);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.gym .sd-go{width:auto;margin-top:26px}
+.gym .srch-back{display:none;margin:0 0 18px;padding:0;border:0;background:transparent;color:var(--gold-hi);font:600 14px 'Manrope',sans-serif;cursor:pointer}
+@media (max-width:980px){
+  .gym .nav-search span,.gym .nav-search kbd{display:none}
+  .gym .nav-search{padding:10px;border-radius:50%}
+  .gym .links .only-menu{display:block}
+}
+@media (max-width:760px){
+  .gym .srch{padding:0}
+  .gym .srch-panel{width:100%;height:100dvh;max-height:none;border:0;border-radius:0}
+  .gym .srch-input{padding-top:calc(6px + env(safe-area-inset-top,0px))}
+  .gym .srch-body{grid-template-columns:1fr}
+  .gym .srch-results{border-right:0;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  .gym .srch-detail{display:none;padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+  .gym .show-detail .srch-results{display:none}
+  .gym .show-detail .srch-detail{display:block}
+  .gym .srch-back{display:block}
+  .gym .srch-input input{font-size:16px}
+  .gym .srch-detail h3{font-size:34px}
+  .gym .hero-search{width:100%}
+}
+
+/* Gear and avoid guides (phone first, widen from there) */
+.gym .check{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 40px;padding:0;list-style:none}
+.gym .check a{display:grid;align-content:start;gap:4px;min-height:84px;height:100%;padding:16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,rgb(255 255 255/4%),transparent),var(--card);text-decoration:none;transition:border-color .25s}
+.gym .check a:active{border-color:var(--gold)}
+.gym .check b{font:500 22px/1.1 'Cormorant Garamond',serif;color:var(--txt)}
+.gym .check span{color:var(--mute);font-size:12px;line-height:1.4}
+.gym .check li:last-child:nth-child(odd){grid-column:1/-1}
+.gym .gear-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.gym .gear-card{display:grid;align-content:start;gap:12px;padding:20px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgb(255 255 255/4%),transparent),var(--card)}
+.gym .gear-card.skip{opacity:.82}
+.gym .gear-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px}
+.gym .gear-top h3{flex:1 1 180px;font-size:28px;line-height:1.05}
+.gym .gear-card p{margin:0;color:var(--mute);font-size:14px}
+.gym .gear-card dl{display:grid;gap:10px;margin:4px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.gym .gear-card dt{color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.gym .gear-card dd{margin:2px 0 0;color:var(--txt);font-size:14px}
+.gym .avoid-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.gym .avoid-list li{display:grid;grid-template-columns:32px 1fr;gap:14px;padding:18px;border:1px solid var(--line);border-radius:20px;background:var(--card)}
+.gym .avoid-x{display:grid;place-items:center;width:32px;height:32px;border:1px solid rgb(255 159 159/45%);border-radius:50%;color:#ff9f9f;font-size:20px;line-height:1}
+.gym .avoid-list b{font-weight:600;font-size:16px}
+.gym .avoid-list p{margin:6px 0 0;color:var(--mute);font-size:14px}
+.gym .avoid-list .avoid-do{color:var(--txt)}
+.gym .avoid-list .avoid-do em{font-style:normal;background:none;color:var(--gold-hi);font-weight:600;-webkit-text-fill-color:currentColor}
+@media (min-width:640px){
+  .gym .check{grid-template-columns:repeat(4,1fr);gap:14px}
+  .gym .check li:last-child:nth-child(odd){grid-column:auto}
+  .gym .gear-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .gym .avoid-list{grid-template-columns:1fr 1fr;gap:14px}
+}
+@media (min-width:1100px){
+  .gym .gear-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+/* Nav collapses into the menu earlier so ten links never overflow */
+@media (max-width:1240px){
+  .gym .nav-search span,.gym .nav-search kbd{display:none}
+  .gym .nav-search{padding:10px;border-radius:50%}
+}
+@media (max-width:1100px){
+  .gym .nav-cta{display:none}
+  .gym .menu-toggle{display:grid;width:44px;height:44px;place-content:center;gap:6px;border:1px solid var(--line2);border-radius:50%;background:transparent;cursor:pointer}
+  .gym .menu-toggle span{width:16px;height:1px;background:var(--txt)}
+  .gym .links{display:none}
+  .gym .links.is-open{position:absolute;top:calc(100% + 10px);right:0;left:0;display:flex;flex-direction:column;align-items:stretch;gap:0;max-height:calc(100dvh - 96px);overflow-y:auto;padding:12px 24px;border:1px solid var(--line);border-radius:28px;background:rgb(12 14 17/96%);backdrop-filter:blur(22px);font-size:17px;overscroll-behavior:contain}
+  .gym .links.is-open a{display:block;padding:14px 0;border-bottom:1px solid var(--line)}
+  .gym .links.is-open a:last-child{border-bottom:0}
+  .gym .links .only-menu{display:block}
+}
+
+/* Phone and touch polish */
+.gym{min-height:100dvh;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+.gym a,.gym button,.gym select,.gym input,.gym summary{touch-action:manipulation}
+.gym section{scroll-margin-top:84px}
+.gym .wrap{padding-inline:env(safe-area-inset-left,0px) env(safe-area-inset-right,0px)}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+.gym .tabbar button{display:grid;justify-items:center;gap:2px;padding:8px 0;border:0;border-radius:20px;background:transparent;color:var(--mute);font:600 10px 'Manrope',sans-serif;letter-spacing:.04em;cursor:pointer}
+.gym .tabbar button:active{background:rgb(216 185 131/14%);color:var(--gold-hi)}
+.gym .tabbar a[aria-current]{background:rgb(216 185 131/14%);color:var(--gold-hi)}
+@media (hover:none){
+  .gym .slot:hover,.gym .amen .wrap>div:hover,.gym .trainers article:hover,.gym .btn:hover{transform:none}
+}
+@media (pointer:coarse){
+  .gym .tabs button,.gym .btn.sm,.gym .plates button,.gym .sd-chips button,.gym .srch-types button,.gym .srch-x,.gym .log-list button{min-height:44px}
+  .gym .nav-search{min-width:44px;min-height:44px;justify-content:center}
+  .gym .switch{min-width:52px;min-height:30px}
+  .gym .row>button,.gym .s-card>button{min-height:56px}
+  .gym .srch-results li{min-height:52px}
+  .gym select,.gym input{min-height:48px}
+}
+@media (max-width:760px){
+  .gym input,.gym select,.gym textarea{font-size:16px}
+}
+@media (max-width:560px){
+  .gym .tabs button{padding:12px 18px}
+  .gym .goal-slot,.gym .pr-card{padding:20px}
+  .gym .pr-form h3,.gym .prog-card h3{font-size:32px}
 }

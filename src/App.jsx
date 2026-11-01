@@ -4,6 +4,8 @@ import { exercises, frames, DUR } from './exercises'
 import { supplements, skipList, goalsList, dietsList, buildStack } from './supplements'
 import { goalNames } from './goals'
 import { GoalPlans, PRTracker, ProgressTracker } from './Tracking'
+import SearchModal from './Search'
+import { Checklist, Gear, Avoid } from './Gear'
 import './App.css'
 
 const BRAND = 'Ironline'
@@ -124,6 +126,8 @@ const ICONS = {
   bolt: 'M13 2L4 14h7l-1 8 9-12h-7l1-8z',
   trophy: 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3',
   chart: 'M3 3v18h18M7 15l4-4 3 3 5-6',
+  search: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-3.5-3.5',
+  bag: 'M6 7h12l1 13H5zM9 7a3 3 0 0 1 6 0',
   bell: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0',
 }
 
@@ -672,6 +676,55 @@ function Reminders() {
   )
 }
 
+// Put your own licensed files in /public/hero/ (see public/hero/README.txt).
+// If they are missing, the hero falls back to the dark gold gradient.
+// Phones skip the video by default to save mobile data and battery. Set to true to play it on phones too.
+const HERO_VIDEO_ON_MOBILE = false
+const HERO_VIDEO = { mp4: '/hero/gym.mp4', webm: '/hero/gym.webm', poster: '/hero/gym-poster.jpg' }
+
+function HeroMedia() {
+  const [videoFailed, setVideoFailed] = useState(false)
+  const [posterFailed, setPosterFailed] = useState(false)
+  const calm = typeof window !== 'undefined' && (
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    || navigator.connection?.saveData
+    || (!HERO_VIDEO_ON_MOBILE && window.matchMedia?.('(max-width: 700px)').matches)
+  )
+
+  return (
+    <div className="hero-media" aria-hidden="true">
+      {!posterFailed && <img className="hero-img" src={HERO_VIDEO.poster} alt="" fetchPriority="high" decoding="async" onError={() => setPosterFailed(true)} />}
+      {!calm && !videoFailed && (
+        <video className="hero-video" autoPlay muted loop playsInline preload="auto" poster={HERO_VIDEO.poster} disablePictureInPicture disableRemotePlayback>
+          <source src={HERO_VIDEO.webm} type="video/webm" />
+          <source src={HERO_VIDEO.mp4} type="video/mp4" onError={() => setVideoFailed(true)} />
+        </video>
+      )}
+      <div className="hero-shade" />
+    </div>
+  )
+}
+
+// Tracks which page section is under the middle of the screen, so the phone tab bar can highlight it.
+const SECTION_IDS = ['trainer', 'exercises', 'goals', 'plans', 'diet', 'supplements', 'gear', 'avoid', 'records', 'progress', 'reminders']
+function useActiveSection() {
+  const [active, setActive] = useState('')
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return undefined
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) setActive(entry.target.id)
+      })
+    }, { rootMargin: '-45% 0px -50% 0px' })
+    SECTION_IDS.forEach((id) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+    return () => observer.disconnect()
+  }, [])
+  return active
+}
+
 function useStoredGoal() {
   const [goal, setGoal] = useState(() => {
     try {
@@ -723,6 +776,24 @@ function Accordion({ items }) {
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [goal, setGoal] = useStoredGoal()
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [gearTab, setGearTab] = useState('Wearables')
+  const activeSection = useActiveSection()
+  useEffect(() => {
+    const onKey = (event) => {
+      const el = event.target
+      const typing = el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setSearchOpen((open) => !open)
+      } else if (event.key === '/' && !typing && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        event.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
   const closeMenu = () => setMenuOpen(false)
   const head = (tag, title, em, lead) => (
     <div className="sec-head">
@@ -742,14 +813,17 @@ export default function App() {
             <a href="#trainer" onClick={closeMenu}>Trainer</a>
             <a href="#exercises" onClick={closeMenu}>Exercises</a>
             <a href="#goals" onClick={closeMenu}>Goals</a>
-            <a href="#plans" onClick={closeMenu}>Plans</a>
             <a href="#diet" onClick={closeMenu}>Diet</a>
             <a href="#supplements" onClick={closeMenu}>Supplements</a>
+            <a href="#gear" onClick={closeMenu}>Gear</a>
             <a href="#records" onClick={closeMenu}>PRs</a>
             <a href="#progress" onClick={closeMenu}>Progress</a>
-            <a href="#reminders" onClick={closeMenu}>Reminders</a>
-            <a href="#faq" onClick={closeMenu}>FAQ</a>
+            <a className="only-menu" href="#plans" onClick={closeMenu}>Workout plans</a>
+            <a className="only-menu" href="#avoid" onClick={closeMenu}>What to avoid</a>
+            <a className="only-menu" href="#reminders" onClick={closeMenu}>Reminders</a>
+            <a className="only-menu" href="#faq" onClick={closeMenu}>FAQ</a>
           </div>
+          <button type="button" className="nav-search" onClick={() => { closeMenu(); setSearchOpen(true) }} aria-label="Search (press slash)" aria-haspopup="dialog"><Icon n="search" /><span>Search</span><kbd aria-hidden="true">/</kbd></button>
           <a href="#join" className="btn gold sm nav-cta" onClick={closeMenu}>Free plan</a>
           <button className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="site-links" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'} onClick={() => setMenuOpen((isOpen) => !isOpen)}>
             <span />
@@ -759,6 +833,7 @@ export default function App() {
       </nav>
 
       <header className="hero" id="top">
+        <HeroMedia />
         <Icon n="dumbbell" cls="hero-ic" />
         <div className="wrap">
           <div className="hero-content">
@@ -769,6 +844,9 @@ export default function App() {
               <a href="#trainer" className="btn gold">Choose your trainer</a>
               <a href="#exercises" className="btn ghost">Browse exercises</a>
             </div>
+            <button type="button" className="hero-search" onClick={() => setSearchOpen(true)} aria-haspopup="dialog">
+              <Icon n="search" /><span>Search exercises, muscles, foods, supplements…</span><kbd aria-hidden="true">/</kbd>
+            </button>
             <dl className="stats">
               <div><dt>{Object.values(exercises).flat().length}</dt><dd>Exercises</dd></div>
               <div><dt>{Object.keys(plans).length}</dt><dd>Workout plans</dd></div>
@@ -835,21 +913,36 @@ export default function App() {
         </div>
       </section>
 
-      <section id="records" className="alt">
+      <section id="gear">
+        <div className="wrap">
+          {head('Gear up', 'Everything you', 'need', 'Supplements, wearables, equipment, shoes, perfume and your gym bag. What you really need, what is nice to have, and what to skip.')}
+          <Checklist onGear={setGearTab} />
+          <Gear tab={gearTab} setTab={setGearTab} />
+        </div>
+      </section>
+
+      <section id="avoid" className="alt">
+        <div className="wrap">
+          {head('Do and don\'t', 'Avoid these', 'mistakes', 'What not to do before and after a workout, and what to do instead.')}
+          <Avoid />
+        </div>
+      </section>
+
+      <section id="records">
         <div className="wrap">
           {head('Personal records', 'Track your', 'PRs', 'Log every heavy set. We find your best lift, estimate your one rep max and show how far you are from your goal max.')}
           <PRTracker />
         </div>
       </section>
 
-      <section id="progress">
+      <section id="progress" className="alt">
         <div className="wrap">
           {head('Progress', 'See how far', 'you\'ve come', 'Track bodyweight, waist and workouts. Small steady numbers beat big short bursts.')}
           <ProgressTracker goal={goal} />
         </div>
       </section>
 
-      <section id="reminders" className="alt">
+      <section id="reminders">
         <div className="wrap"><Reminders /></div>
       </section>
 
@@ -888,10 +981,12 @@ export default function App() {
         </div>
         <div className="wordmark" aria-hidden="true">{BRAND}</div>
       </footer>
+      {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} onGear={setGearTab} Figure={Figure} />}
       <nav className="tabbar" aria-label="Quick navigation">
-        {[['user', 'trainer', 'Trainer'], ['calendar', 'goals', 'Goals'], ['trophy', 'records', 'PRs'], ['chart', 'progress', 'Progress'], ['apple', 'diet', 'Diet']].map(([icon, id, label]) => (
-          <a key={id} href={`#${id}`}><Icon n={icon} /><span>{label}</span></a>
+        {[['user', 'trainer', 'Train', ['trainer', 'exercises', 'plans']], ['calendar', 'goals', 'Goals', ['goals', 'diet']], ['trophy', 'records', 'Track', ['records', 'progress', 'reminders']], ['bag', 'gear', 'Gear', ['supplements', 'gear', 'avoid']]].map(([icon, id, label, group]) => (
+          <a key={id} href={`#${id}`} aria-current={group.includes(activeSection) ? 'true' : undefined}><Icon n={icon} /><span>{label}</span></a>
         ))}
+        <button type="button" onClick={() => setSearchOpen(true)} aria-haspopup="dialog"><Icon n="search" /><span>Search</span></button>
       </nav>
     </div>
   )

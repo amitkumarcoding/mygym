@@ -30,7 +30,7 @@ const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(
 const round1 = (n) => Math.round(n * 10) / 10
 const oneRm = (kg, reps) => (reps <= 1 ? kg : kg * (1 + reps / 30))
 
-function Pills({ items, value, onChange, label }) {
+export function Pills({ items, value, onChange, label }) {
   return (
     <div className="tabs" role="group" aria-label={label}>
       {items.map((item) => (

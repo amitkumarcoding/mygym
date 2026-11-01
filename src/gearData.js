@@ -1,0 +1,81 @@
+// Gear and "what to avoid" content. Prices are rough Indian ranges in rupees; they change, so compare before you buy.
+export const tierLabel = { good: 'Need', maybe: 'Nice to have', skip: 'Skip for now' }
+
+export const gearTabs = {
+  Wearables: [
+    { n: 'Sweat-wicking tees and shorts', tier: 'good', why: 'Fabric that dries fast keeps you cooler and stops chafing. Cotton soaks up sweat and gets heavy.', look: 'Polyester or nylon blends, shorts with room to squat deep, 2 to 3 sets so you can rotate.', price: '₹300 to ₹1,500 each' },
+    { n: 'Supportive sports bra', tier: 'good', why: 'If you want support, a proper fit makes running, jumping and lifting more comfortable.', look: 'High support for jumping and running, a band that does not ride up, straps that do not dig in.', price: '₹400 to ₹2,500' },
+    { n: 'Fitness band or smartwatch', tier: 'maybe', why: 'Good for steps, heart rate, sleep and keeping a streak. Calorie numbers are rough estimates.', look: 'Water resistance, a battery that lasts several days, a strap that does not irritate your skin.', price: '₹1,500 to ₹25,000' },
+    { n: 'Sweat-proof earphones', tier: 'maybe', why: 'Music helps many people push through the last reps. Wireless means no tangled wires on machines.', look: 'IPX4 or higher rating, a secure fit, and keep the volume at a safe level.', price: '₹500 to ₹8,000' },
+    { n: 'Wrist wraps', tier: 'maybe', why: 'Give extra wrist support on heavy pressing. Beginners with light weights do not need them.', look: 'Firm velcro closure, about 12 to 18 inches long.', price: '₹300 to ₹1,200' },
+    { n: 'Knee sleeves', tier: 'maybe', why: 'Add warmth and a feeling of stability on squats. They are not a fix for knee pain.', look: 'Neoprene about 5 to 7 mm, in your right size so they do not slide down.', price: '₹800 to ₹3,500' },
+    { n: 'Lifting belt', tier: 'skip', why: 'Only useful for very heavy squats and deadlifts. It helps you brace but does not replace a strong core.', look: 'Wait until your lifts are heavy. Then choose a firm 10 mm belt that fits snugly.', price: '₹1,000 to ₹5,000' },
+    { n: 'Heart-rate chest strap', tier: 'skip', why: 'More accurate than a wrist band, but only worth it for serious cardio training.', look: 'Skip unless you follow heart-rate zones for running or cycling.', price: '₹2,000 to ₹6,000' },
+  ],
+  Equipment: [
+    { n: 'Dumbbells (fixed or adjustable)', tier: 'good', why: 'The most useful home gear. You can press, row, squat, lunge and curl with one pair.', look: 'Adjustable sets save space. Pick a weight you can grow into over 6 months.', price: '₹3,000 to ₹15,000' },
+    { n: 'Resistance bands', tier: 'good', why: 'Cheap, light and great for warm-ups, pull-aparts, glute work and travel.', look: 'A set with different strengths, thick latex or fabric loops that do not roll.', price: '₹300 to ₹1,000' },
+    { n: 'Exercise mat', tier: 'good', why: 'Makes floor work like planks, crunches and stretching comfortable.', look: 'About 8 to 10 mm thick, non-slip, easy to wipe clean.', price: '₹400 to ₹1,500' },
+    { n: 'Body weighing scale and tape', tier: 'good', why: 'You cannot improve what you do not track. Pair them with the progress tracker on this site.', look: 'A simple digital scale and a soft tape measure. Weigh at the same time each week.', price: '₹500 to ₹1,500' },
+    { n: 'Skipping rope', tier: 'maybe', why: 'Very cheap cardio you can do anywhere in 10 minutes.', look: 'Adjustable length, ball-bearing handles, a coated cable for hard floors.', price: '₹200 to ₹800' },
+    { n: 'Pull-up bar', tier: 'maybe', why: 'Unlocks pull-ups and hanging leg raises, two of the best bodyweight moves.', look: 'Check your door frame can take it, or choose a wall-mounted bar.', price: '₹600 to ₹3,000' },
+    { n: 'Adjustable bench', tier: 'maybe', why: 'Opens up dumbbell presses, rows and step-ups at home.', look: 'Wobble-free, rated for your weight plus the weights you lift.', price: '₹3,000 to ₹12,000' },
+    { n: 'Kettlebell', tier: 'maybe', why: 'Great for swings, goblet squats and carries. One bell goes a long way.', look: 'Smooth handle, flat base, flat-bottom cast iron or vinyl coated.', price: '₹800 to ₹3,000' },
+    { n: 'Barbell, plates and rack', tier: 'skip', why: 'Costly and needs space. Lifting heavy without a rack or safety arms is risky.', look: 'Only buy once you are sure you will train at home for a long time, and buy a rack with safeties.', price: '₹25,000 and up' },
+    { n: 'Treadmill', tier: 'skip', why: 'Takes room and money. Walking or jogging outdoors costs nothing.', look: 'Only if weather or safety stops you from training outside.', price: '₹20,000 and up' },
+  ],
+  Shoes: [
+    { n: 'Flat-soled training shoes', tier: 'good', why: 'A firm, flat sole keeps you stable under load. Best all-round choice for squats, deadlifts and presses.', look: 'Firm midsole, wide toe box, a snug heel. Avoid thick squishy cushioning.', price: '₹1,500 to ₹7,000' },
+    { n: 'Running shoes (for cardio days)', tier: 'maybe', why: 'Cushioning protects your joints on treadmill and road runs. Too soft for heavy lifting.', look: 'Light, breathable, a bit of heel cushioning. Replace after roughly 500 to 800 km.', price: '₹2,000 to ₹12,000' },
+    { n: 'Cross-training shoes', tier: 'maybe', why: 'A mix of grip and stability for circuits, box jumps and mixed sessions.', look: 'Flat but not too hard, a sturdy upper, and good side support.', price: '₹3,000 to ₹10,000' },
+    { n: 'Lifting shoes (raised heel)', tier: 'skip', why: 'A raised heel helps deep squats for some people. Only worth it if you squat heavy and your ankles are stiff.', look: 'Solid heel, strap for lockdown. Wait until squat is your focus lift.', price: '₹6,000 to ₹15,000' },
+    { n: 'Deadlifts: flat shoes or socks', tier: 'good', why: 'A thin flat sole puts you closer to the floor and makes you more stable on the pull.', look: 'Use flat shoes, or clean socks if your gym allows it. Avoid cushioned running shoes.', price: 'Free' },
+    { n: 'How to pick the right fit', tier: 'good', why: 'A bad fit causes blisters, sore feet and knee problems.', look: 'Shop in the evening when feet are biggest, leave a thumb width at the toe, jog and squat in the shop, and replace when the cushioning feels flat.', price: 'Fit beats brand' },
+  ],
+  Perfume: [
+    { n: 'Antiperspirant deodorant', tier: 'good', why: 'Antiperspirant reduces sweat, deodorant covers odour. Together they do far more than perfume.', look: 'Apply to clean, dry skin before you leave home. Roll-on or stick travels well.', price: '₹150 to ₹500' },
+    { n: 'A shower soon after training', tier: 'good', why: 'Sweat itself barely smells. Bacteria breaking it down does. Washing soon matters more than any scent.', look: 'Use a body wash on your underarms and feet, and dry fully.', price: '₹100 to ₹500' },
+    { n: 'Wash gym clothes after every session', tier: 'good', why: 'Synthetic fabric traps odour. Re-wearing sweaty clothes builds a smell that perfume cannot hide.', look: 'Wash soon, dry fully in sun or air, and never leave damp clothes in your bag overnight.', price: 'Detergent only' },
+    { n: 'Light body mist or EDT', tier: 'maybe', why: 'A fresh scent after your shower feels good and is easy to wear in a hot gym.', look: 'Citrus, aquatic, mint or green notes. Two sprays on clean skin or clothes after training. Patch test first.', price: '₹300 to ₹3,000' },
+    { n: 'Wet wipes and a spare tee', tier: 'maybe', why: 'Handy if you must go straight to work or class after the gym.', look: 'Alcohol-free wipes for sensitive skin, and a light shirt that packs small.', price: '₹100 to ₹400' },
+    { n: 'Heavy perfumes (oud, strong musk, sweet)', tier: 'skip', why: 'Heat and sweat make strong scents louder and can bother people in close, hot rooms. They can also irritate skin.', look: 'Keep heavy fragrances for after you are clean and dry, away from the gym.', price: 'Save your money' },
+  ],
+  'Bag essentials': [
+    { n: 'Gym bag with a shoe pocket', tier: 'good', why: 'Keeps sweaty shoes and clothes away from the clean things.', look: 'Vented shoe compartment, a wet pocket, strong zips and a padded strap.', price: '₹500 to ₹3,000' },
+    { n: 'Towel', tier: 'good', why: 'For wiping equipment and sweat. Most gyms expect it.', look: 'Quick-dry microfibre, small enough to pack.', price: '₹150 to ₹600' },
+    { n: 'Water bottle (about 1 litre)', tier: 'good', why: 'Sipping through the session beats drinking a lot at once.', look: 'Leak-proof lid, easy to clean, and a size you can finish.', price: '₹200 to ₹1,200' },
+    { n: 'Padlock', tier: 'good', why: 'Keeps your phone, wallet and keys safe in the locker.', look: 'Small combination or key lock.', price: '₹100 to ₹400' },
+    { n: 'Slides or flip-flops', tier: 'good', why: 'Protect your feet from fungus and infections in showers and changing rooms.', look: 'Quick-dry, non-slip soles.', price: '₹200 to ₹800' },
+    { n: 'Shaker bottle', tier: 'maybe', why: 'For protein shakes or a mix of water and electrolytes.', look: 'A leak-proof lid and a mixing ball or grid.', price: '₹150 to ₹600' },
+    { n: 'Lifting straps and chalk', tier: 'maybe', why: 'Help when grip gives out before your back on heavy rows and deadlifts. Chalk is better than gloves for grip.', look: 'Use them on your heaviest sets only, so your grip still gets stronger.', price: '₹200 to ₹600' },
+    { n: 'Snack: banana, dates or nuts', tier: 'maybe', why: 'Quick fuel before a session or a bite right after.', look: 'Something simple that does not spoil in your bag.', price: '₹20 to ₹100' },
+    { n: 'Notebook or workout log', tier: 'maybe', why: 'Writing down weights and reps is the best way to know you are improving.', look: 'Or use the PR tracker and progress log on this site.', price: 'Free' },
+    { n: 'Gym gloves', tier: 'skip', why: 'Reduce grip feel and can make bars slip. Calluses are normal and chalk handles sweat.', look: 'Skip unless you have a skin problem on your hands.', price: '₹200 to ₹800' },
+  ],
+}
+
+export const avoid = {
+  Before: [
+    { n: 'A heavy, greasy meal in the last 2 hours', why: 'Fat and big portions sit in your stomach and cause cramps, nausea and a sluggish feeling.', instead: 'Eat a light meal with carbs and protein 1 to 3 hours before, or a banana 30 to 60 minutes before.' },
+    { n: 'Going in hungry and weak', why: 'Low energy cuts your reps and makes dizziness more likely.', instead: 'Have a small snack like a banana, dates or toast with peanut butter if you have not eaten for 4 hours.' },
+    { n: 'Too much caffeine or stacked pre-workouts', why: 'Jitters, a racing heart and poor sleep. Caffeine adds up across drinks and products.', instead: 'Stay near 3 mg per kg bodyweight and under 400 mg a day, and not within 6 to 8 hours of bed.' },
+    { n: 'Trying a new supplement right before a hard session', why: 'If it upsets your stomach or makes you jittery, it ruins the workout.', instead: 'Test anything new on a rest day or a light day first.' },
+    { n: 'Skipping your warm-up', why: 'Cold muscles and joints feel stiff and are more likely to get hurt.', instead: 'Do 5 minutes of light cardio, then 1 to 2 light sets of your first lift.' },
+    { n: 'Long static stretching on cold muscles', why: 'Holding stretches for a long time right before lifting can slightly lower strength.', instead: 'Use dynamic moves like leg swings, arm circles and bodyweight squats. Save long stretches for after.' },
+    { n: 'Alcohol the night before', why: 'It dries you out, wrecks sleep and hurts your strength and endurance.', instead: 'Skip it before a big session, or drink little and add plenty of water.' },
+    { n: 'Not drinking enough water', why: 'Even mild dehydration makes workouts feel harder.', instead: 'Drink a glass or two of water in the 1 to 2 hours before you train.' },
+    { n: 'Training with a fever or feeling properly ill', why: 'Hard exercise when your body is fighting an infection can make you worse.', instead: 'Rest until you are well. Easy walking is fine for a mild cold, but skip the gym with a fever.' },
+  ],
+  After: [
+    { n: 'Skipping food and protein for hours', why: 'Your muscles need protein and carbs to recover and grow.', instead: 'Have a meal with protein and carbs within a couple of hours, such as rice, dal and paneer or eggs.' },
+    { n: 'Stopping suddenly with no cooldown', why: 'Heart rate drops fast and you may feel lightheaded.', instead: 'Walk easily for 3 to 5 minutes and stretch the muscles you trained.' },
+    { n: 'Not replacing the water you sweated out', why: 'Leaves you tired, with headaches and slower recovery.', instead: 'Drink water over the next hour. Pale yellow urine is a good sign.' },
+    { n: 'Alcohol straight after', why: 'Slows recovery, dries you out and makes it easy to skip your meal.', instead: 'Eat and rehydrate first. If you drink, keep it light and later.' },
+    { n: 'Sugary or fried food as a reward', why: 'Easy to wipe out the calories you burned, and it does little to help you recover.', instead: 'Choose curd with fruit, a paneer or egg wrap, or a protein shake with a banana.' },
+    { n: 'Sitting around in sweaty clothes', why: 'Damp clothes cause skin irritation, rashes and fungal infections, and you can get cold.', instead: 'Change into dry clothes and shower as soon as you can.' },
+    { n: 'Ice baths or very hot steam straight after lifting', why: 'Cold water right after strength work may slightly blunt muscle growth. Heat when dehydrated can make you dizzy.', instead: 'Rehydrate first. Use cold or heat later in the day, or on rest days.' },
+    { n: 'Taking painkillers out of habit for soreness', why: 'Regular use can upset your stomach and may blunt some training gains. Pain can also be a warning.', instead: 'Use light movement, food and sleep. See a doctor if pain is sharp, sudden or lasts more than a few days.' },
+    { n: 'Stretching hard into pain', why: 'Forcing a stretch on tired muscles can cause strains.', instead: 'Stretch to mild tension only and breathe slowly.' },
+    { n: 'Skimping on sleep', why: 'Most muscle repair and hormone balance happens when you sleep.', instead: 'Aim for 7 to 9 hours, with a steady bedtime.' },
+  ],
+}
