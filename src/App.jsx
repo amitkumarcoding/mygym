@@ -676,12 +676,16 @@ function Reminders() {
   )
 }
 
-// Put your own licensed files in /public/hero/ (see public/hero/README.txt).
-// If they are missing, the hero falls back to the dark gold gradient.
+// Each page load picks a different available clip at random.
 const HERO_VIDEO_ON_MOBILE = true
-const HERO_VIDEO = { webm: '/hero/gym.webm', poster: '/hero/gym-poster.jpg' }
+const HERO_VIDEOS = [
+  { webm: '/hero/gym-1.webm', poster: '/hero/gym-poster-1.jpg' },
+  { webm: '/hero/gym.webm', poster: '/hero/gym-poster.jpg' },
+  { webm: '/hero/gym-3.webm', poster: '/hero/gym-poster-3.jpg' },
+]
 
 function HeroMedia() {
+  const [heroVideo] = useState(() => HERO_VIDEOS[Math.floor(Math.random() * HERO_VIDEOS.length)])
   const [videoFailed, setVideoFailed] = useState(false)
   const [posterFailed, setPosterFailed] = useState(false)
   const calm = typeof window !== 'undefined' && (
@@ -692,10 +696,10 @@ function HeroMedia() {
 
   return (
     <div className="hero-media" aria-hidden="true">
-      {!posterFailed && <img className="hero-img" src={HERO_VIDEO.poster} alt="" fetchPriority="high" decoding="async" onError={() => setPosterFailed(true)} />}
+      {!posterFailed && <img className="hero-img" src={heroVideo.poster} alt="" fetchPriority="high" decoding="async" onError={() => setPosterFailed(true)} />}
       {!calm && !videoFailed && (
-        <video className="hero-video" autoPlay muted loop playsInline preload="metadata" poster={HERO_VIDEO.poster} disablePictureInPicture disableRemotePlayback onError={() => setVideoFailed(true)}>
-          <source src={HERO_VIDEO.webm} type="video/webm" />
+        <video className="hero-video" autoPlay muted loop playsInline preload="metadata" poster={heroVideo.poster} disablePictureInPicture disableRemotePlayback onError={() => setVideoFailed(true)}>
+          <source src={heroVideo.webm} type="video/webm" />
         </video>
       )}
       <div className="hero-shade" />

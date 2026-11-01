@@ -1,8 +1,11 @@
 Hero media for the Ironline home page.
 
-  gym-poster.jpg   Poster shown before playback and when video is disabled.
-  gym.webm         Optimized 12-second, 1920x1080 VP9 lifting clip used by the hero.
-  bg2-source.webm Original source clip before web compression.
+The hero randomly selects one optimized clip each time the page loads:
 
-The hero plays gym.webm for faster loading. Replace gym.webm and its poster with your own licensed footage if desired.
+  gym-1.webm       12-second, 1920x1080 VP9 lifting clip.
+  gym.webm         12-second, 1920x1080 VP9 lifting clip.
+  gym-3.webm       12-second, 1920x1080 VP9 training clip.
+
+Matching gym-poster*.jpg files appear before playback and when video is disabled.
+Original clips are kept in /video-source so they are not copied into the production site.
 The video plays on small screens too. For reduced-motion or data-saver preferences, the poster is shown instead.
