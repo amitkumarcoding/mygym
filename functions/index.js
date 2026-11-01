@@ -12,9 +12,14 @@ exports.sendReminders = onSchedule("every 1 minutes", async () => {
 
   await Promise.all(snap.docs.map(async (d) => {
     const s = d.data();
+    if (typeof s.token !== "string" || typeof s.tz !== "string") {
+      console.error(`Skipping reminder subscription ${d.id}: missing token or time zone.`);
+      return;
+    }
+
     const due = [];
 
-    if (s.water && s.water.on) {
+    if (s.water && s.water.on && Number.isInteger(s.water.mins) && s.water.mins > 0 && Number.isFinite(s.water.since)) {
       const elapsed = nowMin - Math.floor(s.water.since / 60000);
       if (elapsed > 0 && elapsed % s.water.mins === 0) {
         due.push({ title: "Time for water", body: "Drink a glass of water now.", tag: "water" });
@@ -28,8 +33,8 @@ exports.sendReminders = onSchedule("every 1 minutes", async () => {
       console.error(`Skipping reminder subscription ${d.id}: invalid time zone.`, error);
       return;
     }
-    for (const m of s.meals || []) {
-      if (m.on && m.time === local) {
+    for (const m of Array.isArray(s.meals) ? s.meals : []) {
+      if (m && m.on && typeof m.id === "string" && typeof m.label === "string" && m.time === local) {
         due.push({ title: `${m.label} reminder`, body: `It's ${m.label.toLowerCase()} time. Eat your planned meal.`, tag: m.id });
       }
     }
