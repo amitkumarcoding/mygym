@@ -119,6 +119,10 @@
   justify-content: space-between;
 }
 
+.gym .menu-toggle {
+  display: none;
+}
+
 .gym .logo {
   font: 500 28px 'Bodoni Moda', serif;
   letter-spacing: 0.06em;
@@ -635,11 +639,156 @@
   color: var(--bone);
 }
 
+.gym .moss {
+  background: #16302a;
+}
+
+.gym .rem {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  align-items: start;
+  gap: 80px;
+}
+
+.gym .rem-intro h2 {
+  margin-bottom: 16px;
+}
+
+.gym .rem .lead {
+  margin-bottom: 30px;
+}
+
+.gym .note {
+  margin: 14px 0 0;
+  color: var(--mist);
+  font-size: 14px;
+}
+
+.gym .rem-intro > .note {
+  margin: 12px 0;
+}
+
+.gym .rem-settings {
+  display: grid;
+  gap: 20px;
+}
+
+.gym .rem-card {
+  padding: 28px 32px;
+  border: 1px solid rgb(184 151 90 / 35%);
+  background: rgb(13 27 23 / 25%);
+}
+
+.gym .rem-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.gym .rem-head h3 {
+  font-size: 28px;
+}
+
+.gym .rem-card label {
+  margin: 0;
+}
+
+.gym .rem-card select {
+  max-width: 240px;
+  margin-top: 8px;
+}
+
+.gym .switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--brass);
+  border-radius: 99px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.gym .switch::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--brass);
+  content: '';
+  transition: transform 0.2s;
+}
+
+.gym .switch[aria-checked='true'] {
+  background: rgb(184 151 90 / 28%);
+}
+
+.gym .switch[aria-checked='true']::after {
+  transform: translateX(22px);
+}
+
+.gym .meal {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgb(184 151 90 / 20%);
+}
+
+.gym .meal input {
+  width: auto;
+  margin: 0;
+  padding: 6px 0;
+  color-scheme: dark;
+  font-size: 16px;
+}
+
+.gym .reminder-test {
+  margin-top: 6px;
+}
+
+.gym .toast {
+  position: fixed;
+  z-index: 20;
+  right: 24px;
+  bottom: 24px;
+  display: grid;
+  max-width: min(360px, calc(100vw - 32px));
+  gap: 8px;
+  padding: 20px 22px;
+  border-left: 4px solid var(--brass);
+  background: var(--bone);
+  color: var(--ink);
+  box-shadow: 0 20px 50px -20px rgb(0 0 0 / 60%);
+}
+
+.gym .toast strong {
+  font: 400 22px 'Bodoni Moda', serif;
+}
+
+.gym .toast button {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #55605b;
+  font: 500 14px 'Hanken Grotesk', sans-serif;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 @media (max-width: 860px) {
   .gym .hero .wrap,
   .gym .join,
   .gym .trainers,
-  .gym .plans {
+  .gym .plans,
+  .gym .rem {
     grid-template-columns: 1fr;
   }
 
@@ -660,12 +809,52 @@
     border-left: 0;
   }
 
-  .gym .links {
-    gap: 18px;
+  .gym .menu-toggle {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-content: center;
+    gap: 6px;
+    border: 1px solid rgb(184 151 90 / 45%);
+    background: transparent;
+    cursor: pointer;
   }
 
-  .gym .links a:not(.btn) {
+  .gym .menu-toggle span {
+    width: 19px;
+    height: 1px;
+    background: var(--bone);
+  }
+
+  .gym .links {
     display: none;
+  }
+
+  .gym .links.is-open {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+    padding: 12px 28px 24px;
+    border-bottom: 1px solid rgb(184 151 90 / 25%);
+    background: var(--forest);
+  }
+
+  .gym .links.is-open a:not(.btn) {
+    display: block;
+    padding: 12px 0;
+  }
+
+  .gym .links.is-open .btn {
+    margin-top: 10px;
+  }
+
+  .gym .rem {
+    gap: 32px;
   }
 
   .gym section {
@@ -692,6 +881,11 @@
 
   .gym .site-nav .wrap {
     height: 68px;
+  }
+
+  .gym .links.is-open {
+    padding-right: 18px;
+    padding-left: 18px;
   }
 
   .gym .logo {
@@ -739,6 +933,14 @@
   .gym .toggle button {
     padding: 9px 14px;
     font-size: 13px;
+  }
+
+  .gym .rem-card {
+    padding: 24px 20px;
+  }
+
+  .gym .meal {
+    gap: 10px;
   }
 }
 

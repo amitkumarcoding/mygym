@@ -1,0 +1,20 @@
+import { getApps, initializeApp } from 'firebase/app'
+
+export const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+}
+
+export const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY
+
+export function getFirebaseApp() {
+  if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
+    throw new Error('Firebase is not configured. Add the VITE_FIREBASE_* values to your environment.')
+  }
+
+  return getApps()[0] || initializeApp(firebaseConfig)
+}
