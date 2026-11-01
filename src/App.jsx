@@ -678,8 +678,7 @@ function Reminders() {
 
 // Put your own licensed files in /public/hero/ (see public/hero/README.txt).
 // If they are missing, the hero falls back to the dark gold gradient.
-// Phones skip the video by default to save mobile data and battery. Set to true to play it on phones too.
-const HERO_VIDEO_ON_MOBILE = false
+const HERO_VIDEO_ON_MOBILE = true
 const HERO_VIDEO = { webm: '/hero/gym.webm', poster: '/hero/gym-poster.jpg' }
 
 function HeroMedia() {
