@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { registerPush, saveSubscription } from './push'
 import { exercises, frames, DUR } from './exercises'
 import { supplements, skipList, goalsList, dietsList, buildStack } from './supplements'
+import { goalNames } from './goals'
+import { GoalPlans, PRTracker, ProgressTracker } from './Tracking'
 import './App.css'
 
 const BRAND = 'Ironline'
 const REMINDER_KEY = 'ironline-reminders'
 
-const goals = ['Muscle gain', 'Fat loss', 'Beginner basics', 'Strength']
+const goals = goalNames
 
 const plans = {
   'Beginner full body': [['Mon', 'Full body A', 'Squat, bench press, lat pulldown, plank'], ['Wed', 'Full body B', 'Deadlift, overhead press, seated row, lunge'], ['Fri', 'Full body C', 'Leg press, incline press, cable row, cable crunch']],
@@ -120,6 +122,8 @@ const ICONS = {
   apple: 'M12 7c-2-2-6-1.5-6 3 0 4 3 9 6 9s6-5 6-9c0-4.5-4-5-6-3zM12 7c0-2 1-4 3-5',
   user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
   bolt: 'M13 2L4 14h7l-1 8 9-12h-7l1-8z',
+  trophy: 'M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3',
+  chart: 'M3 3v18h18M7 15l4-4 3 3 5-6',
   bell: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0',
 }
 
@@ -668,6 +672,26 @@ function Reminders() {
   )
 }
 
+function useStoredGoal() {
+  const [goal, setGoal] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ironline-goal')
+      return goalNames.includes(saved) ? saved : goalNames[0]
+    } catch {
+      return goalNames[0]
+    }
+  })
+  const update = (next) => {
+    setGoal(next)
+    try {
+      localStorage.setItem('ironline-goal', next)
+    } catch {
+      // Ignore blocked storage.
+    }
+  }
+  return [goal, update]
+}
+
 function Accordion({ items }) {
   const [open, setOpen] = useState(0)
 
@@ -698,6 +722,7 @@ function Accordion({ items }) {
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [goal, setGoal] = useStoredGoal()
   const closeMenu = () => setMenuOpen(false)
   const head = (tag, title, em, lead) => (
     <div className="sec-head">
@@ -716,9 +741,12 @@ export default function App() {
           <div className={`links${menuOpen ? ' is-open' : ''}`} id="site-links">
             <a href="#trainer" onClick={closeMenu}>Trainer</a>
             <a href="#exercises" onClick={closeMenu}>Exercises</a>
+            <a href="#goals" onClick={closeMenu}>Goals</a>
             <a href="#plans" onClick={closeMenu}>Plans</a>
             <a href="#diet" onClick={closeMenu}>Diet</a>
             <a href="#supplements" onClick={closeMenu}>Supplements</a>
+            <a href="#records" onClick={closeMenu}>PRs</a>
+            <a href="#progress" onClick={closeMenu}>Progress</a>
             <a href="#reminders" onClick={closeMenu}>Reminders</a>
             <a href="#faq" onClick={closeMenu}>FAQ</a>
           </div>
@@ -758,6 +786,7 @@ export default function App() {
             ['dumbbell', 'exercises', 'Exercise library', 'Animated demos with sets, reps and form cues.'],
             ['calendar', 'plans', 'Workout plans', 'Full body, push pull legs and upper lower.'],
             ['apple', 'diet', 'Diet and macros', 'Meal plans plus a calorie calculator.'],
+            ['trophy', 'records', 'PR tracker', 'Log lifts, beat your best and track progress.'],
           ].map(([icon, id, title, text]) => (
             <div key={id}><span className="ic"><Icon n={icon} /></span><h3><a href={`#${id}`}>{title}</a></h3><p>{text}</p></div>
           ))}
@@ -775,6 +804,13 @@ export default function App() {
         <div className="wrap">
           {head('Exercise library', 'Learn every', 'lift', 'Pick a muscle group. Each exercise shows sets, reps and one cue that fixes most form mistakes.')}
           <Library />
+        </div>
+      </section>
+
+      <section id="goals">
+        <div className="wrap">
+          {head('Your goal', 'Pick your', 'goal', 'Get in shape, get lean, build muscle or lose weight. Every goal comes with its own exercise week and diet plan.')}
+          <GoalPlans goal={goal} setGoal={setGoal} />
         </div>
       </section>
 
@@ -799,7 +835,21 @@ export default function App() {
         </div>
       </section>
 
-      <section id="reminders">
+      <section id="records" className="alt">
+        <div className="wrap">
+          {head('Personal records', 'Track your', 'PRs', 'Log every heavy set. We find your best lift, estimate your one rep max and show how far you are from your goal max.')}
+          <PRTracker />
+        </div>
+      </section>
+
+      <section id="progress">
+        <div className="wrap">
+          {head('Progress', 'See how far', 'you\'ve come', 'Track bodyweight, waist and workouts. Small steady numbers beat big short bursts.')}
+          <ProgressTracker goal={goal} />
+        </div>
+      </section>
+
+      <section id="reminders" className="alt">
         <div className="wrap"><Reminders /></div>
       </section>
 
@@ -839,7 +889,7 @@ export default function App() {
         <div className="wordmark" aria-hidden="true">{BRAND}</div>
       </footer>
       <nav className="tabbar" aria-label="Quick navigation">
-        {[['user', 'trainer', 'Trainer'], ['dumbbell', 'exercises', 'Exercises'], ['calendar', 'plans', 'Plans'], ['apple', 'diet', 'Diet'], ['bell', 'reminders', 'Alerts']].map(([icon, id, label]) => (
+        {[['user', 'trainer', 'Trainer'], ['calendar', 'goals', 'Goals'], ['trophy', 'records', 'PRs'], ['chart', 'progress', 'Progress'], ['apple', 'diet', 'Diet']].map(([icon, id, label]) => (
           <a key={id} href={`#${id}`}><Icon n={icon} /><span>{label}</span></a>
         ))}
       </nav>
