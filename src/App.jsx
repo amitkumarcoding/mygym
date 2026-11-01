@@ -680,7 +680,7 @@ function Reminders() {
 // If they are missing, the hero falls back to the dark gold gradient.
 // Phones skip the video by default to save mobile data and battery. Set to true to play it on phones too.
 const HERO_VIDEO_ON_MOBILE = false
-const HERO_VIDEO = { mp4: '/hero/gym.mp4', webm: '/hero/gym.webm', poster: '/hero/gym-poster.jpg' }
+const HERO_VIDEO = { webm: '/hero/gym.webm', poster: '/hero/gym-poster.jpg' }
 
 function HeroMedia() {
   const [videoFailed, setVideoFailed] = useState(false)
@@ -695,9 +695,8 @@ function HeroMedia() {
     <div className="hero-media" aria-hidden="true">
       {!posterFailed && <img className="hero-img" src={HERO_VIDEO.poster} alt="" fetchPriority="high" decoding="async" onError={() => setPosterFailed(true)} />}
       {!calm && !videoFailed && (
-        <video className="hero-video" autoPlay muted loop playsInline preload="auto" poster={HERO_VIDEO.poster} disablePictureInPicture disableRemotePlayback>
+        <video className="hero-video" autoPlay muted loop playsInline preload="metadata" poster={HERO_VIDEO.poster} disablePictureInPicture disableRemotePlayback onError={() => setVideoFailed(true)}>
           <source src={HERO_VIDEO.webm} type="video/webm" />
-          <source src={HERO_VIDEO.mp4} type="video/mp4" onError={() => setVideoFailed(true)} />
         </video>
       )}
       <div className="hero-shade" />
