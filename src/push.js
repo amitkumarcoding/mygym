@@ -24,7 +24,7 @@ export async function saveSubscription(token, water, meals) {
   return setDoc(ref, {
     token,
     tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    water: { on: water.on, mins: water.mins },
+    water: { on: water.on, mins: water.mins, since: water.since || Date.now() },
     meals: meals.map(({ id, label, time, on }) => ({ id, label, time, on })),
     updatedAt: Date.now(),
   })
