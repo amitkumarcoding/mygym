@@ -79,3 +79,42 @@ export const avoid = {
     { n: 'Skimping on sleep', why: 'Most muscle repair and hormone balance happens when you sleep.', instead: 'Aim for 7 to 9 hours, with a steady bedtime.' },
   ],
 }
+
+export const needs = {
+  'Just starting': {
+    intro: 'Spend very little in the first month. Show up first, buy later.',
+    need: ['Sweat-wicking tees and shorts', 'Flat-soled training shoes', 'Water bottle (about 1 litre)', 'Towel', 'Padlock', 'Slides or flip-flops'],
+    later: ['Protein powder, only if meals fall short', 'Creatine, after 2 to 3 months of steady training', 'Fitness band or smartwatch'],
+    skip: ['Pre-workout', 'BCAA', 'Lifting belt', 'Gym gloves'],
+  },
+  'Build muscle': {
+    intro: 'Food, sleep and progressive lifting do most of the work. Supplements fill small gaps.',
+    need: ['Protein: 1.6 to 2.2 g per kg a day, powder only for the gap', 'Creatine monohydrate: 3 to 5 g every day', 'Flat-soled training shoes', 'Notebook or workout log'],
+    later: ['Wrist wraps', 'Knee sleeves', 'Lifting straps and chalk', 'Vitamin D3, after a blood test'],
+    skip: ['Mass gainers', 'Testosterone boosters', 'BCAA', 'Lifting belt, until your lifts are heavy'],
+  },
+  'Lose fat': {
+    intro: 'A calorie deficit, high protein and daily steps do the job. Gear only helps you stay consistent.',
+    need: ['Protein: 1.8 to 2.2 g per kg a day to keep muscle', 'Comfortable shoes for lifting and walking', 'Water bottle (about 1 litre), refilled through the day'],
+    later: ['Fitness band for steps', 'Skipping rope', 'Multivitamin while eating less', 'Creatine, optional, helps keep strength'],
+    skip: ['Fat burners', '"Detox" products', 'Sweat belts and waist trimmers'],
+  },
+  'Run and cardio': {
+    intro: 'Your feet and your fabric matter most. Protect your joints and stay cool.',
+    need: ['Running shoes (for cardio days)', 'Sweat-wicking tees and shorts', 'Water bottle (about 1 litre)'],
+    later: ['Sweat-proof earphones', 'Fitness band or smartwatch', 'Skipping rope', 'Wet wipes and a spare tee'],
+    skip: ['Heart-rate chest strap, unless you train by zones', 'Treadmill, run outside if it is safe', 'BCAA'],
+  },
+  'Train at home': {
+    intro: 'A small, flexible kit beats a cramped corner full of machines.',
+    need: ['Dumbbells (fixed or adjustable)', 'Resistance bands', 'Exercise mat'],
+    later: ['Pull-up bar', 'Adjustable bench', 'Kettlebell', 'Skipping rope'],
+    skip: ['Barbell, plates and rack', 'Treadmill'],
+  },
+  'Tight budget': {
+    intro: 'Most results come free: training, meals and sleep. Buy only what makes sessions safer or easier.',
+    need: ['Shoes you already own, if flat and firm', 'Water bottle (about 1 litre)', 'Towel', 'Resistance bands', 'Protein from food: eggs, dal, paneer, curd, soya'],
+    later: ['Creatine monohydrate, the best-value supplement'],
+    skip: ['Pre-workout, a black coffee does the same', 'BCAA', 'Smartwatch', 'Branded gear'],
+  },
+}

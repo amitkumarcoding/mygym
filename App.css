@@ -199,12 +199,12 @@
 .gym .calc{margin-top:56px}
 .gym .calc h3{margin-bottom:28px;font-size:38px}
 .gym .calc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 32px}
-.gym .results{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin:8px 0 20px;padding-top:28px;border-top:1px solid var(--line)}
+.gym .results{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:8px 0 20px;padding-top:28px;border-top:1px solid var(--line)}
 .gym .results div{display:grid;gap:4px}
 .gym .results b{color:var(--gold-hi);font:500 clamp(34px,4vw,48px)/1 'Cormorant Garamond',serif}
 .gym .results span{color:var(--mute);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
-@media (max-width:980px){.gym .cards{grid-template-columns:1fr 1fr}.gym .calc-grid{grid-template-columns:1fr 1fr}.gym .results{grid-template-columns:repeat(3,1fr)}}
-@media (max-width:560px){.gym .cards,.gym .calc-grid{grid-template-columns:1fr}.gym .results{grid-template-columns:1fr 1fr}}
+@media (max-width:980px){.gym .cards{grid-template-columns:1fr 1fr}.gym .calc-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.gym .cards,.gym .calc-grid{grid-template-columns:1fr}}
 
 .gym .logo svg{width:22px;height:22px;color:var(--gold)}
 .gym .hero{position:relative;overflow:hidden}
@@ -514,7 +514,7 @@
 
 /* Gear and avoid guides (phone first, widen from there) */
 .gym .check{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 40px;padding:0;list-style:none}
-.gym .check a{display:grid;align-content:start;gap:4px;min-height:84px;height:100%;padding:16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,rgb(255 255 255/4%),transparent),var(--card);text-decoration:none;transition:border-color .25s}
+.gym .check a{display:grid;align-content:start;gap:4px;justify-items:start;min-height:84px;height:100%;padding:16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,rgb(255 255 255/4%),transparent),var(--card);text-decoration:none;transition:border-color .25s}
 .gym .check a:active{border-color:var(--gold)}
 .gym .check b{font:500 22px/1.1 'Cormorant Garamond',serif;color:var(--txt)}
 .gym .check span{color:var(--mute);font-size:12px;line-height:1.4}
@@ -522,8 +522,10 @@
 .gym .gear-grid{display:grid;grid-template-columns:1fr;gap:12px}
 .gym .gear-card{display:grid;align-content:start;gap:12px;padding:20px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgb(255 255 255/4%),transparent),var(--card)}
 .gym .gear-card.skip{opacity:.82}
-.gym .gear-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px}
-.gym .gear-top h3{flex:1 1 180px;font-size:28px;line-height:1.05}
+.gym .gear-top{display:grid;grid-template-columns:64px 1fr;align-items:center;gap:6px 16px}
+.gym .gear-top h3{font-size:26px;line-height:1.05}
+.gym .gear-top .s-tag{grid-column:2;justify-self:start}
+.gym .g-art{width:64px;height:64px;padding:10px;border:1px solid var(--line);border-radius:18px;background:radial-gradient(circle at 30% 20%,rgb(216 185 131/18%),transparent 70%);color:var(--gold);grid-row:span 2}
 .gym .gear-card p{margin:0;color:var(--mute);font-size:14px}
 .gym .gear-card dl{display:grid;gap:10px;margin:4px 0 0;padding-top:14px;border-top:1px solid var(--line)}
 .gym .gear-card dt{color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
@@ -739,11 +741,31 @@
   .gym .amen p{max-width:none;font-size:13px}
 }
 
-.gym .fig .skin{fill:#c99067;stroke:#8d5d3d;stroke-width:.7;stroke-linejoin:round}
-.gym .fig .sk2{fill:#8f6347;stroke:#6b4630;stroke-width:.7;stroke-linejoin:round}
-.gym .fig .sht{fill:#17302a;stroke:#0c1d19;stroke-width:.7}
-.gym .fig .shoe{fill:#e8e4da;stroke:#8a867c;stroke-width:.7}
-.gym .fig .mus{fill:#ff4d36;stroke:#ffb199;stroke-width:.6;filter:drop-shadow(0 0 5px rgb(255 77 54/75%))}
-.gym .mlabel{position:absolute;left:12px;bottom:10px;max-width:calc(100% - 24px);display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;background:rgb(10 11 14/72%);backdrop-filter:blur(6px);color:#fff;font-size:12px;font-weight:600;letter-spacing:.02em}
-.gym .mlabel i{flex:none;width:8px;height:8px;border-radius:50%;background:#ff4d36;box-shadow:0 0 8px #ff4d36}
-.gym .mlabel small{font-weight:400;color:rgb(255 255 255/60%)}
+/* Calculator: creatine toggle and result hints */
+.gym .calc-creatine{display:flex;align-items:center;gap:16px;margin:0 0 28px;padding:16px 20px;border:1px solid var(--line);border-radius:20px;background:rgb(255 255 255/2%)}
+.gym .calc-creatine .switch{flex:none}
+.gym .calc-creatine b{display:block;font-size:16px;font-weight:600}
+.gym .calc-creatine span{color:var(--mute);font-size:13px}
+.gym .results small{color:var(--mute);font-size:12px;line-height:1.4}
+
+/* Gear: images, needs picker, legend */
+.gym .check-art{width:44px;height:44px;margin-bottom:8px;color:var(--gold)}
+.gym .check a:hover{border-color:rgb(216 185 131/55%)}
+.gym .needs{margin:0 0 56px;padding:clamp(20px,4vw,40px)}
+.gym .needs h3{margin-bottom:20px;font-size:clamp(30px,4vw,44px)}
+.gym .needs-intro{margin:4px 0 24px;color:var(--mute);font-size:15px}
+.gym .needs-cols{display:grid;grid-template-columns:1fr;gap:14px}
+.gym .needs-col{padding:18px 20px;border:1px solid var(--line);border-radius:20px;background:rgb(255 255 255/2%)}
+.gym .needs-col.good{border-color:rgb(216 185 131/50%);background:radial-gradient(420px 160px at 0% 0%,rgb(216 185 131/12%),transparent 70%)}
+.gym .needs-col.skip{opacity:.75}
+.gym .needs-col ul{display:grid;gap:10px;margin:14px 0 0;padding:0;list-style:none;font-size:14px}
+.gym .needs-col li{position:relative;padding-left:18px}
+.gym .needs-col li::before{content:'';position:absolute;top:.6em;left:0;width:7px;height:7px;border-radius:50%;background:var(--gold)}
+.gym .needs-col.skip li::before{background:#ff9f9f}
+.gym .gear-legend{display:flex;flex-wrap:wrap;gap:8px 22px;margin:18px 0 20px;color:var(--mute);font-size:13px}
+.gym .gear-legend i{display:inline-block;width:9px;height:9px;margin-right:8px;border-radius:50%;background:var(--gold)}
+.gym .gear-legend i.maybe{background:transparent;border:1.5px solid var(--gold)}
+.gym .gear-legend i.skip{background:#ff9f9f}
+.gym .gear-card{transition:border-color .25s,transform .25s}
+.gym .gear-card:hover{border-color:rgb(216 185 131/45%);transform:translateY(-2px)}
+@media (min-width:860px){.gym .needs-cols{grid-template-columns:1.3fr 1fr 1fr}}

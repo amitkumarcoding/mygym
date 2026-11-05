@@ -136,40 +136,13 @@ export const frames = (ex, n = 24) => {
     if (kind === 'up' || kind === 'down') {
       for (let i = kind === 'up' ? 0 : 1; i <= n; i++) {
         const e = ease(i / n)
-        out.push({ ...pose(kind === 'up' ? e : 1 - e), kt: (at + (i / n) * len) / DUR, a: Math.sin((Math.PI * i) / n) * (kind === 'up' ? 0.8 : 1) })
+        out.push({ ...pose(kind === 'up' ? e : 1 - e), kt: (at + (i / n) * len) / DUR })
       }
     } else {
-      out.push({ ...pose(kind === 'top' ? 1 : 0), kt: (at + len) / DUR, a: 0 })
+      out.push({ ...pose(kind === 'top' ? 1 : 0), kt: (at + len) / DUR })
     }
     at += len
   })
   out[out.length - 1].kt = 1
   return out
-}
-
-// Which muscles each exercise works: p = primary (full glow), s = secondary (half glow). First matching rule wins.
-const RULES = [
-  [/close-grip|triceps|pushdown|skull|kickback|bench dip/, ['tri'], ['chest', 'delts']],
-  [/curl/ , ['bi'], ['fore']],
-  [/calf/, ['calf'], ['quad']],
-  [/leg extension/, ['quad'], []],
-  [/mountain|high knees|butt kicks/, ['quad', 'abs'], ['delts']],
-  [/jump rope/, ['calf'], ['fore', 'delts']],
-  [/hanging|leg raise|knee raise|crunch|sit-up|plank|hollow|dead bug|ab wheel|v-up|flutter/, ['abs'], ['fore']],
-  [/romanian|deadlift|rack pull|good morning|swing/, ['ham', 'glute'], ['back']],
-  [/hip thrust|bridge/, ['glute'], ['ham']],
-  [/squat|lunge|leg press|wall sit/, ['quad', 'glute'], ['ham']],
-  [/back extension|superman/, ['back'], ['glute', 'ham']],
-  [/pullover/, ['lats', 'chest'], ['tri']],
-  [/upright|face pull/, ['delts', 'traps'], ['bi']],
-  [/fly|crossover/, ['chest'], ['delts']],
-  [/bench press|incline.*press|chest press|push-up|chest dip/, ['chest'], ['tri', 'delts']],
-  [/pulldown|pull-up|chin-up|row/, ['lats'], ['bi', 'traps']],
-  [/press|raise/, ['delts'], ['tri']],
-]
-const FALLBACK = { Chest: ['chest'], Back: ['lats'], Legs: ['quad'], Shoulders: ['delts'], Arms: ['bi'], Core: ['abs'], Cardio: ['quad'] }
-Object.entries(exercises).forEach(([g, list]) => list.forEach((e) => { e.grp = g }))
-export const muscleOf = (ex) => {
-  const hit = RULES.find(([re]) => re.test(ex.n.toLowerCase()))
-  return hit ? { p: hit[1], s: hit[2] } : { p: FALLBACK[ex.grp] || ['abs'], s: [] }
 }

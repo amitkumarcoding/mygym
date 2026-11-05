@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { registerPush, saveSubscription } from './push'
-import { exercises, frames, DUR, muscleOf } from './exercises'
+import { exercises, frames, DUR } from './exercises'
 import { supplements, skipList, goalsList, dietsList, buildStack } from './supplements'
 import { goalNames } from './goals'
 import { GoalPlans, PRTracker, ProgressTracker } from './Tracking'
@@ -10,8 +10,6 @@ import './App.css'
 
 const BRAND = 'Ironline'
 const REMINDER_KEY = 'ironline-reminders'
-
-const goals = goalNames
 
 const plans = {
   'Beginner full body': [['Mon', 'Full body A', 'Squat, bench press, lat pulldown, plank'], ['Wed', 'Full body B', 'Deadlift, overhead press, seated row, lunge'], ['Fri', 'Full body C', 'Leg press, incline press, cable row, cable crunch']],
@@ -24,13 +22,6 @@ const diets = {
   'Fat loss': { note: 'About 400 kcal below maintenance, high protein, plenty of fibre.', meals: [['Breakfast', 'Veg omelette, 1 toast, green tea'], ['Lunch', '2 rotis, dal, large salad, curd'], ['Snack', 'Roasted chana or sprouts, fruit'], ['Dinner', 'Grilled chicken or paneer, sauteed veg'], ['Hydration', '3–4 litres of water through the day']] },
   Maintain: { note: 'Eat at maintenance calories, balanced plate, 1.6 g protein per kg.', meals: [['Breakfast', 'Poha or upma, boiled eggs, fruit'], ['Lunch', 'Rice, dal, sabzi, curd'], ['Snack', 'Nuts, buttermilk or fruit'], ['Dinner', 'Roti, paneer or fish, vegetables']] },
 }
-
-const faqs = [
-  { name: 'Is it really free?', text: 'Yes. Every exercise guide, workout plan, diet plan and calculator is free, with no sign-up needed and no hidden fees.' },
-  { name: 'How many days should I train?', text: 'Beginners do well with 3 full body days. Add a fourth or fifth day only when you recover well and your lifts keep going up.' },
-  { name: 'How much protein do I need?', text: 'Aim for 1.6 to 2.2 g per kg of bodyweight a day. The calculator below works out your exact number.' },
-  { name: 'Should I check with a doctor first?', text: 'If you have an injury, a health condition or have not trained in years, speak to a doctor or qualified trainer before starting.' },
-]
 
 const plates = { 5: [64, 0.55], 10: [92, 0.75], 15: [120, 0.9], 20: [150, 1] }
 const defaultMeals = [
@@ -139,100 +130,45 @@ function Icon({ n, cls }) {
   )
 }
 
-const f1 = (n) => +n.toFixed(1)
-const lerp = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]
-// tapered capsule from a to b (radius r1 at a, r2 at b): used for every limb and muscle belly
-const cap = (a, b, r1, r2 = r1) => {
-  const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1
-  const nx = -dy / L, ny = dx / L
-  const q = (p, s, r) => `${f1(p[0] + nx * s * r)} ${f1(p[1] + ny * s * r)}`
-  return `M${q(a, 1, r1)}L${q(b, 1, r2)}A${r2} ${r2} 0 0 0 ${q(b, -1, r2)}L${q(a, -1, r1)}A${r1} ${r1} 0 0 0 ${q(a, 1, r1)}Z`
-}
-const seg = (a, b, t0, t1, r0, r1 = r0) => cap(lerp(a, b, t0), lerp(a, b, t1), r0, r1)
-
-// kind: T torso, L legs, A arm (decides draw order). Each shape follows the animated joints.
-const MUS = {
-  chest: ['T', 'Chest', (f) => seg(f.P, f.N, 0.55, 1, 17.5)],
-  lats: ['T', 'Lats', (f) => seg(f.P, f.N, 0.28, 0.85, 15.5)],
-  back: ['T', 'Lower back', (f) => seg(f.P, f.N, 0.05, 0.5, 14)],
-  abs: ['T', 'Abs', (f) => seg(f.P, f.N, 0.08, 0.6, 13.5)],
-  traps: ['T', 'Traps', (f) => seg(f.N, f.H, 0, 0.9, 7.5)],
-  glute: ['L', 'Glutes', (f) => seg(f.P, f.K, 0, 0.3, 15.5, 13)],
-  quad: ['L', 'Quads', (f) => seg(f.P, f.K, 0.22, 0.95, 12.5, 9.5)],
-  ham: ['L', 'Hamstrings', (f) => seg(f.P, f.K, 0.2, 0.9, 12, 9.5)],
-  calf: ['L', 'Calves', (f) => seg(f.K, f.A, 0.08, 0.7, 9.5, 6.5)],
-  delts: ['A', 'Shoulders', (f) => cap(f.N, lerp(f.N, f.E, 0.28), 11, 9.5)],
-  bi: ['A', 'Biceps', (f) => seg(f.N, f.E, 0.25, 0.92, 9, 7.5)],
-  tri: ['A', 'Triceps', (f) => seg(f.N, f.E, 0.25, 0.92, 9, 7.5)],
-  fore: ['A', 'Forearms', (f) => seg(f.E, f.W, 0.1, 0.92, 7.5, 5.5)],
-}
-
 function Figure({ ex }) {
-  const fr = useMemo(() => frames(ex, 12), [ex])
-  const mu = useMemo(() => muscleOf(ex), [ex])
+  const fr = useMemo(() => frames(ex), [ex])
   const still = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  const pts = (f) => ['W', 'E', 'N', 'P', 'K', 'A', 'F'].map((key) => f[key].join(',')).join(' ')
   const kt = fr.map((f) => f.kt.toFixed(4)).join(';')
-  const an2 = (attr, vals) => (still ? null : <animate attributeName={attr} values={vals.join(';')} keyTimes={kt} dur={`${DUR}s`} repeatCount="indefinite" />)
-  const an = (attr, get) => an2(attr, fr.map(get))
+  const rpts = (f) => ['P', 'K2', 'A2'].map((key) => f[key].join(',')).join(' ')
+  const an = (attr, get) => (still ? null : <animate attributeName={attr} values={fr.map(get).join(';')} keyTimes={kt} dur={`${DUR}s`} repeatCount="indefinite" />)
   const dot = (key, r, cls) => (
     <circle className={cls} r={r} cx={fr[0][key][0]} cy={fr[0][key][1]}>
       {an('cx', (f) => f[key][0])}
       {an('cy', (f) => f[key][1])}
     </circle>
   )
-  const part = (cls, fn) => <path className={cls} d={fn(fr[0])}>{an('d', fn)}</path>
-  const glow = (kind) =>
-    [...mu.p.map((m) => [m, 1]), ...mu.s.map((m) => [m, 0.5])]
-      .filter(([m]) => MUS[m][0] === kind)
-      .map(([m, w]) => (
-        <path key={m} className="mus" d={MUS[m][2](fr[0])} opacity={still ? 0.8 * w : +((0.3 + 0.7 * fr[0].a) * w).toFixed(2)}>
-          {an('d', MUS[m][2])}
-          {an2('opacity', fr.map((f) => +((0.3 + 0.7 * f.a) * w).toFixed(2)))}
-        </path>
-      ))
+  const mid = fr.find((f) => f.kt >= 1.1 / DUR) || fr[0]
   const tk = ex.q === 'ank' ? 'A' : 'W'
   const trail = fr.filter((_, i) => i % 2 === 0).map((f) => f[tk].join(',')).join(' ')
-  const rear = fr[0].K2
-  const label = mu.p.map((m) => MUS[m][1]).join(' · ')
-  const extra = mu.s.map((m) => MUS[m][1]).join(', ')
 
   return (
-    <>
-      <svg className="fig" viewBox={ex.v || '0 0 240 160'} role="img" aria-label={`${ex.n} animated demonstration, working ${label}`}>
-        <path className="bg" d={ex.g} />
-        {ex.q && <polyline className="trail" points={trail} />}
-        {ex.q === 'cab' && (
-          <>
-            <line className="cab" x1={fr[0].W[0]} y1={fr[0].W[1]} x2={ex.c[0]} y2={ex.c[1]}>
-              {an('x1', (f) => f.W[0])}
-              {an('y1', (f) => f.W[1])}
-            </line>
-            <circle className="pul" cx={ex.c[0]} cy={ex.c[1]} r="5" />
-            {dot('W', 4, 'eq')}
-          </>
-        )}
-        {ex.q === 'bar' && dot('W', 13, 'eq')}
-        {ex.q === 'db' && dot('W', 7, 'eq')}
-        {ex.q === 'ank' && dot('A', 11, 'eq')}
-        {rear && part('sk2', (f) => cap(f.P, f.K2, 11, 8))}
-        {rear && part('sk2', (f) => cap(f.K2, f.A2, 8, 5.5))}
-        {part('skin', (f) => cap(f.P, f.K, 11.5, 8.5))}
-        {part('skin', (f) => cap(f.K, f.A, 8.5, 5.5))}
-        {part('shoe', (f) => cap(f.A, f.F, 5, 3.5))}
-        {part('skin', (f) => cap(f.P, f.N, 13, 17.5))}
-        {part('sht', (f) => seg(f.P, f.K, 0, 0.5, 13.5, 11))}
-        {part('sht', (f) => seg(f.P, f.N, 0, 0.12, 14.5))}
-        {part('skin', (f) => cap(f.N, f.H, 5.5, 5))}
-        {dot('H', 8.5, 'skin')}
-        {glow('T')}
-        {glow('L')}
-        {part('skin', (f) => cap(f.N, f.E, 7.8, 6.2))}
-        {part('skin', (f) => cap(f.E, f.W, 6, 4.6))}
-        {dot('W', 5, 'skin')}
-        {glow('A')}
-      </svg>
-      <span className="mlabel"><i />{label}{extra && <small> + {extra}</small>}</span>
-    </>
+    <svg className="fig" viewBox={ex.v || '0 0 240 160'} role="img" aria-label={`${ex.n} animated demonstration`}>
+      <path className="bg" d={ex.g} />
+      <polyline className="ghost" points={pts(mid)} />
+      {ex.q && <polyline className="trail" points={trail} />}
+      {ex.q === 'cab' && (
+        <>
+          <line className="cab" x1={fr[0].W[0]} y1={fr[0].W[1]} x2={ex.c[0]} y2={ex.c[1]}>
+            {an('x1', (f) => f.W[0])}
+            {an('y1', (f) => f.W[1])}
+          </line>
+          <circle className="pul" cx={ex.c[0]} cy={ex.c[1]} r="5" />
+          {dot('W', 4, 'eq')}
+        </>
+      )}
+      {ex.q === 'bar' && dot('W', 13, 'eq')}
+      {ex.q === 'db' && dot('W', 7, 'eq')}
+      {ex.q === 'ank' && dot('A', 11, 'eq')}
+      {fr[0].K2 && <polyline className="body rear" points={rpts(fr[0])}>{an('points', rpts)}</polyline>}
+      <polyline className="body" points={pts(fr[0])}>{an('points', pts)}</polyline>
+      {dot('H', 9, 'head')}
+    </svg>
   )
 }
 
@@ -435,24 +371,28 @@ function Plans() {
   )
 }
 
-const activity = [[1.2, 'Little or no exercise'], [1.375, 'Light, 1–3 days a week'], [1.55, 'Moderate, 3–5 days a week'], [1.725, 'Hard, 6–7 days a week']]
-const aims = [[300, 'Build muscle'], [-400, 'Lose fat'], [0, 'Maintain weight']]
+const activity = [[1.2, 'Little or no exercise', 0], [1.375, 'Light, 1–3 days a week', 350], [1.55, 'Moderate, 3–5 days a week', 500], [1.725, 'Hard, 6–7 days a week', 750]]
+const aims = [[300, 'Build muscle', 2], [-400, 'Lose fat', 2], [0, 'Maintain weight', 1.6]]
 
 function Calc() {
-  const [f, setF] = useState({ sex: 'male', age: 25, weight: 70, height: 170, act: 1.55, goal: 300 })
+  const [f, setF] = useState({ sex: 'male', age: 25, weight: 70, height: 170, act: 1.55, goal: 300, creatine: false })
   const n = (key) => Number(f[key])
   const set = (key) => (event) => setF({ ...f, [key]: event.target.value })
   const ok = n('age') > 0 && n('weight') > 0 && n('height') > 0
   const bmr = 10 * n('weight') + 6.25 * n('height') - 5 * n('age') + (f.sex === 'male' ? 5 : -161)
   const kcal = Math.max(0, Math.round(bmr * n('act') + n('goal')))
-  const protein = Math.round(2 * n('weight'))
-  const fat = Math.round((kcal * 0.25) / 9)
-  const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4))
-  const bmi = (n('weight') / (n('height') / 100) ** 2).toFixed(1)
+  const perKg = aims.find(([v]) => v === n('goal'))[2]
+  const protein = Math.round(perKg * n('weight'))
+  const perMeal = Math.round(protein / 4)
+  const train = activity.find(([v]) => v === n('act'))[2]
+  const waterMl = n('weight') * 35 + train + (f.creatine ? 500 : 0)
+  const water = (Math.round(waterMl / 100) / 10).toFixed(1)
+  const glasses = Math.round(waterMl / 250)
+  const dose = n('weight') >= 90 ? 5 : 3
 
   return (
     <div className="calc card">
-      <h3>Calorie and macro calculator</h3>
+      <h3>Protein, calories and water</h3>
       <div className="calc-grid">
         <label>Sex<select value={f.sex} onChange={set('sex')}><option value="male">Male</option><option value="female">Female</option></select></label>
         <label>Age<input type="number" min="12" value={f.age} onChange={set('age')} /></label>
@@ -461,18 +401,25 @@ function Calc() {
         <label>Activity<select value={f.act} onChange={set('act')}>{activity.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></label>
         <label>Goal<select value={f.goal} onChange={set('goal')}>{aims.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></label>
       </div>
+      <div className="calc-creatine">
+        <button type="button" className="switch" role="switch" aria-checked={f.creatine} aria-label="I take creatine" onClick={() => setF({ ...f, creatine: !f.creatine })} />
+        <div><b>I take creatine</b><span>Adds extra water to your daily target.</span></div>
+      </div>
       {ok ? (
         <div className="results" aria-live="polite">
-          <div><b>{kcal}</b><span>kcal / day</span></div>
-          <div><b>{protein} g</b><span>Protein</span></div>
-          <div><b>{carbs} g</b><span>Carbs</span></div>
-          <div><b>{fat} g</b><span>Fat</span></div>
-          <div><b>{bmi}</b><span>BMI</span></div>
+          <div><b>{protein} g</b><span>Protein / day</span><small>About {perMeal} g in each of 4 meals</small></div>
+          <div><b>{kcal}</b><span>kcal / day</span><small>{n('goal') === 0 ? 'At maintenance' : `${goalLabel(n('goal'))} kcal from maintenance`}</small></div>
+          <div><b>{water} L</b><span>Water / day</span><small>About {glasses} glasses{f.creatine ? ', includes +0.5 L for creatine' : ''}</small></div>
+          {f.creatine && <div><b>{dose} g</b><span>Creatine / day</span><small>Daily, no loading needed</small></div>}
         </div>
       ) : <p className="err">Enter valid numbers.</p>}
-      <p className="note">Estimates only (Mifflin-St Jeor). Adjust after 2 to 3 weeks based on your progress.</p>
+      <p className="note">Estimates only (Mifflin-St Jeor for calories, 35 ml per kg for water plus training sweat). Drink more in hot weather and aim for pale yellow urine. Adjust calories after 2 to 3 weeks based on your progress. Check with a doctor first if you have kidney problems.</p>
     </div>
   )
+}
+
+function goalLabel(g) {
+  return g > 0 ? '+300' : g < 0 ? '−400' : '±0'
 }
 
 function Diet() {
@@ -492,56 +439,6 @@ function Diet() {
       </div>
       <Calc />
     </>
-  )
-}
-
-function Join() {
-  const [interest, setInterest] = useState(goals[0])
-  const [form, setForm] = useState({ name: '', email: '' })
-  const [error, setError] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-
-  const submit = (event) => {
-    event.preventDefault()
-    if (form.name.trim().length < 2) return setError('Enter your full name.')
-    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) return setError('Enter a valid email address.')
-    setError('')
-    setSubmitted(true)
-  }
-
-  return (
-    <div className="join">
-      <div>
-        <p className="eyebrow"><i aria-hidden="true" />Get started</p>
-        <h2>Get your free plan. <em>Start this week.</em></h2>
-        <p className="lead">Everything here is free. Tell us your goal and we will email you a starter workout and diet plan.</p>
-      </div>
-      {submitted ? (
-        <div className="ok" role="status">
-          <h3>Thanks, {form.name.trim().split(/\s+/)[0]}.</h3>
-          <p>Your request is ready, but this demo does not send bookings yet. Email <a href={`mailto:hello@ironline.example?subject=${encodeURIComponent('Free starter plan')}&body=${encodeURIComponent(`Name: ${form.name.trim()}\nEmail: ${form.email.trim()}\nInterest: ${interest}`)}`}>hello@ironline.example</a> to get your {interest} starter plan.</p>
-        </div>
-      ) : (
-        <form className="card" onSubmit={submit} noValidate>
-          <label>
-            Full name
-            <input name="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} autoComplete="name" />
-          </label>
-          <label>
-            Email
-            <input name="email" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} autoComplete="email" />
-          </label>
-          <label>
-            Your goal
-            <select value={interest} onChange={(event) => setInterest(event.target.value)}>
-              {goals.map((item) => <option key={item}>{item}</option>)}
-            </select>
-          </label>
-          {error && <p className="err" role="alert">{error}</p>}
-          <button className="btn gold" type="submit">Get free plan</button>
-        </form>
-      )}
-    </div>
   )
 }
 
@@ -802,34 +699,6 @@ function useStoredGoal() {
   return [goal, update]
 }
 
-function Accordion({ items }) {
-  const [open, setOpen] = useState(0)
-
-  return (
-    <div className="rows">
-      {items.map((program, index) => {
-        const isOpen = open === index
-        return (
-          <div className={`row${isOpen ? ' open' : ''}`} key={program.name}>
-            <button
-              aria-expanded={isOpen}
-              aria-controls={`program-panel-${index}`}
-              onClick={() => setOpen(isOpen ? -1 : index)}
-            >
-              <span className="row-num">0{index + 1}</span>
-              <span className="row-title">{program.name}</span>
-              <span className="plus" aria-hidden="true" />
-            </button>
-            <div className="more" id={`program-panel-${index}`} aria-hidden={!isOpen}>
-              <p>{program.text}</p>
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [goal, setGoal] = useStoredGoal()
@@ -878,10 +747,9 @@ export default function App() {
             <a className="only-menu" href="#plans" onClick={closeMenu}>Workout plans</a>
             <a className="only-menu" href="#avoid" onClick={closeMenu}>What to avoid</a>
             <a className="only-menu" href="#reminders" onClick={closeMenu}>Reminders</a>
-            <a className="only-menu" href="#faq" onClick={closeMenu}>FAQ</a>
           </div>
           <button type="button" className="nav-search" onClick={() => { closeMenu(); setSearchOpen(true) }} aria-label="Search (press slash)" aria-haspopup="dialog"><Icon n="search" /><span>Search</span><kbd aria-hidden="true">/</kbd></button>
-          <a href="#join" className="btn gold sm nav-cta" onClick={closeMenu}>Start free</a>
+          <a href="#trainer" className="btn gold sm nav-cta" onClick={closeMenu}>Start training</a>
           <button className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="site-links" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'} onClick={() => setMenuOpen((isOpen) => !isOpen)}>
             <span />
             <span />
@@ -924,7 +792,7 @@ export default function App() {
             ['user', 'trainer', 'Your trainer', 'Pick simple, hard or very hard and follow along.'],
             ['dumbbell', 'exercises', 'Exercise library', 'Animated demos with sets, reps and form cues.'],
             ['calendar', 'plans', 'Workout plans', 'Full body, push pull legs and upper lower.'],
-            ['apple', 'diet', 'Diet and macros', 'Meal plans plus a calorie calculator.'],
+            ['apple', 'diet', 'Diet and macros', 'Meal plans plus protein, calorie and water calculator.'],
             ['trophy', 'records', 'PR tracker', 'Log lifts, beat your best and track progress.'],
           ].map(([icon, id, title, text], i) => (
             <div key={id}><span className="n" aria-hidden="true">0{i + 1}</span><span className="ic"><Icon n={icon} /></span><h3><a href={`#${id}`}>{title}</a></h3><p>{text}</p></div>
@@ -962,7 +830,7 @@ export default function App() {
 
       <section id="diet">
         <div className="wrap">
-          {head('Diet', 'Fuel the', 'work', 'Simple meal plans for your goal, plus a calculator for your calories and macros.')}
+          {head('Diet', 'Fuel the', 'work', 'Simple meal plans for your goal, plus a calculator for your protein, calories and daily water.')}
           <Diet />
         </div>
       </section>
@@ -976,7 +844,7 @@ export default function App() {
 
       <section id="gear">
         <div className="wrap">
-          {head('Gear up', 'Everything you', 'need', 'Supplements, wearables, equipment, shoes, perfume and your gym bag. What you really need, what is nice to have, and what to skip.')}
+          {head('Gear up', 'Everything you', 'need', 'Supplements, wearables, equipment, shoes, perfume and your gym bag. Pick your need below to see what to buy now, what can wait, and what to skip.')}
           <Checklist onGear={setGearTab} />
           <Gear tab={gearTab} setTab={setGearTab} />
         </div>
@@ -1005,33 +873,6 @@ export default function App() {
 
       <section id="reminders">
         <div className="wrap"><Reminders /></div>
-      </section>
-
-      <section id="faq">
-        <div className="wrap split">
-          {head('FAQ', 'Quick', 'answers', 'The basics, answered.')}
-          <Accordion items={faqs} />
-        </div>
-      </section>
-
-      <section id="free" className="alt">
-        <div className="wrap">
-          <div className="free-card">
-            <div>
-              <p className="eyebrow"><i aria-hidden="true" />Always free</p>
-              <h2>Free to use.<br /><em>Free forever.</em></h2>
-              <p className="lead">No joining fee, no subscription, no ads. Pick a goal and start training.</p>
-              <a href="#join" className="btn gold">Get free plan</a>
-            </div>
-            <ul className="perks">
-              {['Full exercise library', 'Workout plans for every level', 'Diet plans and macro calculator', 'Water and meal reminders'].map((perk) => <li key={perk}>{perk}</li>)}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section id="join">
-        <div className="wrap"><Join /></div>
       </section>
 
       <footer>
