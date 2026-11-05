@@ -1,3 +1,4 @@
+@'
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -10,3 +11,4 @@ service cloud.firestore {
     }
   }
 }
+'@ | Set-Content -Path firestore.rules -Encoding ascii
