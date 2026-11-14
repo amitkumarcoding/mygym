@@ -15,6 +15,7 @@ function useStored(key, fallback) {
   useEffect(() => {
     try {
       localStorage.setItem(key, JSON.stringify(value))
+      window.dispatchEvent(new Event('ironline-store'))
     } catch {
       // Storage can be blocked (private mode). The tracker still works for this visit.
     }

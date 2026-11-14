@@ -29,7 +29,6 @@ const faqs = [
   { name: 'Should I check with a doctor first?', text: 'If you have an injury, a health condition or have not trained in years, speak to a doctor or qualified trainer before starting.' },
 ]
 
-const plates = { 5: [64, 0.55], 10: [92, 0.75], 15: [120, 0.9], 20: [150, 1] }
 const defaultMeals = [
   { id: 'b', label: 'Breakfast', time: '08:00', on: true },
   { id: 'l', label: 'Lunch', time: '13:00', on: true },
@@ -92,46 +91,189 @@ function readReminderSettings() {
   }
 }
 
-function Barbell() {
-  const [load, setLoad] = useState([])
-  const total = 20 + 2 * load.reduce((sum, weight) => sum + weight, 0)
-  const addPlate = (weight) => {
-    if (load.length < 5) setLoad([...load, weight])
+const PR_KEY = 'ironline-prs'
+const readLogs = () => {
+  try {
+    const a = JSON.parse(localStorage.getItem(PR_KEY) || '[]')
+    return Array.isArray(a) ? a.filter((l) => l && l.ex && l.kg > 0) : []
+  } catch {
+    return []
   }
-  const label = total <= 20
-    ? 'Empty bar. Add some plates.'
-    : total < 80
-      ? 'Solid warm-up.'
-      : total < 140
-        ? "Now we're training."
-        : 'Heavy. Chalk up.'
+}
+const est1 = (kg, reps) => (reps <= 1 ? kg : kg * (1 + reps / 30))
+const topLifts = (logs) => {
+  const m = {}
+  ;[...logs].reverse().sort((x, y) => ((x.date || '') < (y.date || '') ? -1 : (x.date || '') > (y.date || '') ? 1 : 0)).forEach((l) => {
+    const r = m[l.ex] || (m[l.ex] = { ex: l.ex, kg: 0, reps: 0, up: 0, last: l.date || '' })
+    if (l.kg > r.kg) { r.up = r.kg ? Math.round((l.kg - r.kg) * 10) / 10 : 0; r.kg = l.kg; r.reps = l.reps }
+    else if (l.kg === r.kg && l.reps > r.reps) r.reps = l.reps
+    if ((l.date || '') > r.last) r.last = l.date || ''
+  })
+  return Object.values(m).sort((a, b) => (a.last < b.last ? 1 : -1))
+}
+const demoRows = [
+  { ex: 'Bench press', kg: 100, reps: 5, up: 5 },
+  { ex: 'Squat', kg: 140, reps: 5, up: 10 },
+  { ex: 'Deadlift', kg: 180, reps: 3, up: 10 },
+]
+
+function Lifts() {
+  const init = useRef(null)
+  if (init.current === null) init.current = readLogs()
+  const prev = useRef(init.current)
+  const prevJson = useRef(JSON.stringify(init.current))
+  const hold = useRef(0)
+  const listRef = useRef(null)
+  const [logs, setLogs] = useState(init.current)
+  const [i, setI] = useState(0)
+  const [flash, setFlash] = useState(null)
+  const [n, setN] = useState(0)
+  const list = useMemo(() => topLifts(logs), [logs])
+  const rows = list.length ? list : demoRows
+  const k = i % rows.length
+  const cur = rows[k]
+  const kg = flash ? flash.kg : cur.kg
+  const reps = flash ? flash.reps : cur.reps
+  const maxKg = Math.max(...rows.map((x) => x.kg), 1)
+
+  useEffect(() => {
+    const sync = () => {
+      const next = readLogs()
+      const json = JSON.stringify(next)
+      if (json === prevJson.current) return
+      const old = prev.current
+      prev.current = next
+      prevJson.current = json
+      setLogs(next)
+      const known = new Set(old.map((l) => l.id))
+      const added = next.filter((l) => !known.has(l.id))
+      if (added.length !== 1) { setFlash(null); return }
+      const a = added[0]
+      const same = old.filter((l) => l.ex === a.ex)
+      const heavy = same.reduce((m, l) => Math.max(m, l.kg), 0)
+      const best = same.reduce((m, l) => Math.max(m, est1(l.kg, l.reps)), 0)
+      const text = !same.length
+        ? 'First lift logged'
+        : a.kg > heavy
+          ? `New PR +${Math.round((a.kg - heavy) * 10) / 10} kg`
+          : est1(a.kg, a.reps) > best ? 'Strength PR' : 'Logged'
+      setI(Math.max(topLifts(next).findIndex((x) => x.ex === a.ex), 0))
+      setFlash({ text, ex: a.ex, kg: a.kg, reps: a.reps, key: Date.now() })
+      hold.current = Date.now() + 7000
+    }
+    window.addEventListener('ironline-store', sync)
+    window.addEventListener('storage', sync)
+    return () => {
+      window.removeEventListener('ironline-store', sync)
+      window.removeEventListener('storage', sync)
+    }
+  }, [])
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      if (Date.now() < hold.current) return
+      setFlash(null)
+      setI((x) => x + 1)
+    }, 4200)
+    return () => clearInterval(t)
+  }, [])
+
+  useEffect(() => {
+    if (!kg || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setN(kg); return undefined }
+    let raf
+    const t0 = performance.now()
+    const go = (t) => {
+      const p = Math.min((t - t0) / 1200, 1)
+      setN(Math.round(kg * (1 - (1 - p) ** 3)))
+      if (p < 1) raf = requestAnimationFrame(go)
+    }
+    raf = requestAnimationFrame(go)
+    return () => cancelAnimationFrame(raf)
+  }, [kg, i, flash && flash.key])
+
+  const badge = flash ? flash.text : `New PR${cur.up ? ` +${cur.up} kg` : ''}`
+  const active = (x, idx) => (flash ? x.ex === flash.ex : idx === k)
+  const act = flash ? Math.max(rows.findIndex((x) => x.ex === flash.ex), 0) : k
+
+  useEffect(() => {
+    const ul = listRef.current
+    const li = ul && ul.children[act]
+    if (li && ul.scrollHeight > ul.clientHeight) ul.scrollTo({ top: li.offsetTop - ul.offsetTop, behavior: 'smooth' })
+  }, [act, rows.length])
 
   return (
-    <div className="rack">
-      <small>Interactive · Load the bar</small>
-      <svg viewBox="0 0 520 190" role="img" aria-label={`Barbell loaded to ${total} kilograms`}>
-        <defs><linearGradient id="steel" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#e8e6e1"/><stop offset="1" stopColor="#6c6f75"/></linearGradient><linearGradient id="gold" x1="0" x2="1"><stop offset="0" stopColor="#ecd3a5"/><stop offset="1" stopColor="#b08d57"/></linearGradient></defs>
-        <rect x="10" y="92" width="500" height="8" fill="url(#steel)" />
-        <rect x="200" y="86" width="120" height="20" fill="#3a3d42" />
-        {load.map((weight, index) => {
-          const [height, opacity] = plates[weight]
-          return (
-            <g key={`${weight}-${index}`}>
-              <rect className="plate" x={190 - (index + 1) * 22} y={96 - height / 2} width="18" height={height} fill="url(#gold)" fillOpacity={opacity} stroke="#f1ede6" strokeOpacity=".25" />
-              <rect className="plate" x={330 + index * 22} y={96 - height / 2} width="18" height={height} fill="url(#gold)" fillOpacity={opacity} stroke="#f1ede6" strokeOpacity=".25" />
-            </g>
-          )
-        })}
-      </svg>
-      <div className="total" aria-live="polite">{total} kg</div>
-      <p className="rack-label">{label}</p>
-      <div className="plates">
-        {[5, 10, 15, 20].map((weight) => (
-          <button key={weight} onClick={() => addPlate(weight)} disabled={load.length >= 5}>Add {weight} kg</button>
-        ))}
-        <button onClick={() => setLoad(load.slice(0, -1))} disabled={!load.length}>Undo</button>
-        <button onClick={() => setLoad([])} disabled={!load.length}>Clear</button>
+    <div className="lf">
+      <div className="lf-main">
+        <span className="lf-badge" key={flash ? flash.key : i}>{badge}</span>
+        <b>{n}<small>kg</small></b>
+        <span className="lf-sub">{flash ? flash.ex : cur.ex} · {reps} {reps === 1 ? 'rep' : 'reps'}</span>
       </div>
+      <ul ref={listRef} className={rows.length > 3 ? 'scroll' : ''}>
+        {rows.map((x, idx) => (
+          <li key={x.ex} className={active(x, idx) ? 'on' : ''}>
+            <span>{x.ex}</span><strong>{x.kg ? `${x.kg} kg` : '—'}</strong>
+            <div><i style={{ width: `${(x.kg / maxKg) * 100 * (active(x, idx) ? 1 : 0.3)}%` }} /></div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+const mapOrder = ['Chest', 'Shoulders', 'Back', 'Arms', 'Core', 'Legs']
+const mapParts = {
+  Shoulders: ['M62 86 C70 76 86 78 92 90 C94 104 88 116 78 120 C66 118 58 104 62 86Z'],
+  Chest: ['M95 92 C104 90 116 92 119 98 L119 130 C108 138 96 134 91 122 C88 110 90 98 95 92Z'],
+  Back: ['M110 54 C104 66 94 74 80 80 L92 88 C100 82 108 76 112 70Z', 'M88 128 C93 142 97 158 99 178 L91 180 C85 162 81 144 82 126Z'],
+  Arms: ['M60 124 C54 138 52 154 54 170 L67 172 C71 156 73 140 75 126Z', 'M53 176 C49 196 47 216 45 236 L57 240 C61 220 65 198 67 178Z'],
+  Core: ['M105 138h14v16h-14z', 'M105 158h14v16h-14z', 'M105 178h14v16h-14z', 'M105 198h14v14h-14z'],
+  Legs: ['M96 218 C90 254 88 290 92 322 L117 322 C119 290 119 254 117 218Z', 'M93 332 C89 360 91 390 95 414 L111 414 C115 390 117 360 115 332Z'],
+}
+const flip = 'translate(240 0) scale(-1 1)'
+
+function LiftRack() {
+  const groups = mapOrder.filter((g) => exercises[g])
+  const [k, setK] = useState(0)
+  const [auto, setAuto] = useState(true)
+  useEffect(() => {
+    if (!auto) return undefined
+    const t = setInterval(() => setK((x) => (x + 1) % groups.length), 3600)
+    return () => clearInterval(t)
+  }, [auto, groups.length])
+  const g = groups[k]
+  const list = exercises[g]
+  const pick = (i) => { setAuto(false); setK(i) }
+
+  return (
+    <div className="rk">
+      <small>Interactive · Tap a muscle</small>
+      <div className="rk-stage">
+        <svg viewBox="0 0 340 440" role="img" aria-label={`Muscle map, ${g} selected`}>
+          <defs>
+            <linearGradient id="rkGold" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#f6e4bd"/><stop offset=".6" stopColor="#d8b983"/><stop offset="1" stopColor="#a98550"/></linearGradient>
+            <linearGradient id="rkScan" x1="0" x2="1"><stop offset="0" stopColor="#d8b983" stopOpacity="0"/><stop offset=".5" stopColor="#f6e4bd"/><stop offset="1" stopColor="#d8b983" stopOpacity="0"/></linearGradient>
+          </defs>
+          <g className="rk-ruler" aria-hidden="true">
+            {Array.from({ length: 23 }, (_, i) => <line key={i} x1="6" x2={i % 5 === 0 ? 20 : 12} y1={20 + i * 19} y2={20 + i * 19} />)}
+            {Array.from({ length: 23 }, (_, i) => <line key={i} x1="334" x2={i % 5 === 0 ? 320 : 328} y1={20 + i * 19} y2={20 + i * 19} />)}
+          </g>
+          <g transform="translate(50 0)" className="rk-body">
+            <circle cx="120" cy="34" r="17" className="rk-dead" /><rect x="111" y="50" width="18" height="16" rx="4" className="rk-dead" />
+            {groups.map((name, i) => (
+              <g key={name} className={`rk-m${i === k ? ' on' : ''}`} role="button" tabIndex={0} aria-label={name} onClick={() => pick(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(i) } }}>
+                {mapParts[name].map((d, x) => <path key={x} d={d} />)}
+                {mapParts[name].map((d, x) => <path key={`m${x}`} d={d} transform={flip} />)}
+              </g>
+            ))}
+          </g>
+          <rect className="rk-scan" x="0" y="0" width="340" height="2" fill="url(#rkScan)" />
+        </svg>
+      </div>
+      <div className="rk-info">
+        <div className="rk-row"><h3 key={g}>{g}</h3><span className="rk-rep"><b>{list.length}</b> exercises</span></div>
+        <p aria-live="polite">{list.slice(0, 3).map((x) => x.n).join(' · ')}</p>
+      </div>
+      <a href="#exercises" className="btn rk-cta">Browse {g.toLowerCase()} exercises <span aria-hidden="true">→</span></a>
     </div>
   )
 }
@@ -851,31 +993,35 @@ export default function App() {
         </div>
       </nav>
 
-      <header className="hero" id="top">
-        <HeroMedia />
-        <Icon n="dumbbell" cls="hero-ic" />
-        <div className="wrap">
-          <div className="hero-content">
-            <p className="eyebrow"><i aria-hidden="true" />Gym training guide</p>
-            <h1>Train hard.<br /><em>Eat right.</em></h1>
-            <p className="hero-copy">Animated exercise guides, workout plans, diet plans and calculators for everyone who lifts. Free, always.</p>
-            <div className="actions">
+      <header className="hx" id="top">
+        <div className="hx-grid">
+          <div className="hx-t hx-head">
+            <p className="hx-tag"><span aria-hidden="true" />Gym training guide<b>Free · Always</b></p>
+            <div className="hx-hl">
+              <div className="hx-seal" aria-hidden="true">
+                <svg viewBox="0 0 120 120"><defs><path id="hxSealPath" d="M60,60 m-45,0 a45,45 0 1,1 90,0 a45,45 0 1,1 -90,0" /></defs><text><textPath href="#hxSealPath" textLength="280" lengthAdjust="spacing">TRAIN HARD · EAT RIGHT · REPEAT · </textPath></text></svg>
+                <span><Icon n="dumbbell" /></span>
+              </div>
+              <h1 className="hx-title"><span>Train hard.</span><em>Eat right.</em></h1>
+              <p className="hx-copy">Animated exercise guides, workout plans, diet plans and calculators for everyone who lifts.</p>
+            </div>
+            <Lifts />
+            <div className="hx-cta">
               <a href="#trainer" className="btn gold">Choose your trainer</a>
               <a href="#exercises" className="btn ghost">Browse exercises</a>
             </div>
-            <button type="button" className="hero-search" onClick={() => setSearchOpen(true)} aria-haspopup="dialog">
-              <Icon n="search" /><span>Search exercises, muscles, foods, supplements…</span><kbd aria-hidden="true">/</kbd>
-            </button>
           </div>
-          <Barbell />
-        </div>
-        <div className="wrap hero-foot">
-          <dl className="stats">
+          <div className="hx-t hx-vid">
+            <HeroMedia />
+            <span className="hx-idx">01 — Move</span>
+            <span className="hx-chip"><i aria-hidden="true" />Animated form guides</span>
+          </div>
+          <dl className="hx-t hx-stats">
             <div><dt>{Object.values(exercises).flat().length}</dt><dd>Exercises</dd></div>
             <div><dt>{Object.keys(plans).length}</dt><dd>Workout plans</dd></div>
             <div><dt>{Object.keys(diets).length}</dt><dd>Diet plans</dd></div>
           </dl>
-          <a href="#trainer" className="scroll-cue" aria-label="Scroll to your trainer"><span>Scroll</span><i aria-hidden="true" /></a>
+          <div className="hx-t hx-bar"><LiftRack /></div>
         </div>
       </header>
 
