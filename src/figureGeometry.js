@@ -1,6 +1,6 @@
 import { exercises, poseAt } from './exercises'
 
-const f = (n) => +n.toFixed(1)
+const f = (n) => +n.toFixed(2)
 
 // Tapered limb: a capsule from circle a (radius ra) to circle b (radius rb).
 export const cap = (a, ra, b, rb) => {
@@ -44,7 +44,7 @@ const mix = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]
 // Which body parts glow for each muscle group.
 const GLOW = {
   Chest: ['torsoUpM'],
-  Back: ['torsoUpM', 'torsoLowM', 'upperM'],
+  Back: ['torsoBackM', 'upperM'],
   Shoulders: ['delt', 'upperM'],
   Arms: ['upperM', 'foreM'],
   Core: ['torsoLowM'],
@@ -57,44 +57,115 @@ Object.entries(exercises).forEach(([g, list]) => list.forEach((x) => groupOf.set
 export const groupName = (ex) => groupOf.get(ex.n) || 'Cardio'
 export const glowParts = (ex) => GLOW[groupName(ex)] || GLOW.Cardio
 
+// ---- anatomical limb contours -------------------------------------------------
+const unit = (a, b) => { const dx = b[0] - a[0]; const dy = b[1] - a[1]; const L = Math.hypot(dx, dy) || 1; return [dx / L, dy / L, L] }
+const at = (p, u, k) => [p[0] + u[0] * k, p[1] + u[1] * k]
+const sample = (pr, t) => {
+  if (t <= pr[0][0]) return pr[0]
+  for (let i = 1; i < pr.length; i++) {
+    if (t <= pr[i][0]) { const p = pr[i - 1]; const q = pr[i]; const u = (t - p[0]) / (q[0] - p[0]); return [t, p[1] + (q[1] - p[1]) * u, p[2] + (q[2] - p[2]) * u] }
+  }
+  return pr[pr.length - 1]
+}
+// profile rows: [t along the limb, half-width on the front side, half-width on the back side]
+const sides = (a, b, pr, fs, t0 = 0, t1 = 1, kf = 1, kb = 1) => {
+  const [ux, uy] = unit(a, b)
+  const fv = fs > 0 ? [uy, -ux] : [-uy, ux]
+  const F = []
+  const B = []
+  for (let i = 0; i <= 8; i++) {
+    const t = t0 + ((t1 - t0) * i) / 8
+    const w = sample(pr, t)
+    const c = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]
+    F.push([c[0] + fv[0] * w[1] * kf, c[1] + fv[1] * w[1] * kf])
+    B.push([c[0] - fv[0] * w[2] * kb, c[1] - fv[1] * w[2] * kb])
+  }
+  return { F, B, fv, n: [-uy, ux] }
+}
+const sm = (pts) => {
+  let d = ''
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i]
+    const p1 = pts[i]
+    const p2 = pts[i + 1]
+    const p3 = pts[i + 2] || p2
+    d += `C${f(p1[0] + (p2[0] - p0[0]) / 6)} ${f(p1[1] + (p2[1] - p0[1]) / 6)} ${f(p2[0] - (p3[0] - p1[0]) / 6)} ${f(p2[1] - (p3[1] - p1[1]) / 6)} ${f(p2[0])} ${f(p2[1])}`
+  }
+  return d
+}
+const limb = (a, b, pr, fs, t0, t1, kf, kb) => {
+  const { F, B, fv, n } = sides(a, b, pr, fs, t0, t1, kf, kb)
+  const sw = fv[0] * n[0] + fv[1] * n[1] > 0 ? 0 : 1
+  const fe = F[8]
+  const be = B[8]
+  const r1 = (Math.hypot(fe[0] - be[0], fe[1] - be[1]) / 2) * 1.002
+  const r0 = (Math.hypot(F[0][0] - B[0][0], F[0][1] - B[0][1]) / 2) * 1.002
+  return `M${f(F[0][0])} ${f(F[0][1])}${sm(F)}A${f(r1)} ${f(r1)} 0 0 ${sw} ${f(be[0])} ${f(be[1])}${sm([...B].reverse())}A${f(r0)} ${f(r0)} 0 0 ${sw} ${f(F[0][0])} ${f(F[0][1])}Z`
+}
+const edge = (a, b, pr, fs) => {
+  const { F, B, fv } = sides(a, b, pr, fs, 0.14, 0.88, 0.84, 0.84)
+  const p = -fv[0] * 0.7 - fv[1] * 0.7 > 0 ? F : B
+  return `M${f(p[0][0])} ${f(p[0][1])}${sm(p)}`
+}
+
+const TORSO = [[0, 7.4, 8.2], [0.12, 8.0, 9.4], [0.38, 6.6, 6.4], [0.62, 9.4, 8.0], [0.82, 10.0, 8.8], [1, 6.2, 6.6]]
+const THIGH = [[0, 8.2, 8.4], [0.2, 8.8, 8.8], [0.5, 7.2, 6.8], [0.8, 5.8, 5.4], [1, 4.9, 4.9]]
+const SHIN = [[0, 4.9, 4.9], [0.18, 4.4, 5.8], [0.35, 4.0, 6.0], [0.7, 3.4, 4.2], [1, 2.9, 3.0]]
+const UPPER = [[0, 5.6, 5.6], [0.3, 5.3, 5.0], [0.55, 4.8, 4.4], [1, 3.7, 3.7]]
+const FORE = [[0, 3.9, 4.0], [0.25, 4.3, 4.2], [0.65, 3.0, 3.1], [1, 2.4, 2.4]]
+const HAND = [[0, 2.4, 2.4], [0.5, 3.0, 3.0], [1, 2.0, 2.0]]
+const NECK = [[0, 3.6, 3.5], [1, 3.3, 3.4]]
+const HEAD = [[0, 3.4, 3.0], [0.15, 5.6, 4.6], [0.4, 7.0, 7.2], [0.7, 7.4, 7.6], [0.9, 5.8, 6.0], [1, 3.2, 3.2]]
+
+const shoe = (A) => {
+  const [x, y] = A
+  const p = (dx, dy) => `${f(x + dx)} ${f(y + dy)}`
+  return `M${p(-3.4, -2.2)}C${p(-3.6, -0.2)} ${p(-3.6, 2.8)} ${p(-2.4, 4.1)}L${p(9.6, 4.1)}C${p(11.4, 4.1)} ${p(11.6, 1.4)} ${p(9.6, 0.4)}C${p(6, -0.8)} ${p(3.6, -1.6)} ${p(2.6, -3)}Z`
+}
+
 // Every animated shape for one pose, keyed by name.
 export const shapes = (ex, r, act, prog) => {
-  const C = mix(r.P, r.N, 0.62)
   const s = {}
-  s.torsoLow = cap(r.P, 10.5, C, 12.5)
-  s.torsoLowH = rim(r.P, 10.5, C, 12.5)
-  s.torsoUp = cap(C, 12.5, r.N, 6.5)
-  s.torsoUpH = rim(C, 12.5, r.N, 6.5)
-  s.thigh = cap(r.P, 9, r.K, 6.4)
-  s.thighH = rim(r.P, 9, r.K, 6.4)
-  s.shin = cap(r.K, 6.4, r.A, 4.3)
-  s.shinH = rim(r.K, 6.4, r.A, 4.3)
-  s.foot = cap(r.A, 4.6, r.F, 3.1)
+  const ax = unit(r.P, r.N)
+  s.torso = limb(r.P, r.N, TORSO, -1)
+  s.torsoH = edge(r.P, r.N, TORSO, -1)
+  s.neck = limb(at(r.N, ax, 1), at(r.N, ax, 12), NECK, -1)
+  const h0 = at(r.N, ax, 4.5)
+  const h1 = at(r.N, ax, 21.5)
+  s.head = limb(h0, h1, HEAD, -1)
+  s.headH = edge(h0, h1, HEAD, -1)
+  s.thigh = limb(r.P, r.K, THIGH, 1)
+  s.thighH = edge(r.P, r.K, THIGH, 1)
+  s.shin = limb(r.K, r.A, SHIN, 1)
+  s.shinH = edge(r.K, r.A, SHIN, 1)
+  s.foot = shoe(r.A)
   if (r.K2) {
-    const F2 = [r.A2[0] + 10, r.A2[1]]
-    s.thigh2 = cap(r.P, 8.6, r.K2, 6.1)
-    s.shin2 = cap(r.K2, 6.1, r.A2, 4.1)
-    s.foot2 = cap(r.A2, 4.4, F2, 3)
+    s.thigh2 = limb(r.P, r.K2, THIGH, 1)
+    s.shin2 = limb(r.K2, r.A2, SHIN, 1)
+    s.foot2 = shoe(r.A2)
   }
-  s.upper = cap(r.N, 6.2, r.E, 4.7)
-  s.upperH = rim(r.N, 6.2, r.E, 4.7)
-  s.fore = cap(r.E, 4.7, r.W, 3.5)
-  s.foreH = rim(r.E, 4.7, r.W, 3.5)
-  // the muscle bellies that glow, narrower than the limbs they sit on
-  s.torsoUpM = cap(mix(C, r.N, 0.08), 10.4, mix(C, r.N, 0.78), 7)
-  s.torsoLowM = cap(mix(r.P, C, 0.18), 8, mix(r.P, C, 0.88), 9.6)
-  s.thighM = cap(mix(r.P, r.K, 0.16), 7.4, mix(r.P, r.K, 0.84), 4.6)
-  s.shinM = cap(mix(r.K, r.A, 0.1), 4.9, mix(r.K, r.A, 0.74), 3)
-  s.upperM = cap(mix(r.N, r.E, 0.18), 4.3, mix(r.N, r.E, 0.86), 3.2)
-  s.foreM = cap(mix(r.E, r.W, 0.14), 3.6, mix(r.E, r.W, 0.82), 2.3)
-  s.delt = circ(r.N, 5.4)
-  s.glute = circ(mix(r.P, r.K, 0.12), 8)
+  s.upper = limb(r.N, r.E, UPPER, 1)
+  s.upperH = edge(r.N, r.E, UPPER, 1)
+  s.fore = limb(r.E, r.W, FORE, 1)
+  s.foreH = edge(r.E, r.W, FORE, 1)
+  const hu = unit(r.E, r.W)
+  s.hand = limb(at(r.W, hu, -3), at(r.W, hu, 3.4), HAND, 1)
+  // muscle bellies that light up
+  s.torsoUpM = limb(r.P, r.N, TORSO, -1, 0.5, 0.95, 0.9, 0.12)
+  s.torsoBackM = limb(r.P, r.N, TORSO, -1, 0.45, 0.95, 0.12, 0.9)
+  s.torsoLowM = limb(r.P, r.N, TORSO, -1, 0.1, 0.52, 0.85, 0.18)
+  s.thighM = limb(r.P, r.K, THIGH, 1, 0.12, 0.88, 0.86, 0.8)
+  s.shinM = limb(r.K, r.A, SHIN, 1, 0.1, 0.62, 0.3, 0.9)
+  s.upperM = limb(r.N, r.E, UPPER, 1, 0.15, 0.9, 0.86, 0.6)
+  s.foreM = limb(r.E, r.W, FORE, 1, 0.1, 0.85, 0.8, 0.8)
+  s.delt = circ(r.N, 5.6)
+  s.glute = circ(mix(r.P, r.K, 0.12), 7)
   s.hex = hex(r.W, 7.6)
   s.H = r.H
   s.W = r.W
   s.A = r.A
   s.shadow = shadowOf(ex, r)
-  s.act = 0.3 + 0.7 * act
+  s.act = 0.14 + 0.86 * act
   s.prog = prog
   if (ex.q === 'cab') s.cab = `M${r.W[0]} ${r.W[1]}L${ex.c[0]} ${ex.c[1]}`
   return s
@@ -208,7 +279,7 @@ export const settle = (r, floorY) => {
   parts.forEach(([k, rad]) => { if (r[k]) over = Math.max(over, r[k][1] + rad - (floorY + 0.8)) })
   if (over <= 0.3) return r
   const o = {}
-  Object.keys(r).forEach((k) => { o[k] = Array.isArray(r[k]) ? [r[k][0], +(r[k][1] - over).toFixed(1)] : r[k] })
+  Object.keys(r).forEach((k) => { o[k] = Array.isArray(r[k]) ? [r[k][0], +(r[k][1] - over).toFixed(2)] : r[k] })
   return o
 }
 

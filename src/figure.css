@@ -2,7 +2,7 @@
 .gym .fx .fx-limbs path,.gym .fx .fx-limbs circle{stroke:rgb(216 185 131/30%);stroke-width:.7;stroke-linejoin:round}
 .gym .fx .fx-far path,.gym .fx .fx-far circle{stroke:rgb(216 185 131/12%)}
 .gym .fx .fx-rim{fill:none;stroke:rgb(255 255 255/17%);stroke-width:2.4;stroke-linecap:round}
-.gym .fx .fx-mus path{stroke:rgb(255 244 214/70%);stroke-width:.8;stroke-linejoin:round}
+.gym .fx .fx-mus path{stroke:rgb(255 244 214/35%);stroke-width:.5;stroke-linejoin:round}
 .gym .fx .fx-aura path{fill:none;stroke:#f6e4bd;stroke-width:5;stroke-linejoin:round;stroke-linecap:round}
 
 .gym .fx .fx-plate circle,.gym .fx .fx-plate path{stroke:rgb(216 185 131/55%);stroke-width:.9}
@@ -29,3 +29,15 @@
   .gym .fx .fx-trail{animation:fxFlow 1.6s linear infinite}
 }
 @keyframes fxFlow{to{stroke-dashoffset:-14}}
+
+.gym .fx .fx-tail{fill:none;stroke:#f6e4bd;stroke-linecap:round}
+.gym .fx .fx-halo{fill:rgb(246 228 189/14%)}
+.gym .fx .fx-fill{filter:drop-shadow(0 0 2px rgb(246 228 189/80%))}
+.gym .fx .fx-limbs path,.gym .fx .fx-limbs circle{transition:none}
+.gym .fig-wrap{box-shadow:inset 0 0 0 1px rgb(216 185 131/14%),inset 0 0 70px rgb(0 0 0/55%)}
+@media (prefers-reduced-motion:no-preference){
+  .gym .fx{animation:fxIn .9s cubic-bezier(.2,.8,.2,1) both}
+  .gym .fx .fx-spot{animation:fxBreath 7s ease-in-out infinite}
+}
+@keyframes fxIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@keyframes fxBreath{0%,100%{opacity:.8}50%{opacity:1}}

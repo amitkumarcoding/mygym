@@ -106,8 +106,8 @@ const R = Math.PI / 180
 const d = (a, l) => [Math.cos(a * R) * l, Math.sin(a * R) * l]
 const add = (p, q) => [p[0] + q[0], p[1] + q[1]]
 
-const ease = (x) => 0.5 - 0.5 * Math.cos(Math.PI * x)
-const SEG = [[1.1, 'up'], [0.35, 'top'], [1.9, 'down'], [0.45, 'bot']]
+const ease = (x) => x * x * x * (x * (x * 6 - 15) + 10)
+const SEG = [[1.3, 'up'], [0.45, 'top'], [2.1, 'down'], [0.55, 'bot']]
 export const DUR = SEG.reduce((a, [t]) => a + t, 0)
 
 export { SEG, ease }
@@ -123,7 +123,7 @@ export const poseAt = (ex, t) => {
   const A = add(K, d(p[4], 34))
   const o = { P, N, E, W, A }[ex.k]
   const dy = (ex.lift || 0) * t
-  const m = (q) => [+(q[0] + ex.f[0] - o[0]).toFixed(1), +(q[1] + ex.f[1] - o[1] - dy).toFixed(1)]
+  const m = (q) => [+(q[0] + ex.f[0] - o[0]).toFixed(2), +(q[1] + ex.f[1] - o[1] - dy).toFixed(2)]
   const r = { P: m(P), N: m(N), E: m(E), W: m(W), K: m(K), A: m(A), H: m(add(N, d(p[0], 13))), F: m(add(A, [10, 0])), lift: dy }
   if (ex.A.length > 5) {
     const K2 = add(P, d(p[5], 34))
@@ -139,9 +139,10 @@ export const phaseAt = (time) => {
   for (const [len, kind] of SEG) {
     if (time <= at + len || kind === SEG[SEG.length - 1][1]) {
       const x = Math.min(1, Math.max(0, (time - at) / len))
-      if (kind === 'up') return { t: ease(x), act: Math.sin(Math.PI * x) }
-      if (kind === 'down') return { t: 1 - ease(x), act: Math.sin(Math.PI * x) }
-      return { t: kind === 'top' ? 1 : 0, act: 0 }
+      if (kind === 'up') return { t: ease(x), act: ease(x) }
+      if (kind === 'down') return { t: 1 - ease(x), act: 1 - 0.85 * ease(x) }
+      if (kind === 'top') return { t: 1, act: 1 }
+      return { t: 0, act: 0.15 * (1 - ease(x)) }
     }
     at += len
   }

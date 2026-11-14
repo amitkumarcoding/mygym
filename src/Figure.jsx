@@ -23,7 +23,12 @@ const frameAt = (ex, stage, time) => {
   const { t, act } = phaseAt(time)
   const r = settle(poseAt(ex, t), stage.floorY)
   const barW = stage.vb[2] - 36
-  return shapes(ex, r, act, +((time / DUR) * barW).toFixed(1))
+  const s = shapes(ex, r, act, +((time / DUR) * barW).toFixed(1))
+  if (stage.trail) {
+    const p = [0, 1, 2, 3, 4].map((i) => poseAt(ex, phaseAt((((time - i * 0.09) % DUR) + DUR) % DUR).t)[stage.tk])
+    for (let i = 0; i < 4; i++) s[`tl${i}`] = `M${p[i][0]} ${p[i][1]}L${p[i + 1][0]} ${p[i + 1][1]}`
+  }
+  return s
 }
 
 const apply = (nodes, s) => {
@@ -90,21 +95,21 @@ export default function Figure({ ex, at }) {
 
   const limb = (k, extra) => <path key={k + (extra || '')} data-t="d" data-k={k} d={S[k]} />
   const rimOf = (k) => <path key={`${k}H`} className="fx-rim" data-t="d" data-k={`${k}H`} d={S[`${k}H`]} />
-  const arm = [limb('upper'), limb('fore')]
+  const arm = [limb('upper'), limb('fore'), limb('hand')]
   const legNear = [limb('thigh'), limb('shin'), limb('foot')]
   const legFar = ex.A.length > 5 ? [limb('thigh2'), limb('shin2'), limb('foot2')] : null
 
   return (
     <svg ref={svg} className="fig fx" viewBox={vb.join(' ')} role="img" aria-label={`${ex.n} animated demonstration`}>
       <defs>
-        <linearGradient id={id('body')} gradientUnits="userSpaceOnUse" x1="50" y1={vy} x2="190" y2={vy + vh}>
-          <stop offset="0" stopColor="#6a707c" /><stop offset=".42" stopColor="#363a43" /><stop offset="1" stopColor="#14161a" />
+        <linearGradient id={id('body')} x1="0" y1="0" x2=".85" y2="1">
+          <stop offset="0" stopColor="#868d9a" /><stop offset=".38" stopColor="#4a505b" /><stop offset="1" stopColor="#16181d" />
         </linearGradient>
-        <linearGradient id={id('far')} gradientUnits="userSpaceOnUse" x1="50" y1={vy} x2="190" y2={vy + vh}>
+        <linearGradient id={id('far')} x1="0" y1="0" x2=".85" y2="1">
           <stop offset="0" stopColor="#3b3f48" /><stop offset="1" stopColor="#0d0e11" />
         </linearGradient>
-        <linearGradient id={id('mus')} gradientUnits="userSpaceOnUse" x1="50" y1={vy} x2="190" y2={vy + vh}>
-          <stop offset="0" stopColor="#f0d9a8" /><stop offset=".5" stopColor="#c19a55" /><stop offset="1" stopColor="#7a5a26" />
+        <linearGradient id={id('mus')} x1="0" y1="0" x2=".8" y2="1">
+          <stop offset="0" stopColor="#e9cf98" /><stop offset=".55" stopColor="#a98245" /><stop offset="1" stopColor="#5e4420" />
         </linearGradient>
         <radialGradient id={id('head')} cx=".34" cy=".3" r=".85">
           <stop offset="0" stopColor="#7b818d" /><stop offset=".5" stopColor="#363a43" /><stop offset="1" stopColor="#15171b" />
@@ -130,12 +135,13 @@ export default function Figure({ ex, at }) {
         <linearGradient id={id('fade')} gradientUnits="userSpaceOnUse" x1="0" y1={floorY ?? 150} x2="0" y2={(floorY ?? 150) + 34}>
           <stop offset="0" stopColor="#fff" stopOpacity=".9" /><stop offset="1" stopColor="#000" />
         </linearGradient>
+        <filter id={id('blur')} x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.6" /></filter>
         <mask id={id('refl')} maskUnits="userSpaceOnUse" x={vx - 300} y={floorY ?? 150} width={vw + 600} height="44">
           <rect x={vx - 300} y={floorY ?? 150} width={vw + 600} height="44" fill={url('fade')} />
         </mask>
       </defs>
 
-      <rect x={vx - 300} y={vy - 100} width={vw + 600} height={vh + 200} fill={url('spot')} />
+      <rect className="fx-spot" x={vx - 300} y={vy - 100} width={vw + 600} height={vh + 200} fill={url('spot')} />
 
       {floorY != null && (
         <>
@@ -185,28 +191,26 @@ export default function Figure({ ex, at }) {
         <g className="fx-limbs fx-far" fill={url('far')} transform="translate(-3.2 -1.6)">
           {arm}
           {!legFar && legNear}
-          <circle data-t="c" data-k="W" cx={S.W[0]} cy={S.W[1]} r="3.8" />
         </g>
         {legFar && <g className="fx-limbs fx-far" fill={url('far')}>{legFar}</g>}
 
         <g className="fx-limbs" fill={url('body')}>
-          {limb('torsoLow')}
-          {limb('torsoUp')}
+          {limb('neck')}
+          {limb('torso')}
           {legNear}
-          <circle data-t="c" data-k="H" cx={S.H[0]} cy={S.H[1]} r="8.6" fill={url('head')} />
+          <path data-t="d" data-k="head" d={S.head} fill={url('head')} />
           {arm}
-          <circle data-t="c" data-k="W" cx={S.W[0]} cy={S.W[1]} r="3.9" />
         </g>
         <g className="fx-rims">
-          {['torsoLow', 'torsoUp', 'thigh', 'shin', 'upper', 'fore'].map(rimOf)}
+          {['torso', 'thigh', 'shin', 'upper', 'fore', 'head'].map(rimOf)}
         </g>
 
-        <g opacity=".3">
+        <g opacity=".5" filter={url('blur')}>
           <g className="fx-aura" data-t="o" data-k="act" opacity={S.act}>
             {glow.map((k) => <path key={k} data-t="d" data-k={k} d={S[k]} />)}
           </g>
         </g>
-        <g className="fx-mus" data-t="o" data-k="act" opacity={S.act} fill={url('mus')}>
+        <g className="fx-mus" data-t="o" data-k="act" opacity={S.act} fill={url('mus')} fillOpacity=".8">
           {glow.map((k) => <path key={k} data-t="d" data-k={k} d={S[k]} />)}
         </g>
 
@@ -239,6 +243,8 @@ export default function Figure({ ex, at }) {
         )}
       </g>
 
+      {stage.trail && [0, 1, 2, 3].map((i) => <path key={`tl${i}`} className="fx-tail" data-t="d" data-k={`tl${i}`} d={S[`tl${i}`]} opacity={0.65 - i * 0.16} strokeWidth={2.6 - i * 0.5} />)}
+      {stage.trail && <circle className="fx-halo" data-t="c" data-k={stage.tk} cx={S[stage.tk][0]} cy={S[stage.tk][1]} r="6" />}
       {stage.trail && <circle className="fx-tracer" data-t="c" data-k={stage.tk} cx={S[stage.tk][0]} cy={S[stage.tk][1]} r="2.4" />}
 
       <rect className="fx-track" x={vx + 18} y={barY} width={vw - 36} height="1.8" rx=".9" />
