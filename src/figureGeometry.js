@@ -302,3 +302,5 @@ const fit = (ex, vb, floorY) => {
   const ny = Math.min(y, Math.floor(top - 6))
   return [left < x + 4 || right > x + w - 4 ? Math.min(x, Math.floor(left - 8)) : x, ny, left < x + 4 || right > x + w - 4 ? Math.max(w, Math.ceil(right + 8 - Math.min(x, left - 8))) : w, h + (y - ny)]
 }
+
+export const PROF = { TORSO, THIGH, SHIN, UPPER, FORE, HAND, NECK, HEAD }
