@@ -738,3 +738,69 @@
   .gym .amen h3{margin:2px 0 4px;font-size:22px}
   .gym .amen p{max-width:none;font-size:13px}
 }
+.gym .fee-next{margin:14px 0 14px;font-size:15px}
+.gym .fee-next strong{font-weight:600}
+.gym .fee-next.late{color:#ff8a7a}
+
+/* ===== Premium polish layer (loaded last, overrides above) ===== */
+.gym{--ease:cubic-bezier(.22,1,.36,1);--lift:inset 0 1px 0 rgb(255 255 255/6%),0 30px 60px -34px #000;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.gym h1,.gym h2,.gym h3{text-wrap:balance}
+.gym p,.gym li,.gym .lead{text-wrap:pretty}
+.gym :focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
+.gym input:focus-visible,.gym select:focus-visible{outline:0}
+.gym .rem-card,.gym .ex-card,.gym .slot{box-shadow:var(--lift)}
+.gym .btn{min-height:52px;transition:transform .2s var(--ease),box-shadow .3s var(--ease),border-color .25s,color .25s}
+.gym .btn:active{transform:scale(.97)}
+.gym .switch::before{content:'';position:absolute;inset:-9px -6px}
+.gym .rem-card .btn{width:100%;margin-top:6px}
+.gym .fee-next{padding:14px 16px;border:1px solid rgb(216 185 131/28%);border-radius:16px;background:rgb(216 185 131/07%);line-height:1.5}
+.gym .fee-next.late{border-color:rgb(255 138 122/40%);background:rgb(255 138 122/08%)}
+.gym .meal input[type='date'],.gym .meal input[type='time']{min-height:44px;color-scheme:dark}
+
+@media (max-width:980px){
+  .gym{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .gym .tabbar{border-color:rgb(255 255 255/12%);box-shadow:0 24px 60px -18px #000,inset 0 1px 0 rgb(255 255 255/08%)}
+  .gym .tabbar a{min-height:54px;align-content:center;font-size:11px}
+  .gym .tabbar a[aria-current]{background:rgb(216 185 131/16%);box-shadow:inset 0 0 0 1px rgb(216 185 131/28%)}
+  .gym .toast{right:12px;bottom:calc(96px + env(safe-area-inset-bottom,0px));left:12px;max-width:none}
+}
+
+@media (max-width:760px){
+  .gym .tabs{display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:none}
+  .gym .tabs::-webkit-scrollbar{display:none}
+  .gym .tabs button{flex:none;min-height:44px;padding:10px 20px;white-space:nowrap;scroll-snap-align:center}
+  .gym input,.gym select{min-height:48px;font-size:16px}
+  .gym .lead{margin-bottom:32px;font-size:16px;line-height:1.6}
+  .gym .rem{gap:28px}
+}
+
+@media (max-width:560px){
+  .gym .wrap{width:min(100% - 36px,1180px)}
+  .gym section{padding:56px 0}
+  .gym .eyebrow{margin-bottom:16px;font-size:11px;letter-spacing:.18em}
+  .gym .rem-head h3{font-size:28px}
+  .gym .rem-card{border-radius:22px}
+  .gym .meal{grid-template-columns:1fr auto;row-gap:10px}
+  .gym .meal>span{grid-column:1/-1;color:var(--mute);font-size:13px}
+  .gym .meal .switch{justify-self:end}
+  .gym .actions .btn{min-height:56px}
+}
+
+@media (hover:none){
+  .gym .ex-card:hover,.gym .slot:hover{transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .gym *,.gym *::before,.gym *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+.gym .fee-saved{margin:0 0 8px;color:var(--gold);font-size:13px}
+.gym .fee-sync{display:grid;gap:12px;margin:18px 0;padding:18px;border:1px solid var(--line2);border-radius:18px;background:rgb(255 255 255/3%)}
+.gym .fee-sync h4{margin:0;font:500 24px 'Cormorant Garamond',serif}
+.gym .fee-sync .note{margin:0}
+.gym .sync-actions{display:flex;flex-wrap:wrap;gap:10px}
+.gym .sync-actions .btn{flex:1 1 140px;margin:0}
+.gym .fee-sync .btn:disabled{opacity:.5;cursor:default}
+.gym .fee-history{display:grid;gap:8px;margin:0 0 12px;padding:0;list-style:none}
+.gym .fee-history li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;font-size:13px;color:var(--mute)}
+.gym .fee-history strong{color:var(--gold-hi);font-weight:600}
+.gym .pr-sync{margin:0 0 18px;color:var(--gold);font-size:13px}
+.gym .pr-sync.bad{color:#ff8a7a}

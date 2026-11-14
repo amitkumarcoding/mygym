@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { savePrs, watchUserData, useUser } from './push'
 import { exercises } from './exercises'
 import { goalNames, goalPlans } from './goals'
 
@@ -85,6 +86,50 @@ const allLifts = Object.values(exercises).flat().map((ex) => ex.n)
 export function PRTracker() {
   const [logs, setLogs] = useStored('ironline-prs', [])
   const [targets, setTargets] = useStored('ironline-pr-targets', {})
+  const [updatedAt, setUpdatedAt] = useStored('ironline-prs-updated', 0)
+  const user = useUser()
+  const uid = user ? user.uid : ''
+  const [syncState, setSyncState] = useState('off')
+  const lastSynced = useRef(0)
+  const latest = useRef({ logs, targets, updatedAt })
+  latest.current = { logs, targets, updatedAt }
+  // Edits made on this device are time-stamped so the newest edit wins when devices sync.
+  const editLogs = (next) => { setLogs(next); setUpdatedAt(Date.now()) }
+  const editTargets = (next) => { setTargets((t) => (typeof next === 'function' ? next(t) : next)); setUpdatedAt(Date.now()) }
+
+  useEffect(() => {
+    if (!uid) { setSyncState('off'); return undefined }
+    return watchUserData(uid, 'prs', (remote) => {
+      const cur = latest.current
+      const localHas = cur.logs.length > 0 || Object.keys(cur.targets).length > 0
+      if (!remote) {
+        if (localHas) setUpdatedAt(Date.now())
+      } else if (!cur.updatedAt && localHas) {
+        // Records saved here before signing in: keep both sides instead of overwriting.
+        const known = new Set((remote.logs || []).map((l) => l.id))
+        setLogs([...(remote.logs || []), ...cur.logs.filter((l) => !known.has(l.id))].sort((a, b) => (a.date < b.date ? 1 : -1)))
+        setTargets({ ...(remote.targets || {}), ...cur.targets })
+        setUpdatedAt(Date.now())
+      } else if ((remote.updatedAt || 0) > cur.updatedAt) {
+        lastSynced.current = remote.updatedAt
+        setLogs(remote.logs || [])
+        setTargets(remote.targets || {})
+        setUpdatedAt(remote.updatedAt)
+      }
+      setSyncState('on')
+    }, () => setSyncState('error'))
+  }, [uid])
+
+  useEffect(() => {
+    if (!uid || !updatedAt || updatedAt === lastSynced.current) return undefined
+    const timer = window.setTimeout(() => {
+      savePrs(uid, { logs, targets, updatedAt })
+        .then(() => { lastSynced.current = updatedAt; setSyncState('on') })
+        .catch(() => setSyncState('error'))
+    }, 600)
+    return () => window.clearTimeout(timer)
+  }, [uid, updatedAt, logs, targets])
+
   const [f, setF] = useState({ ex: 'Barbell bench press', kg: '', reps: '', date: today() })
   const [msg, setMsg] = useState(null)
   const set = (key) => (event) => setF({ ...f, [key]: event.target.value })
@@ -98,7 +143,7 @@ export function PRTracker() {
     const bestPrev = prev.reduce((m, l) => Math.max(m, oneRm(l.kg, l.reps)), 0)
     const heavyPrev = prev.reduce((m, l) => Math.max(m, l.kg), 0)
     const est = oneRm(kg, reps)
-    setLogs([{ id: uid(), ex: f.ex, kg, reps, date: f.date || today() }, ...logs])
+    editLogs([{ id: uid(), ex: f.ex, kg, reps, date: f.date || today() }, ...logs])
     if (!prev.length) setMsg({ text: `First ${f.ex} logged. That is your starting point.` })
     else if (kg > heavyPrev) setMsg({ pr: true, text: `New PR! ${kg} kg on ${f.ex}, up from ${heavyPrev} kg.` })
     else if (est > bestPrev) setMsg({ pr: true, text: `New strength PR! Estimated max is now ${round1(est)} kg.` })
@@ -118,10 +163,15 @@ export function PRTracker() {
     return Object.values(map).sort((a, b) => (a.last < b.last ? 1 : -1))
   }, [logs])
 
-  const setTarget = (ex, value) => setTargets((t) => ({ ...t, [ex]: value }))
+  const setTarget = (ex, value) => editTargets((t) => ({ ...t, [ex]: value }))
 
   return (
     <>
+      <p className={`pr-sync${syncState === 'error' ? ' bad' : ''}`} role="status">
+        {syncState === 'on' && 'Your records are saved in the cloud and synced across your devices.'}
+        {syncState === 'off' && 'Records are saved on this device. Sign in with Google in the Reminders section to save them across devices.'}
+        {syncState === 'error' && 'Cloud sync is unavailable right now. Your records are still saved on this device.'}
+      </p>
       <form className="card pr-form" onSubmit={submit} noValidate>
         <h3>Log a lift</h3>
         <div className="pr-grid">
@@ -181,7 +231,7 @@ export function PRTracker() {
                 <span>{fmtDate(l.date)}</span>
                 <b>{l.ex}</b>
                 <span>{l.kg} kg × {l.reps}</span>
-                <button type="button" aria-label={`Delete ${l.ex} ${l.kg} kilograms`} onClick={() => setLogs(logs.filter((x) => x.id !== l.id))}>Delete</button>
+                <button type="button" aria-label={`Delete ${l.ex} ${l.kg} kilograms`} onClick={() => editLogs(logs.filter((x) => x.id !== l.id))}>Delete</button>
               </li>
             ))}
           </ul>

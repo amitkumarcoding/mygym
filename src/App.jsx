@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { registerPush, saveSubscription } from './push'
+import { registerPush, saveSubscription, saveFee, saveReminders, watchUserData, useUser, signInWithGoogle, signOutUser } from './push'
 import { exercises, frames, DUR } from './exercises'
-import { supplements, skipList, goalsList, dietsList, buildStack } from './supplements'
 import { goalNames } from './goals'
-import { GoalPlans, PRTracker, ProgressTracker } from './Tracking'
+import { GoalPlans, PRTracker } from './Tracking'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
 import './App.css'
@@ -40,8 +39,34 @@ const defaultMeals = [
   { id: 'd', label: 'Dinner', time: '20:30', on: true },
 ]
 
+const FEE_PLANS = [1, 3, 6, 9, 12]
+const pad2 = (n) => String(n).padStart(2, '0')
+const toDateStr = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+const makeDefaultFee = () => withNext({ on: false, plan: 1, paidOn: toDateStr(new Date()), time: '09:00' })
+
+// Paid on + plan months = next payment. Short months are handled (31 Jan + 1 month = 28/29 Feb).
+function feeDueDate(fee) {
+  const [y, m, d] = fee.paidOn.split('-').map(Number)
+  const [h, min] = fee.time.split(':').map(Number)
+  const target = new Date(y, m - 1 + fee.plan, 1)
+  const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate()
+  return new Date(target.getFullYear(), target.getMonth(), Math.min(d, lastDay), h, min)
+}
+
+// The next payment date is stored with the fee, so it is saved (and synced) once you pay.
+function withNext(fee) {
+  return { ...fee, nextDue: toDateStr(feeDueDate(fee)), history: Array.isArray(fee.history) ? fee.history.slice(0, 6) : [] }
+}
+
+const showDate = (value) => new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+
+const isWater = (w) => w && typeof w.on === 'boolean' && [30, 45, 60, 90, 120].includes(w.mins)
+const isMeals = (m) => Array.isArray(m) && m.length <= 8 && m.every((meal) =>
+  meal && typeof meal.id === 'string' && typeof meal.label === 'string'
+  && /^\d{2}:\d{2}$/.test(meal.time) && typeof meal.on === 'boolean')
+
 function readReminderSettings() {
-  const defaults = { water: { on: false, mins: 60, since: Date.now() }, meals: defaultMeals }
+  const defaults = { water: { on: false, mins: 60, since: Date.now() }, meals: defaultMeals, fee: makeDefaultFee() }
 
   try {
     const stored = JSON.parse(localStorage.getItem(REMINDER_KEY) || 'null')
@@ -57,6 +82,11 @@ function readReminderSettings() {
         && /^\d{2}:\d{2}$/.test(meal.time) && typeof meal.on === 'boolean')
         ? meals
         : defaults.meals,
+      fee: stored.fee && typeof stored.fee.on === 'boolean' && FEE_PLANS.includes(stored.fee.plan)
+        && /^\d{4}-\d{2}-\d{2}$/.test(stored.fee.paidOn) && /^\d{2}:\d{2}$/.test(stored.fee.time)
+        ? withNext(stored.fee)
+        : defaults.fee,
+      remUpdated: Number(stored.remUpdated) || 0,
       storageError: false,
     }
   } catch {
@@ -276,91 +306,6 @@ function Trainer() {
   )
 }
 
-function Art({ kind }) {
-  const sw = { fill: 'rgb(216 185 131/10%)', stroke: 'currentColor', strokeWidth: 2.2, strokeLinecap: 'round', strokeLinejoin: 'round' }
-  const shapes = {
-    tub: <><rect x="26" y="34" width="68" height="62" rx="8" {...sw} /><rect x="22" y="20" width="76" height="18" rx="6" {...sw} /><rect x="34" y="52" width="52" height="26" rx="4" fill="none" stroke="currentColor" strokeWidth="1.6" /><path d="M46 65h28" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></>,
-    jar: <><rect x="30" y="38" width="60" height="58" rx="10" {...sw} /><rect x="34" y="24" width="52" height="16" rx="5" {...sw} /><path d="M44 62h32M44 74h20" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></>,
-    shaker: <><path d="M36 42l6 52a6 6 0 0 0 6 5h24a6 6 0 0 0 6-5l6-52z" {...sw} /><rect x="32" y="26" width="56" height="16" rx="6" {...sw} /><path d="M66 56l-12 18h10l-4 14 14-20H64z" fill="currentColor" stroke="none" opacity=".85" /></>,
-    bottle: <><rect x="40" y="16" width="40" height="14" rx="4" {...sw} /><path d="M44 30h32l6 12v50a6 6 0 0 1-6 6H44a6 6 0 0 1-6-6V42z" {...sw} /><rect x="44" y="56" width="32" height="22" rx="3" fill="none" stroke="currentColor" strokeWidth="1.6" /></>,
-    pills: <><rect x="18" y="56" width="62" height="26" rx="13" transform="rotate(-35 49 69)" {...sw} /><path d="M49 69l15-21" transform="rotate(-35 49 69)" stroke="currentColor" strokeWidth="2" /><circle cx="86" cy="82" r="14" {...sw} /><path d="M78 82h16" stroke="currentColor" strokeWidth="2" /></>,
-    softgel: <><ellipse cx="60" cy="60" rx="32" ry="20" transform="rotate(-25 60 60)" {...sw} /><path d="M44 52c6-8 16-10 24-8" fill="none" stroke="currentColor" strokeWidth="2" opacity=".6" /></>,
-    sun: <><circle cx="60" cy="60" r="20" {...sw} />{Array.from({ length: 8 }, (_, i) => { const a = (i * Math.PI) / 4; return <path key={i} d={`M${60 + Math.cos(a) * 30} ${60 + Math.sin(a) * 30}L${60 + Math.cos(a) * 42} ${60 + Math.sin(a) * 42}`} stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /> })}</>,
-  }
-  return <svg className="s-art" viewBox="0 0 120 120" aria-hidden="true">{shapes[kind]}</svg>
-}
-
-function Supps() {
-  const [goal, setGoal] = useState(goalsList[0])
-  const [diet, setDiet] = useState(dietsList[0])
-  const [kg, setKg] = useState(70)
-  const [open, setOpen] = useState('creatine')
-  const stack = buildStack(goal, diet, kg)
-  const byId = Object.fromEntries(supplements.map((item) => [item.id, item]))
-  const cls = (tag) => tag.toLowerCase().replace(' ', '-')
-
-  return (
-    <>
-      <div className="s-pick card">
-        <h3>Build my stack</h3>
-        <p className="s-lbl">Your goal</p>
-        <Tabs items={goalsList} value={goal} onChange={setGoal} label="Supplement goal" />
-        <p className="s-lbl">Your diet</p>
-        <Tabs items={dietsList} value={diet} onChange={setDiet} label="Diet type" />
-        <label className="s-kg">Bodyweight (kg)<input type="number" min="30" max="200" value={kg} onChange={(event) => setKg(event.target.value)} /></label>
-        <div className="s-stack" aria-live="polite">
-          {stack.map((row) => {
-            const item = byId[row.id]
-            return (
-              <div className={`s-row ${cls(row.tag)}`} key={row.id}>
-                <Art kind={item.art} />
-                <div>
-                  <b>{item.name}</b>
-                  <p>{row.dose}</p>
-                  <small>{row.note}</small>
-                </div>
-                <span className={`s-tag ${cls(row.tag)}`}>{row.tag}</span>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      <h3 className="s-sub">Every supplement, explained</h3>
-      <div className="s-grid">
-        {supplements.map((item) => {
-          const isOpen = open === item.id
-          return (
-            <article className={`s-card${isOpen ? ' open' : ''}`} key={item.id}>
-              <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? '' : item.id)}>
-                <Art kind={item.art} />
-                <span className="s-name">{item.name}</span>
-                <span className={`s-tag ${item.tier}`}>{item.verdict}</span>
-              </button>
-              <div className="s-more" aria-hidden={!isOpen}>
-                <dl>
-                  <div><dt>What it does</dt><dd>{item.what}</dd></div>
-                  <div><dt>Best form</dt><dd>{item.form}</dd></div>
-                  <div><dt>How much</dt><dd>{item.dose}</dd></div>
-                  <div><dt>When</dt><dd>{item.when}</dd></div>
-                  <div><dt>Who needs it</dt><dd>{item.who}</dd></div>
-                  <div><dt>Be careful</dt><dd>{item.care}</dd></div>
-                </dl>
-              </div>
-            </article>
-          )
-        })}
-      </div>
-
-      <div className="s-skip">
-        <h3>Skip these</h3>
-        <ul>{skipList.map(([name, why]) => <li key={name}><b>{name}</b>{why}</li>)}</ul>
-        <p className="note">Food first. Supplements fill gaps, they do not replace training, sleep or meals. Check with a doctor before starting if you are under 18, pregnant, on medication, or have a health condition. Pick brands with a lab report or third-party testing.</p>
-      </div>
-    </>
-  )
-}
-
 function Plans() {
   const names = Object.keys(plans)
   const [plan, setPlan] = useState(names[0])
@@ -376,66 +321,6 @@ function Plans() {
           </div>
         ))}
       </div>
-    </>
-  )
-}
-
-const activity = [[1.2, 'Little or no exercise'], [1.375, 'Light, 1–3 days a week'], [1.55, 'Moderate, 3–5 days a week'], [1.725, 'Hard, 6–7 days a week']]
-const aims = [[300, 'Build muscle'], [-400, 'Lose fat'], [0, 'Maintain weight']]
-
-function Calc() {
-  const [f, setF] = useState({ sex: 'male', age: 25, weight: 70, height: 170, act: 1.55, goal: 300 })
-  const n = (key) => Number(f[key])
-  const set = (key) => (event) => setF({ ...f, [key]: event.target.value })
-  const ok = n('age') > 0 && n('weight') > 0 && n('height') > 0
-  const bmr = 10 * n('weight') + 6.25 * n('height') - 5 * n('age') + (f.sex === 'male' ? 5 : -161)
-  const kcal = Math.max(0, Math.round(bmr * n('act') + n('goal')))
-  const protein = Math.round(2 * n('weight'))
-  const fat = Math.round((kcal * 0.25) / 9)
-  const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4))
-  const bmi = (n('weight') / (n('height') / 100) ** 2).toFixed(1)
-
-  return (
-    <div className="calc card">
-      <h3>Calorie and macro calculator</h3>
-      <div className="calc-grid">
-        <label>Sex<select value={f.sex} onChange={set('sex')}><option value="male">Male</option><option value="female">Female</option></select></label>
-        <label>Age<input type="number" min="12" value={f.age} onChange={set('age')} /></label>
-        <label>Weight (kg)<input type="number" min="20" value={f.weight} onChange={set('weight')} /></label>
-        <label>Height (cm)<input type="number" min="100" value={f.height} onChange={set('height')} /></label>
-        <label>Activity<select value={f.act} onChange={set('act')}>{activity.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></label>
-        <label>Goal<select value={f.goal} onChange={set('goal')}>{aims.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></label>
-      </div>
-      {ok ? (
-        <div className="results" aria-live="polite">
-          <div><b>{kcal}</b><span>kcal / day</span></div>
-          <div><b>{protein} g</b><span>Protein</span></div>
-          <div><b>{carbs} g</b><span>Carbs</span></div>
-          <div><b>{fat} g</b><span>Fat</span></div>
-          <div><b>{bmi}</b><span>BMI</span></div>
-        </div>
-      ) : <p className="err">Enter valid numbers.</p>}
-      <p className="note">Estimates only (Mifflin-St Jeor). Adjust after 2 to 3 weeks based on your progress.</p>
-    </div>
-  )
-}
-
-function Diet() {
-  const names = Object.keys(diets)
-  const [diet, setDiet] = useState(names[0])
-  return (
-    <>
-      <Tabs items={names} value={diet} onChange={setDiet} label="Diet goal" />
-      <p className="diet-note">{diets[diet].note}</p>
-      <div className="cards">
-        {diets[diet].meals.map(([meal, food]) => (
-          <div className="slot" key={meal}>
-            <span className="slot-time">{meal}</span>
-            <strong>{food}</strong>
-          </div>
-        ))}
-      </div>
-      <Calc />
     </>
   )
 }
@@ -494,9 +379,27 @@ function Reminders() {
   const saved = useRef(null)
   if (saved.current === null) saved.current = readReminderSettings()
 
-  const [water, setWater] = useState(saved.current.water)
-  const [meals, setMeals] = useState(saved.current.meals)
+  const [water, setWaterRaw] = useState(saved.current.water)
+  const [meals, setMealsRaw] = useState(saved.current.meals)
+  const [remUpdated, setRemUpdated] = useState(saved.current.remUpdated || 0)
+  // Water and meal edits made on this device are time-stamped so the newest edit wins when devices sync.
+  const setWater = (update) => { setWaterRaw(update); setRemUpdated(Date.now()) }
+  const setMeals = (update) => { setMealsRaw(update); setRemUpdated(Date.now()) }
+  const latestRem = useRef(null)
+  const lastRemSynced = useRef(0)
+  const [fee, setFeeRaw] = useState(saved.current.fee)
+  // Every edit made on this device is stamped so the newest edit wins when devices sync.
+  const setFee = (update) => setFeeRaw((current) => ({ ...withNext(typeof update === 'function' ? update(current) : update), updatedAt: Date.now() }))
+  const user = useUser()
+  const uid = user ? user.uid : ''
+  const [syncStatus, setSyncStatus] = useState('idle')
+  const [paidNote, setPaidNote] = useState('')
+  const feeRef = useRef(fee)
+  feeRef.current = fee
+  latestRem.current = { water, meals, remUpdated }
+  const lastSynced = useRef(0)
   const [storageError, setStorageError] = useState(saved.current.storageError)
+  const [savedAt, setSavedAt] = useState(null)
   const [permission, setPermission] = useState(
     typeof Notification === 'undefined' ? 'unsupported' : Notification.permission,
   )
@@ -523,12 +426,13 @@ function Reminders() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(REMINDER_KEY, JSON.stringify({ water, meals }))
+      localStorage.setItem(REMINDER_KEY, JSON.stringify({ water, meals, fee, remUpdated }))
       setStorageError(false)
+      setSavedAt(new Date())
     } catch {
       setStorageError(true)
     }
-  }, [water, meals])
+  }, [water, meals, fee, remUpdated])
 
   useEffect(() => {
     if (!water.on) return undefined
@@ -557,6 +461,98 @@ function Reminders() {
   }, [meals])
 
   useEffect(() => {
+    const checkFee = () => {
+      if (!fee.on) return
+      const now = new Date()
+      const due = feeDueDate(fee)
+      const sameDay = now.getFullYear() === due.getFullYear() && now.getMonth() === due.getMonth() && now.getDate() === due.getDate()
+      const time = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`
+      const stamp = `${now.toDateString()}-${time}`
+      if (sameDay && time === fee.time && fired.current.fee !== stamp) {
+        fired.current.fee = stamp
+        liveNotify.current('Gym fee due', `Your ${fee.plan}-month gym fee is due today. Pay it before you train.`)
+      }
+    }
+    checkFee()
+    const timer = window.setInterval(checkFee, 15_000)
+    return () => window.clearInterval(timer)
+  }, [fee])
+
+  // Once signed in, every device reads and writes the same cloud copy. onSnapshot pushes a change to this
+  // device the moment another device saves it, and the newest edit (updatedAt) wins.
+  useEffect(() => {
+    if (!uid) { setSyncStatus('idle'); return undefined }
+    setSyncStatus('connecting')
+    return watchUserData(uid, 'fee', (remote) => {
+      setSyncStatus('on')
+      if (!remote) { setFeeRaw((current) => ({ ...current, updatedAt: Date.now() })); return } // first sign-in: upload what this device has
+      if ((remote.updatedAt || 0) > (feeRef.current.updatedAt || 0)) {
+        lastSynced.current = remote.updatedAt
+        setFeeRaw(withNext({ on: remote.on, plan: remote.plan, paidOn: remote.paidOn, time: remote.time, history: remote.history, updatedAt: remote.updatedAt }))
+      }
+    }, () => setSyncStatus('error'))
+  }, [uid])
+
+  useEffect(() => {
+    if (!uid || !fee.updatedAt || fee.updatedAt === lastSynced.current) return undefined
+    const timer = window.setTimeout(() => {
+      saveFee(uid, fee)
+        .then(() => { lastSynced.current = fee.updatedAt; setSyncStatus('on') })
+        .catch(() => setSyncStatus('error'))
+    }, 600)
+    return () => window.clearTimeout(timer)
+  }, [uid, fee])
+
+  useEffect(() => {
+    if (!uid) return undefined
+    return watchUserData(uid, 'reminders', (remote) => {
+      const cur = latestRem.current
+      const isDefault = !cur.water.on && cur.water.mins === 60 && JSON.stringify(cur.meals) === JSON.stringify(defaultMeals)
+      const remoteOk = remote && isWater(remote.water) && isMeals(remote.meals)
+      if (!remoteOk) {
+        if (!isDefault || cur.remUpdated) setRemUpdated(Date.now())
+      } else if (!cur.remUpdated && !isDefault) {
+        setRemUpdated(Date.now()) // reminders set up here before signing in: keep them
+      } else if ((remote.updatedAt || 0) > cur.remUpdated) {
+        lastRemSynced.current = remote.updatedAt
+        setWaterRaw(remote.water)
+        setMealsRaw(remote.meals)
+        setRemUpdated(remote.updatedAt)
+      }
+    }, () => setSyncStatus('error'))
+  }, [uid])
+
+  useEffect(() => {
+    if (!uid || !remUpdated || remUpdated === lastRemSynced.current) return undefined
+    const timer = window.setTimeout(() => {
+      saveReminders(uid, { water, meals, updatedAt: remUpdated })
+        .then(() => { lastRemSynced.current = remUpdated })
+        .catch(() => setSyncStatus('error'))
+    }, 600)
+    return () => window.clearTimeout(timer)
+  }, [uid, remUpdated, water, meals])
+
+  const markPaid = () => {
+    const today = toDateStr(new Date())
+    const entry = { paidOn: today, plan: fee.plan, nextDue: toDateStr(feeDueDate({ ...fee, paidOn: today })) }
+    setFee((current) => ({
+      ...current,
+      paidOn: today,
+      history: [entry, ...(current.history || []).filter((item) => item.paidOn !== today)].slice(0, 6),
+    }))
+    setPaidNote(`Payment saved. Next payment: ${showDate(entry.nextDue)}`)
+  }
+
+  const signInToSync = async () => {
+    setSyncStatus('connecting')
+    try {
+      await signInWithGoogle()
+    } catch (error) {
+      setSyncStatus(error && error.code === 'auth/popup-closed-by-user' ? 'idle' : 'error')
+    }
+  }
+
+  useEffect(() => {
     if (!toast) return undefined
     const timer = window.setTimeout(() => setToast(null), 9000)
     return () => window.clearTimeout(timer)
@@ -581,7 +577,7 @@ function Reminders() {
     if (!pushToken) return undefined
     let cancelled = false
     const timer = window.setTimeout(() => {
-      saveSubscription(pushToken, water, meals)
+      saveSubscription(pushToken, water, meals, fee)
         .then(() => {
           if (!cancelled) setPushStatus('on')
         })
@@ -593,7 +589,7 @@ function Reminders() {
       cancelled = true
       window.clearTimeout(timer)
     }
-  }, [pushToken, water, meals])
+  }, [pushToken, water, meals, fee])
 
   const enableNotifications = async () => {
     try {
@@ -615,7 +611,7 @@ function Reminders() {
         <div className="rem-intro">
           <p className="eyebrow"><i aria-hidden="true" />Good habits, built in</p>
           <h2>Stay <em>on plan</em></h2>
-          <p className="lead">Set water and meal reminders. Turn on notifications and we'll send them to your device even when this site is closed.</p>
+          <p className="lead">Set water, meal and gym fee reminders. Turn on notifications and we'll send them to your device even when this site is closed.</p>
           {permission === 'default' && <button className="btn gold" onClick={enableNotifications}>Turn on notifications</button>}
           {permission === 'granted' && <p className="note">Browser notifications are on.</p>}
           {permission === 'denied' && <p className="note">Notifications are blocked. Allow them in your browser&apos;s site settings, or rely on on-page alerts.</p>}
@@ -663,6 +659,75 @@ function Reminders() {
             ))}
             <p className="note">Each meal reminder fires once a day at the time you set.</p>
           </div>
+          <div className="rem-card">
+            <div className="rem-head">
+              <h3>Gym fee</h3>
+              <button
+                className="switch"
+                type="button"
+                role="switch"
+                aria-checked={fee.on}
+                aria-label="Gym fee reminder"
+                onClick={() => setFee((current) => ({ ...current, on: !current.on }))}
+              />
+            </div>
+            <label>
+              Plan you paid for
+              <select value={fee.plan} onChange={(event) => setFee((current) => ({ ...current, plan: Number(event.target.value) }))}>
+                {FEE_PLANS.map((n) => <option key={n} value={n}>{n === 1 ? '1 month' : `${n} months`}</option>)}
+              </select>
+            </label>
+            <div className="meal">
+              <span>Paid on</span>
+              <input type="date" aria-label="Date you paid" value={fee.paidOn} max={toDateStr(new Date())} onChange={(event) => event.target.value && setFee((current) => ({ ...current, paidOn: event.target.value }))} />
+            </div>
+            <div className="meal">
+              <span>Reminder time</span>
+              <input type="time" aria-label="Gym fee reminder time" value={fee.time} onChange={(event) => setFee((current) => ({ ...current, time: event.target.value }))} />
+            </div>
+            {(() => {
+              const due = feeDueDate(fee)
+              const days = Math.ceil((due - new Date()) / 86_400_000)
+              const dateText = due.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+              return (
+                <p className={`fee-next${days < 0 ? ' late' : ''}`}>
+                  {days < 0 ? 'Payment overdue since ' : 'Next payment: '}<strong>{dateText}</strong>
+                  {days >= 0 && ` (${days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`})`}
+                </p>
+              )
+            })()}
+            <button className="btn ghost" type="button" onClick={markPaid}>I paid today</button>
+            {paidNote && <p className="fee-saved" role="status">{paidNote}</p>}
+            {fee.history.length > 0 && (
+              <ul className="fee-history" aria-label="Payment history">
+                {fee.history.map((item) => (
+                  <li key={item.paidOn}><span>Paid {showDate(item.paidOn)} · {item.plan === 1 ? '1 month' : `${item.plan} months`}</span><strong>Next: {showDate(item.nextDue)}</strong></li>
+                ))}
+              </ul>
+            )}
+            <p className="fee-saved" role="status">
+              {storageError
+                ? 'Could not save on this device. Private browsing blocks saving.'
+                : `Payment info saved on this device${savedAt ? ` at ${savedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : ''}.`}
+            </p>
+            <div className="fee-sync">
+              <h4>Sync across devices</h4>
+              <p className="note">Sign in with Google and your gym fee, PR records, and water and meal reminders save automatically and appear on every device you sign in on.</p>
+              {user ? (
+                <>
+                  <p className="note">Signed in as {user.email || user.displayName}. Changes sync automatically.</p>
+                  <div className="sync-actions">
+                    <button className="btn ghost" type="button" onClick={signOutUser}>Sign out</button>
+                  </div>
+                </>
+              ) : (
+                <button className="btn gold" type="button" onClick={signInToSync} disabled={syncStatus === 'connecting'}>Sign in with Google to sync</button>
+              )}
+              {syncStatus === 'on' && <p className="fee-saved" role="status">Synced across your devices.</p>}
+              {syncStatus === 'error' && <p className="note" role="status">Sync is unavailable right now. Your info is still saved on this device.</p>}
+            </div>
+            <p className="note">You paid for {fee.plan === 1 ? '1 month' : `${fee.plan} months`}, so the next payment is {fee.plan === 1 ? '1 month' : `${fee.plan} months`} after the date you paid. Tap "I paid today" after each payment to move it forward.</p>
+          </div>
         </div>
       </div>
       {toast && (
@@ -708,7 +773,7 @@ function HeroMedia() {
 }
 
 // Tracks which page section is under the middle of the screen, so the phone tab bar can highlight it.
-const SECTION_IDS = ['trainer', 'exercises', 'goals', 'plans', 'diet', 'supplements', 'gear', 'avoid', 'records', 'progress', 'reminders']
+const SECTION_IDS = ['trainer', 'exercises', 'goals', 'plans', 'gear', 'avoid', 'records', 'reminders']
 function useActiveSection() {
   const [active, setActive] = useState('')
   useEffect(() => {
@@ -800,7 +865,7 @@ export default function App() {
   const head = (tag, title, em, lead) => (
     <div className="sec-head">
       <p className="eyebrow"><i aria-hidden="true" />{tag}</p>
-      <h2>{title} <em>{em}</em></h2>
+      {(title || em) && <h2>{title} <em>{em}</em></h2>}
       <p className="lead">{lead}</p>
     </div>
   )
@@ -815,11 +880,8 @@ export default function App() {
             <a href="#trainer" onClick={closeMenu}>Trainer</a>
             <a href="#exercises" onClick={closeMenu}>Exercises</a>
             <a href="#goals" onClick={closeMenu}>Goals</a>
-            <a href="#diet" onClick={closeMenu}>Diet</a>
-            <a href="#supplements" onClick={closeMenu}>Supplements</a>
             <a href="#gear" onClick={closeMenu}>Gear</a>
             <a className="only-menu" href="#records" onClick={closeMenu}>PRs</a>
-            <a className="only-menu" href="#progress" onClick={closeMenu}>Progress</a>
             <a className="only-menu" href="#plans" onClick={closeMenu}>Workout plans</a>
             <a className="only-menu" href="#avoid" onClick={closeMenu}>What to avoid</a>
             <a className="only-menu" href="#reminders" onClick={closeMenu}>Reminders</a>
@@ -869,7 +931,6 @@ export default function App() {
             ['user', 'trainer', 'Your trainer', 'Pick simple, hard or very hard and follow along.'],
             ['dumbbell', 'exercises', 'Exercise library', 'Animated demos with sets, reps and form cues.'],
             ['calendar', 'plans', 'Workout plans', 'Full body, push pull legs and upper lower.'],
-            ['apple', 'diet', 'Diet and macros', 'Meal plans plus a calorie calculator.'],
             ['trophy', 'records', 'PR tracker', 'Log lifts, beat your best and track progress.'],
           ].map(([icon, id, title, text], i) => (
             <div key={id}><span className="n" aria-hidden="true">0{i + 1}</span><span className="ic"><Icon n={icon} /></span><h3><a href={`#${id}`}>{title}</a></h3><p>{text}</p></div>
@@ -905,20 +966,6 @@ export default function App() {
         </div>
       </section>
 
-      <section id="diet">
-        <div className="wrap">
-          {head('Diet', 'Fuel the', 'work', 'Simple meal plans for your goal, plus a calculator for your calories and macros.')}
-          <Diet />
-        </div>
-      </section>
-
-      <section id="supplements" className="alt">
-        <div className="wrap">
-          {head('Supplements', 'Know what', 'works', 'Protein, creatine, pre-workout, BCAA, multivitamin and more. What each one does, which is worth your money, and what to take for your body and goal.')}
-          <Supps />
-        </div>
-      </section>
-
       <section id="gear">
         <div className="wrap">
           {head('Gear up', 'Everything you', 'need', 'Supplements, wearables, equipment, shoes, perfume and your gym bag. What you really need, what is nice to have, and what to skip.')}
@@ -938,13 +985,6 @@ export default function App() {
         <div className="wrap">
           {head('Personal records', 'Track your', 'PRs', 'Log every heavy set. We find your best lift, estimate your one rep max and show how far you are from your goal max.')}
           <PRTracker />
-        </div>
-      </section>
-
-      <section id="progress" className="alt">
-        <div className="wrap">
-          {head('Progress', 'See how far', 'you\'ve come', 'Track bodyweight, waist and workouts. Small steady numbers beat big short bursts.')}
-          <ProgressTracker goal={goal} />
         </div>
       </section>
 
@@ -989,7 +1029,7 @@ export default function App() {
       </footer>
       {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} onGear={setGearTab} Figure={Figure} />}
       <nav className="tabbar" aria-label="Quick navigation">
-        {[['user', 'trainer', 'Train', ['trainer', 'exercises', 'plans']], ['calendar', 'goals', 'Goals', ['goals', 'diet']], ['trophy', 'records', 'Track', ['records', 'progress', 'reminders']], ['bag', 'gear', 'Gear', ['supplements', 'gear', 'avoid']]].map(([icon, id, label, group]) => (
+        {[['user', 'trainer', 'Train', ['trainer', 'exercises', 'plans']], ['calendar', 'goals', 'Goals', ['goals']], ['trophy', 'records', 'Track', ['records', 'reminders']], ['bag', 'gear', 'Gear', ['gear', 'avoid']]].map(([icon, id, label, group]) => (
           <a key={id} href={`#${id}`} aria-current={group.includes(activeSection) ? 'true' : undefined}><Icon n={icon} /><span>{label}</span></a>
         ))}
         <button type="button" onClick={() => setSearchOpen(true)} aria-haspopup="dialog"><Icon n="search" /><span>Search</span></button>

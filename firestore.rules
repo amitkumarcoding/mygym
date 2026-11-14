@@ -1,14 +1,37 @@
-@'
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Synced data: only the signed-in owner can read or write their own documents.
+    match /users/{uid}/data/fee {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['on', 'plan', 'paidOn', 'time', 'nextDue', 'history', 'updatedAt'])
+        && request.resource.data.plan in [1, 3, 6, 9, 12];
+    }
+    match /users/{uid}/data/reminders {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['water', 'meals', 'updatedAt'])
+        && request.resource.data.meals.size() <= 8;
+    }
+    match /users/{uid}/data/prs {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['logs', 'targets', 'updatedAt'])
+        && request.resource.data.logs.size() <= 2000;
+    }
+
+    // Push-notification subscriptions (document id is the device's private push token).
     match /reminderSubs/{token} {
       allow read: if false;
-      allow create, update: if request.resource.data.keys().hasOnly(['token', 'tz', 'water', 'meals', 'updatedAt'])
+      allow create, update: if request.resource.data.keys().hasOnly(['token', 'tz', 'water', 'meals', 'fee', 'updatedAt'])
         && request.resource.data.token == token
         && request.resource.data.meals.size() <= 8;
       allow delete: if true;
     }
   }
 }
-'@ | Set-Content -Path firestore.rules -Encoding ascii
