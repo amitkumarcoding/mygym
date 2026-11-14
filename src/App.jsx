@@ -3,6 +3,7 @@ import { registerPush, saveSubscription, saveFee, saveReminders, watchUserData, 
 import { exercises, frames, DUR } from './exercises'
 import { goalNames } from './goals'
 import { GoalPlans, PRTracker } from './Tracking'
+import Body from 'react-muscle-highlighter'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
 import { useReveal, useScrollState, usePointerGlow, CountUp, Marquee } from './Motion'
@@ -223,6 +224,14 @@ function Lifts() {
   )
 }
 
+const GROUP_SLUGS = {
+  Chest: ['chest'],
+  Shoulders: ['deltoids'],
+  Back: ['upper-back', 'lower-back', 'trapezius'],
+  Arms: ['biceps', 'triceps', 'forearm'],
+  Core: ['abs', 'obliques'],
+  Legs: ['quadriceps', 'hamstring', 'gluteal', 'calves', 'adductors', 'tibialis'],
+}
 const mapOrder = ['Chest', 'Shoulders', 'Back', 'Arms', 'Core', 'Legs']
 const mapParts = {
   Back: ['M112 58 C108 66 98 71 84 76 C88 80 94 86 98 90 C104 84 110 76 112 68Z', 'M85 122 C90 128 94 130 98 136 C102 148 102 160 101 172 C96 168 90 150 85 122Z'],
@@ -254,38 +263,40 @@ function LiftRack() {
   }, [auto, groups.length])
   const g = groups[k]
   const list = exercises[g]
-  const pick = (i) => { setAuto(false); setK(i) }
+  const pick = (i) => { setAuto(false); setK(i); setView(groups[i] === 'Back' ? 'back' : 'front') }
+  const [view, setView] = useState('front')
+  const side = auto ? (g === 'Back' ? 'back' : 'front') : view
+  const bodyData = [
+    ...['head', 'neck', 'hair', 'hands', 'feet', 'ankles', 'knees'].map((slug) => ({ slug, styles: { fill: '#16181c', stroke: 'rgb(216 185 131 / 22%)', strokeWidth: 0.6 } })),
+    ...(GROUP_SLUGS[g] || []).map((slug) => ({ slug, intensity: 2 })),
+  ]
 
   return (
     <div className="rk">
       <small>Interactive · Tap a muscle</small>
       <div className="rk-stage">
-        <svg viewBox="0 0 340 440" role="img" aria-label={`Muscle map, ${g} selected`}>
-          <defs>
-            <linearGradient id="rkGold" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#f6e4bd"/><stop offset=".6" stopColor="#d8b983"/><stop offset="1" stopColor="#a98550"/></linearGradient>
-            <linearGradient id="rkDim" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#2c2f35"/><stop offset="1" stopColor="#16181c"/></linearGradient>
-            <linearGradient id="rkScan" x1="0" x2="1"><stop offset="0" stopColor="#d8b983" stopOpacity="0"/><stop offset=".5" stopColor="#f6e4bd"/><stop offset="1" stopColor="#d8b983" stopOpacity="0"/></linearGradient>
-          </defs>
-          <g className="rk-ruler" aria-hidden="true">
-            {Array.from({ length: 23 }, (_, i) => <line key={i} x1="6" x2={i % 5 === 0 ? 20 : 12} y1={20 + i * 19} y2={20 + i * 19} />)}
-            {Array.from({ length: 23 }, (_, i) => <line key={i} x1="334" x2={i % 5 === 0 ? 320 : 328} y1={20 + i * 19} y2={20 + i * 19} />)}
-          </g>
-          <g transform="translate(50 0)" className="rk-body">
-            <path d="M107 28 C107 12 133 12 133 28 C133 40 128 50 120 53 C112 50 107 40 107 28Z" className="rk-dead" />
-            <path d="M112 48 L128 48 L130 64 C124 69 116 69 110 64Z" className="rk-dead" />
-            <path d={torso} className="rk-base" /><path d={torso} transform={flip} className="rk-base" />
-            {mapDead.map((d, x) => <g key={x}><path d={d} className="rk-dead" /><path d={d} transform={flip} className="rk-dead" /></g>)}
-            {groups.map((name, i) => (
-              <g key={name} className={`rk-m${i === k ? ' on' : ''}`} role="button" tabIndex={0} aria-label={name} onClick={() => pick(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(i) } }}>
-                {mapParts[name].map((d, x) => <path key={x} d={d} />)}
-                {mapParts[name].map((d, x) => <path key={`m${x}`} d={d} transform={flip} />)}
-                {(mapDet[name] || []).map((d, x) => <path key={`d${x}`} d={d} className="rk-det" />)}
-                {(mapDet[name] || []).map((d, x) => <path key={`e${x}`} d={d} transform={flip} className="rk-det" />)}
-              </g>
+        <div className="rk-bodies" role="group" aria-label={`Muscle map, ${g} selected`}>
+          <div className="rk-spot" aria-hidden="true" />
+          <div className="rk-fig" key={side}>
+            <Body
+              data={bodyData}
+              side={side}
+              gender="male"
+              scale={1.25}
+              colors={['#caa76b', '#f6e4bd']}
+              border="rgb(216 185 131 / 28%)"
+              defaultFill="#1d2025"
+              defaultStroke="rgb(216 185 131 / 30%)"
+              defaultStrokeWidth={0.7}
+              onBodyPartPress={(p) => { const i = groups.findIndex((n) => (GROUP_SLUGS[n] || []).includes(p.slug)); if (i >= 0) pick(i) }}
+            />
+          </div>
+          <div className="rk-flip" role="group" aria-label="Body view">
+            {['front', 'back'].map((v) => (
+              <button type="button" key={v} className={v === side ? 'on' : ''} aria-pressed={v === side} onClick={() => { setAuto(false); setView(v) }}>{v}</button>
             ))}
-          </g>
-          <rect className="rk-scan" x="0" y="0" width="340" height="2" fill="url(#rkScan)" />
-        </svg>
+          </div>
+        </div>
       </div>
       <div className="rk-info">
         <div className="rk-row"><h3 key={g}>{g}</h3><span className="rk-rep"><b>{list.length}</b> exercises</span></div>
