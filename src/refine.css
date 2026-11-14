@@ -1,0 +1,61 @@
+/* Ironline refinement layer: readability, rhythm, density. Loaded last. */
+.gym{--mute:#b4b6bb;--line:rgb(255 255 255/11%);--line2:rgb(255 255 255/20%)}
+
+/* Readability: lift the tiniest, dimmest text */
+.gym .lead{color:#c0c2c7;font-size:clamp(16px,1.2vw,18px);line-height:1.7}
+.gym .eyebrow{font-size:12px}
+.gym p,.gym li{text-wrap:pretty}
+.gym h1,.gym h2,.gym h3{text-wrap:balance}
+.gym h2{letter-spacing:-.015em;line-height:1.05}
+
+/* Section rhythm: a consistent hairline gold divider and more air */
+.gym section{padding-block:clamp(72px,10vw,128px)}
+.gym .alt{background:
+  radial-gradient(900px 420px at 85% 0,rgb(216 185 131/06%),transparent 70%),
+  linear-gradient(180deg,var(--bg2),var(--bg))}
+
+/* Hero: graceful fallback if media fails to load, stronger CTA presence */
+.gym .hx-vid{background:radial-gradient(120% 90% at 50% 20%,rgb(216 185 131/16%),transparent 60%),linear-gradient(160deg,#14161a,#0a0b0d)}
+.gym .hero .btn.gold{padding-block:18px;box-shadow:0 16px 40px -14px rgb(216 185 131/65%)}
+
+/* Exercise library: denser 3-col grid with shorter media so more fits on screen */
+.gym .cards.ex{grid-template-columns:repeat(3,1fr);gap:18px}
+.gym .ex-card{padding:12px 12px 24px;border-radius:24px;box-shadow:0 24px 50px -34px #000}
+.gym .ex-card h3{font-size:28px;line-height:1.1;margin-top:18px}
+.gym .ex-card p{color:#b8bac0;font-size:14.5px}
+@media (max-width:1020px){.gym .cards.ex{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.gym .cards.ex{grid-template-columns:1fr}}
+
+/* Cards: unify border, hover and depth */
+.gym .card,.gym .slot,.gym .rem-card{border-color:var(--line);box-shadow:0 20px 44px -34px #000}
+.gym .card:hover,.gym .slot:hover{border-color:rgb(216 185 131/38%)}
+
+/* Tabs: clearer active state, horizontal scroll instead of wrapping on phones */
+.gym .tabs{max-width:100%}
+.gym .tabs button{font-size:13px;color:#c4c6cb}
+.gym .tabs button[aria-selected="true"],.gym .tabs button.on{color:#14100a}
+@media (max-width:700px){
+  .gym .tabs{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .gym .tabs::-webkit-scrollbar{display:none}
+  .gym .tabs button{flex:none;white-space:nowrap}
+}
+
+/* Forms: visible focus, comfortable inputs */
+.gym input,.gym select,.gym textarea{min-height:44px;border-radius:14px;transition:border-color .2s,box-shadow .2s,background .2s}
+.gym input:focus,.gym select:focus,.gym textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgb(216 185 131/18%)}
+.gym label{color:#c4c6cb}
+
+/* Footer: quieter wordmark, better link contrast */
+.gym footer{color:#a9abb0}
+.gym footer a{color:#d0d2d6}
+
+/* Mobile polish */
+@media (max-width:700px){
+  .gym section{padding-block:64px}
+  .gym h2{font-size:clamp(34px,10vw,44px)}
+  .gym .hero .btn{width:100%}
+  .gym .ex-card h3{font-size:26px}
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion:reduce){.gym *,.gym *::before,.gym *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}

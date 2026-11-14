@@ -5,7 +5,10 @@ import { goalNames } from './goals'
 import { GoalPlans, PRTracker } from './Tracking'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
+import { useReveal, useScrollState, usePointerGlow, CountUp, Marquee } from './Motion'
 import './App.css'
+import './polish.css'
+import './refine.css'
 
 const BRAND = 'Ironline'
 const REMINDER_KEY = 'ironline-reminders'
@@ -894,6 +897,7 @@ function useActiveSection() {
       entries.forEach((entry) => {
         if (entry.isIntersecting) setActive(entry.target.id)
       })
+      if (window.scrollY < 300) setActive('')
     }, { rootMargin: '-45% 0px -50% 0px' })
     SECTION_IDS.forEach((id) => {
       const el = document.getElementById(id)
@@ -958,6 +962,11 @@ export default function App() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [gearTab, setGearTab] = useState('Wearables')
   const activeSection = useActiveSection()
+  const rootRef = useRef(null)
+  useReveal()
+  useScrollState(rootRef)
+  usePointerGlow()
+  const liftNames = useMemo(() => Object.values(exercises).flat().map((x) => x.n).slice(0, 18), [])
   useEffect(() => {
     const onKey = (event) => {
       const el = event.target
@@ -973,6 +982,14 @@ export default function App() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    const onKey = (event) => { if (event.key === 'Escape') setMenuOpen(false) }
+    const onDown = (event) => { if (!event.target.closest?.('.nav-pill')) setMenuOpen(false) }
+    window.addEventListener('keydown', onKey)
+    document.addEventListener('pointerdown', onDown)
+    return () => { window.removeEventListener('keydown', onKey); document.removeEventListener('pointerdown', onDown) }
+  }, [menuOpen])
   const closeMenu = () => setMenuOpen(false)
   const head = (tag, title, em, lead) => (
     <div className="sec-head">
@@ -983,7 +1000,8 @@ export default function App() {
   )
 
   return (
-    <div className="gym">
+    <div className="gym" ref={rootRef}>
+      <div className="progress" aria-hidden="true" />
       <div className="aura" aria-hidden="true" />
       <nav className="site-nav" aria-label="Main navigation">
         <div className="nav-pill">
@@ -1032,13 +1050,15 @@ export default function App() {
             <span className="hx-chip"><i aria-hidden="true" />Animated form guides</span>
           </div>
           <dl className="hx-t hx-stats">
-            <div><dt>{Object.values(exercises).flat().length}</dt><dd>Exercises</dd></div>
-            <div><dt>{Object.keys(plans).length}</dt><dd>Workout plans</dd></div>
-            <div><dt>{Object.keys(diets).length}</dt><dd>Diet plans</dd></div>
+            <div><dt><CountUp to={Object.values(exercises).flat().length} /></dt><dd>Exercises</dd></div>
+            <div><dt><CountUp to={Object.keys(plans).length} /></dt><dd>Workout plans</dd></div>
+            <div><dt><CountUp to={Object.keys(diets).length} /></dt><dd>Diet plans</dd></div>
           </dl>
           <div className="hx-t hx-bar"><LiftRack /></div>
         </div>
       </header>
+
+      <Marquee items={liftNames} />
 
       <section className="amen" aria-label="What you get">
         <div className="wrap">

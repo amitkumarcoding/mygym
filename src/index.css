@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Manrope:wght@400;500;600;700&display=swap');
+
 :root {
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
   font-synthesis: none;
@@ -6,7 +8,15 @@
   -moz-osx-font-smoothing: grayscale;
   font-optical-sizing: auto;
   background: #07080a;
+  color-scheme: dark;
+  scroll-padding-top: 96px;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
 }
+
+html, body { overflow-x: clip; background: #07080a; }
+
+* { scrollbar-width: thin; scrollbar-color: rgb(216 185 131 / 35%) transparent; }
 
 body {
   min-width: 320px;
@@ -16,6 +26,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
+  touch-action: manipulation;
 }
