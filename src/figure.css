@@ -1,0 +1,31 @@
+.gym .fx{display:block;width:100%;height:100%;overflow:visible}
+.gym .fx .fx-limbs path,.gym .fx .fx-limbs circle{stroke:rgb(216 185 131/30%);stroke-width:.7;stroke-linejoin:round}
+.gym .fx .fx-far path,.gym .fx .fx-far circle{stroke:rgb(216 185 131/12%)}
+.gym .fx .fx-rim{fill:none;stroke:rgb(255 255 255/17%);stroke-width:2.4;stroke-linecap:round}
+.gym .fx .fx-mus path{stroke:rgb(255 244 214/70%);stroke-width:.8;stroke-linejoin:round}
+.gym .fx .fx-aura path{fill:none;stroke:#f6e4bd;stroke-width:5;stroke-linejoin:round;stroke-linecap:round}
+
+.gym .fx .fx-plate circle,.gym .fx .fx-plate path{stroke:rgb(216 185 131/55%);stroke-width:.9}
+.gym .fx .fx-plate .fx-ring{fill:none;stroke:rgb(255 255 255/14%);stroke-width:1.1}
+
+.gym .fx .fx-steel{fill:none;stroke:#23262d;stroke-linecap:round}
+.gym .fx .fx-steel-hl{fill:none;stroke:rgb(255 255 255/14%);stroke-width:1;stroke-linecap:round}
+.gym .fx .fx-chrome{fill:none;stroke:#555b66;stroke-linecap:round}
+.gym .fx .fx-chrome-hl{fill:none;stroke:rgb(255 255 255/45%);stroke-width:1;stroke-linecap:round}
+.gym .fx .fx-pad{fill:none;stroke:#1d2026;stroke-linecap:round}
+.gym .fx .fx-pad-hl{fill:none;stroke:rgb(255 255 255/11%);stroke-width:1.8;stroke-linecap:round}
+.gym .fx .fx-stitch{fill:none;stroke:rgb(216 185 131/38%);stroke-width:.6;stroke-dasharray:2 2.4;stroke-linecap:round}
+.gym .fx .fx-block{fill:#1b1e24;stroke:rgb(216 185 131/28%);stroke-width:.7}
+.gym .fx .fx-cable{fill:none;stroke:rgb(255 255 255/55%);stroke-width:1.2;stroke-linecap:round}
+.gym .fx .fx-pulley{fill:#1a1c21;stroke:rgb(216 185 131/60%);stroke-width:1.4}
+
+.gym .fx .fx-ghost{fill:none;stroke:rgb(216 185 131/13%);stroke-width:1.3;stroke-dasharray:1 5;stroke-linecap:round;stroke-linejoin:round}
+.gym .fx .fx-trail{fill:none;stroke:rgb(246 228 189/42%);stroke-width:1.2;stroke-dasharray:2 5;stroke-linecap:round;stroke-linejoin:round}
+.gym .fx .fx-tracer{fill:#fff4d6;filter:drop-shadow(0 0 3px rgb(246 228 189/95%))}
+.gym .fx .fx-track{fill:rgb(255 255 255/9%)}
+.gym .fx .fx-fill{fill:rgb(216 185 131/80%)}
+
+@media (prefers-reduced-motion:no-preference){
+  .gym .fx .fx-trail{animation:fxFlow 1.6s linear infinite}
+}
+@keyframes fxFlow{to{stroke-dashoffset:-14}}

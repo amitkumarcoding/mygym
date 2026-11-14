@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { registerPush, saveSubscription, saveFee, saveReminders, watchUserData, useUser, signInWithGoogle, signOutUser } from './push'
-import { exercises, frames, DUR } from './exercises'
+import { exercises } from './exercises'
+import Figure from './Figure'
 import { goalNames } from './goals'
 import { GoalPlans, PRTracker } from './Tracking'
 import Body from 'react-muscle-highlighter'
@@ -393,48 +394,6 @@ function Icon({ n, cls }) {
   return (
     <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d={ICONS[n]} />
-    </svg>
-  )
-}
-
-function Figure({ ex }) {
-  const fr = useMemo(() => frames(ex), [ex])
-  const still = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  const pts = (f) => ['W', 'E', 'N', 'P', 'K', 'A', 'F'].map((key) => f[key].join(',')).join(' ')
-  const kt = fr.map((f) => f.kt.toFixed(4)).join(';')
-  const rpts = (f) => ['P', 'K2', 'A2'].map((key) => f[key].join(',')).join(' ')
-  const an = (attr, get) => (still ? null : <animate attributeName={attr} values={fr.map(get).join(';')} keyTimes={kt} dur={`${DUR}s`} repeatCount="indefinite" />)
-  const dot = (key, r, cls) => (
-    <circle className={cls} r={r} cx={fr[0][key][0]} cy={fr[0][key][1]}>
-      {an('cx', (f) => f[key][0])}
-      {an('cy', (f) => f[key][1])}
-    </circle>
-  )
-  const mid = fr.find((f) => f.kt >= 1.1 / DUR) || fr[0]
-  const tk = ex.q === 'ank' ? 'A' : 'W'
-  const trail = fr.filter((_, i) => i % 2 === 0).map((f) => f[tk].join(',')).join(' ')
-
-  return (
-    <svg className="fig" viewBox={ex.v || '0 0 240 160'} role="img" aria-label={`${ex.n} animated demonstration`}>
-      <path className="bg" d={ex.g} />
-      <polyline className="ghost" points={pts(mid)} />
-      {ex.q && <polyline className="trail" points={trail} />}
-      {ex.q === 'cab' && (
-        <>
-          <line className="cab" x1={fr[0].W[0]} y1={fr[0].W[1]} x2={ex.c[0]} y2={ex.c[1]}>
-            {an('x1', (f) => f.W[0])}
-            {an('y1', (f) => f.W[1])}
-          </line>
-          <circle className="pul" cx={ex.c[0]} cy={ex.c[1]} r="5" />
-          {dot('W', 4, 'eq')}
-        </>
-      )}
-      {ex.q === 'bar' && dot('W', 13, 'eq')}
-      {ex.q === 'db' && dot('W', 7, 'eq')}
-      {ex.q === 'ank' && dot('A', 11, 'eq')}
-      {fr[0].K2 && <polyline className="body rear" points={rpts(fr[0])}>{an('points', rpts)}</polyline>}
-      <polyline className="body" points={pts(fr[0])}>{an('points', pts)}</polyline>
-      {dot('H', 9, 'head')}
     </svg>
   )
 }

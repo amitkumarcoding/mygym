@@ -15,7 +15,7 @@ export const exercises = {
     { n: 'Incline barbell press', s: '4 × 6–8', t: 'Bench at 30–45°. Lower the bar to your upper chest, then press up and slightly back.', k: 'P', f: [110, 112], A: [-135, -80, -85, 0, 90], B: [-135, 50, -100, 0, 90], q: 'bar', g: `${F}M126 128L66 68M92 119H136M104 119V150M128 119V150` },
     { n: 'Dumbbell fly', s: '3 × 10–12', t: 'Soft bend in the elbows. Open your arms in a wide arc until you feel a stretch, then hug them back together.', k: 'P', f: [95, 128], A: [180, -90, -90, -30, 75], B: [180, 10, 5, -30, 75], q: 'db', g: bench },
     { n: 'Incline dumbbell fly', s: '3 × 10–12', t: 'Bench at 30°. Lower the dumbbells in a wide arc with soft elbows, then squeeze them back over your upper chest.', k: 'P', f: [110, 112], A: [-135, -80, -80, 0, 90], B: [-135, 30, 20, 0, 90], q: 'db', g: `${F}M126 128L66 68M92 119H136M104 119V150M128 119V150` },
-    { n: 'Machine chest press', s: '3 × 10–12', t: 'Handles at mid-chest height, back flat on the pad. Press forward without locking out, return slowly.', k: 'P', f: [90, 112], A: [-92, 0, 0, 0, 90], B: [-92, 168, 2, 0, 90], q: 'ank', g: `${F}M60 119H112M86 119V150M60 119L58 56` },
+    { n: 'Machine chest press', s: '3 × 10–12', t: 'Handles at mid-chest height, back flat on the pad. Press forward without locking out, return slowly.', k: 'P', f: [90, 112], A: [-92, 0, 0, 0, 90], B: [-92, 168, 2, 0, 90], q: 'mac', g: `${F}M60 119H112M86 119V150M60 119L58 56` },
     { n: 'Dumbbell pullover', s: '3 × 10–12', t: 'Upper back on a bench, one dumbbell held with both hands. Lower it behind your head with straight arms, then pull back over your chest.', k: 'P', f: [112, 128], A: [180, -90, -90, -30, 75], B: [180, -180, -180, -30, 75], q: 'db', g: bench },
   ],
   Back: [
@@ -42,7 +42,7 @@ export const exercises = {
     { n: 'Goblet squat', s: '3 × 10–12', t: 'Hold the dumbbell at your chest. Sit between your heels, keep your chest tall.', ...st, A: [-90, 80, -40, 90, 90], B: [-72, 80, -40, 5, 105], q: 'db', g: F },
     { n: 'Leg extension', s: '3 × 12–15', t: 'Back flat on the pad. Extend until your legs are straight, pause, lower slowly.', k: 'P', f: [80, 112], A: [-95, 100, 60, 0, 90], B: [-95, 100, 60, 0, -4], q: 'ank', g: `${F}M56 119H108M80 119V150` },
     { n: 'Lying leg curl', s: '3 × 10–12', t: 'Hips pressed into the pad. Curl your heels toward your glutes, lower for 2 seconds.', k: 'P', f: [100, 128], A: [180, 180, 180, 0, 3], B: [180, 180, 180, 0, -105], q: 'ank', g: `${F}M26 134H138M40 134V150M126 134V150` },
-    { n: 'Standing calf raise', s: '4 × 12–15', t: 'Balls of your feet on a step. Rise high, pause, then lower below the step.', ...st, A: [-90, 90, 90, 90, 90], B: [-90, 90, 90, 90, 90], lift: 12, g: `${F}M70 138H150` },
+    { n: 'Standing calf raise', s: '4 × 12–15', t: 'Balls of your feet on a step. Rise high, pause, then lower below the step.', k: 'A', f: [110, 138], A: [-90, 90, 90, 90, 90], B: [-90, 90, 90, 90, 90], lift: 12, v: '0 -16 240 176', g: `${F}M76 146H144` },
     { n: 'Front squat', s: '4 × 6–8', t: 'Bar on your front shoulders, elbows high. Keep your torso upright and sit straight down.', ...st, A: [-90, -15, -150, 90, 90], B: [-72, -15, -150, 8, 108], q: 'bar', g: F },
     { n: 'Reverse lunge', s: '3 × 10 each', t: 'Step back and drop your rear knee toward the floor. Push through your front heel to stand.', k: 'A', f: [130, 146], A: [-90, 90, 90, 90, 90, 90, 90], B: [-90, 90, 90, 15, 100, 100, 160], q: 'db', g: F },
     { n: 'Single-leg Romanian deadlift', s: '3 × 8 each', t: 'Soft knee on your standing leg. Hinge forward as the other leg reaches back, then squeeze your glute to stand.', k: 'A', f: [110, 146], A: [-85, 90, 90, 90, 92, 90, 92], B: [-10, 90, 90, 80, 92, 170, 170], q: 'db', g: F },
@@ -95,10 +95,10 @@ export const exercises = {
   Cardio: [
     { n: 'Kettlebell swing', s: '4 × 15', t: 'Hinge, do not squat. Snap your hips forward and let the bell float to chest height.', k: 'A', f: [100, 146], A: [-35, 110, 100, 70, 110], B: [-90, 0, 0, 90, 90], q: 'db', g: F },
     { n: 'High knees', s: '3 × 30 s', t: 'Stay tall on the balls of your feet. Drive each knee to hip height, pump your arms.', k: 'P', f: [110, 82], A: [-88, 60, -40, 90, 90, 90, 90], B: [-88, 120, 40, 5, 95, 90, 90], g: F },
-    { n: 'Jump squat', s: '3 × 10', t: 'Load into a quarter squat, explode up, land softly with bent knees.', ...st, A: [-55, 40, 40, 8, 108], B: [-90, -80, -80, 90, 90], lift: 18, g: F },
+    { n: 'Jump squat', s: '3 × 10', t: 'Load into a quarter squat, explode up, land softly with bent knees.', ...st, A: [-55, 40, 40, 8, 108], B: [-90, -80, -80, 90, 90], lift: 18, v: '0 -16 240 176', g: F },
     { n: 'Mountain climber', s: '3 × 30 s', t: 'Strong plank, hands under shoulders. Drive your knees to your chest in a running rhythm.', k: 'W', f: [168, 150], A: [-26, 90, 90, 154, 154], B: [-26, 90, 90, 70, 200], g: F },
     { n: 'Butt kicks', s: '3 × 30 s', t: 'Stay tall and light on your feet. Flick each heel up toward your glutes in a quick running rhythm.', k: 'P', f: [110, 82], A: [-88, 60, -40, 90, 90, 92, 175], B: [-88, 120, 40, 92, 175, 90, 90], g: F },
-    { n: 'Jump rope', s: '4 × 45 s', t: 'Elbows close, turn the rope with your wrists. Hop just off the floor and land softly on the balls of your feet.', ...st, A: [-90, 95, -5, 90, 90], B: [-90, 95, -15, 90, 115], lift: 10, g: F },
+    { n: 'Jump rope', s: '4 × 45 s', t: 'Elbows close, turn the rope with your wrists. Hop just off the floor and land softly on the balls of your feet.', ...st, A: [-90, 95, -5, 90, 90], B: [-90, 95, -15, 90, 115], lift: 10, v: '0 -16 240 176', g: F },
   ],
 }
 
@@ -110,39 +110,40 @@ const ease = (x) => 0.5 - 0.5 * Math.cos(Math.PI * x)
 const SEG = [[1.1, 'up'], [0.35, 'top'], [1.9, 'down'], [0.45, 'bot']]
 export const DUR = SEG.reduce((a, [t]) => a + t, 0)
 
-export const frames = (ex, n = 24) => {
-  const pose = (t) => {
-    const p = ex.A.map((a, i) => a + (ex.B[i] - a) * t)
-    const P = [0, 0]
-    const N = add(P, d(p[0], 44))
-    const E = add(N, d(p[1], 26))
-    const W = add(E, d(p[2], 24))
-    const K = add(P, d(p[3], 34))
-    const A = add(K, d(p[4], 34))
-    const o = { P, N, E, W, A }[ex.k]
-    const dy = (ex.lift || 0) * t
-    const m = (q) => [+(q[0] + ex.f[0] - o[0]).toFixed(1), +(q[1] + ex.f[1] - o[1] - dy).toFixed(1)]
-    const r = { P: m(P), N: m(N), E: m(E), W: m(W), K: m(K), A: m(A), H: m(add(N, d(p[0], 13))), F: m(add(A, [10, 0])) }
-    if (ex.A.length > 5) {
-      const K2 = add(P, d(p[5], 34))
-      r.K2 = m(K2)
-      r.A2 = m(add(K2, d(p[6], 34)))
-    }
-    return r
+export { SEG, ease }
+
+// Pose of the figure at progress t (0 = start position, 1 = end position).
+export const poseAt = (ex, t) => {
+  const p = ex.A.map((a, i) => a + (ex.B[i] - a) * t)
+  const P = [0, 0]
+  const N = add(P, d(p[0], 44))
+  const E = add(N, d(p[1], 26))
+  const W = add(E, d(p[2], 24))
+  const K = add(P, d(p[3], 34))
+  const A = add(K, d(p[4], 34))
+  const o = { P, N, E, W, A }[ex.k]
+  const dy = (ex.lift || 0) * t
+  const m = (q) => [+(q[0] + ex.f[0] - o[0]).toFixed(1), +(q[1] + ex.f[1] - o[1] - dy).toFixed(1)]
+  const r = { P: m(P), N: m(N), E: m(E), W: m(W), K: m(K), A: m(A), H: m(add(N, d(p[0], 13))), F: m(add(A, [10, 0])), lift: dy }
+  if (ex.A.length > 5) {
+    const K2 = add(P, d(p[5], 34))
+    r.K2 = m(K2)
+    r.A2 = m(add(K2, d(p[6], 34)))
   }
-  const out = []
+  return r
+}
+
+// Where the rep is at a given time in the loop: pose progress t, and how hard the muscles are working (0 to 1).
+export const phaseAt = (time) => {
   let at = 0
-  SEG.forEach(([len, kind]) => {
-    if (kind === 'up' || kind === 'down') {
-      for (let i = kind === 'up' ? 0 : 1; i <= n; i++) {
-        const e = ease(i / n)
-        out.push({ ...pose(kind === 'up' ? e : 1 - e), kt: (at + (i / n) * len) / DUR })
-      }
-    } else {
-      out.push({ ...pose(kind === 'top' ? 1 : 0), kt: (at + len) / DUR })
+  for (const [len, kind] of SEG) {
+    if (time <= at + len || kind === SEG[SEG.length - 1][1]) {
+      const x = Math.min(1, Math.max(0, (time - at) / len))
+      if (kind === 'up') return { t: ease(x), act: Math.sin(Math.PI * x) }
+      if (kind === 'down') return { t: 1 - ease(x), act: Math.sin(Math.PI * x) }
+      return { t: kind === 'top' ? 1 : 0, act: 0 }
     }
     at += len
-  })
-  out[out.length - 1].kt = 1
-  return out
+  }
+  return { t: 0, act: 0 }
 }
