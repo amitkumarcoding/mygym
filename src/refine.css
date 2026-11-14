@@ -173,3 +173,26 @@
 .gym .hp{padding:9px 16px}
 .gym .hp-ring{width:38px;height:38px}
 .gym .hp-ecg{width:100px;flex:1 1 100px;max-width:160px}
+
+/* ===== Ambient background: particles, section auras, animated dividers ===== */
+.gym{isolation:isolate}
+.gym .ambient{position:fixed;inset:0;z-index:-1;width:100vw;height:100vh;pointer-events:none}
+/* let the ambient layer show through full-width section backgrounds */
+.gym .alt{background:linear-gradient(180deg,rgb(12 14 17/55%),rgb(7 8 10/0%));backdrop-filter:none}
+.gym .amen{background:linear-gradient(180deg,transparent,rgb(12 14 17/50%))}
+.gym footer{background:linear-gradient(180deg,transparent,rgb(7 8 10/70%))}
+
+/* soft gold aura behind each section, alternating sides */
+.gym main>section,.gym section{--aura-x:12%}
+.gym section::before{content:'';position:absolute;z-index:-1;top:6%;left:var(--aura-x);width:min(620px,70vw);height:min(620px,70vw);border-radius:50%;background:radial-gradient(circle,rgb(216 185 131/09%),transparent 68%);pointer-events:none;filter:blur(8px)}
+.gym section:nth-of-type(even){--aura-x:auto}
+.gym section:nth-of-type(even)::before{left:auto;right:6%}
+
+/* glowing divider line that draws itself between sections */
+.gym section::after{content:'';position:absolute;top:0;left:50%;width:min(520px,60%);height:1px;transform:translateX(-50%) scaleX(.2);opacity:0;background:linear-gradient(90deg,transparent,rgb(216 185 131/60%),transparent);transition:transform 1.4s cubic-bezier(.2,.8,.2,1),opacity 1.2s;pointer-events:none}
+.gym section.in::after,.gym section[data-in]::after,.gym section:has(.in)::after{transform:translateX(-50%) scaleX(1);opacity:1}
+
+/* section titles: gold sweep on the italic word, eyebrow line grows */
+.gym .sec-head h2 em,.gym section h2 em{background:linear-gradient(110deg,#a98550 20%,#fff1cc 45%,#d8b983 55%,#a98550 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hxSheen 7s ease-in-out infinite}
+.gym .eyebrow i{transform-origin:0 50%;animation:rkLine 1.2s .2s cubic-bezier(.2,.8,.2,1) both}
+@media (prefers-reduced-motion:reduce){.gym section h2 em,.gym .eyebrow i{animation:none}.gym section::after{transition:none;opacity:1;transform:translateX(-50%)}}

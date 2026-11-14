@@ -4,6 +4,7 @@ import { exercises, frames, DUR } from './exercises'
 import { goalNames } from './goals'
 import { GoalPlans, PRTracker } from './Tracking'
 import Body from 'react-muscle-highlighter'
+import Ambient from './Ambient'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
 import { useReveal, useScrollState, usePointerGlow, CountUp } from './Motion'
@@ -1069,6 +1070,7 @@ export default function App() {
 
   return (
     <div className="gym" ref={rootRef}>
+      <Ambient />
       <div className="progress" aria-hidden="true" />
       <div className="aura" aria-hidden="true" />
       <nav className="site-nav" aria-label="Main navigation">
