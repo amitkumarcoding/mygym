@@ -894,11 +894,14 @@
 .gym .rk-stage{position:relative;flex:1;min-height:200px;background:radial-gradient(circle,rgb(216 185 131/14%) 1px,transparent 1.5px) 0 0/16px 16px;-webkit-mask:radial-gradient(closest-side,#000 55%,transparent);mask:radial-gradient(closest-side,#000 55%,transparent)}
 .gym .rk-stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .gym .rk-ruler line{stroke:#d8b983;stroke-opacity:.35;stroke-width:1}
-.gym .rk-dead{fill:rgb(255 255 255/4%);stroke:#d8b983;stroke-opacity:.3}
+.gym .rk-dead{fill:url(#rkDim);stroke:#d8b983;stroke-opacity:.28}
+.gym .rk-base{fill:#17191d}
+.gym .rk-det{fill:none;stroke:#d8b983;stroke-opacity:.22;stroke-width:1;stroke-linecap:round;pointer-events:none}
+.gym .rk-m.on .rk-det{stroke:#7a5c2c;stroke-opacity:.7}
 .gym .rk-m{cursor:pointer;outline:none}
-.gym .rk-m path{fill:rgb(255 255 255/6%);stroke:#d8b983;stroke-opacity:.35;stroke-width:1;transition:fill .5s,stroke-opacity .5s}
-.gym .rk-m:hover path{fill:rgb(216 185 131/22%);stroke-opacity:.7}
-.gym .rk-m.on path{fill:url(#rkGold);stroke:#fff6dc;stroke-opacity:.6}
+.gym .rk-m path:not(.rk-det){fill:url(#rkDim);stroke:#d8b983;stroke-opacity:.4;stroke-width:1;transition:fill .5s,stroke-opacity .5s}
+.gym .rk-m:hover path:not(.rk-det){fill:#3a3427;stroke-opacity:.8}
+.gym .rk-m.on path:not(.rk-det){fill:url(#rkGold);stroke:#fff6dc;stroke-opacity:.6}
 .gym .rk-m.on{filter:drop-shadow(0 0 10px rgb(216 185 131/75%))}
 .gym .rk-m:focus-visible path{stroke:#fff;stroke-opacity:1}
 .gym .rk-scan{opacity:.8;filter:drop-shadow(0 0 6px #d8b983)}
@@ -915,7 +918,7 @@
 @keyframes rkBreath{0%,100%{opacity:.8}50%{opacity:1}}
 @media (prefers-reduced-motion:no-preference){
   .gym .rk-scan{animation:rkScan 3.6s ease-in-out infinite}
-  .gym .rk-m.on path{animation:rkBreath 1.6s ease-in-out infinite}
+  .gym .rk-m.on path:not(.rk-det){animation:rkBreath 1.6s ease-in-out infinite}
 }
 @media (max-height:780px) and (min-width:1101px){
   .gym .hx-head{gap:14px;padding:24px 30px}

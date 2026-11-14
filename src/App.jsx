@@ -222,13 +222,22 @@ function Lifts() {
 
 const mapOrder = ['Chest', 'Shoulders', 'Back', 'Arms', 'Core', 'Legs']
 const mapParts = {
-  Shoulders: ['M62 86 C70 76 86 78 92 90 C94 104 88 116 78 120 C66 118 58 104 62 86Z'],
-  Chest: ['M95 92 C104 90 116 92 119 98 L119 130 C108 138 96 134 91 122 C88 110 90 98 95 92Z'],
-  Back: ['M110 54 C104 66 94 74 80 80 L92 88 C100 82 108 76 112 70Z', 'M88 128 C93 142 97 158 99 178 L91 180 C85 162 81 144 82 126Z'],
-  Arms: ['M60 124 C54 138 52 154 54 170 L67 172 C71 156 73 140 75 126Z', 'M53 176 C49 196 47 216 45 236 L57 240 C61 220 65 198 67 178Z'],
-  Core: ['M105 138h14v16h-14z', 'M105 158h14v16h-14z', 'M105 178h14v16h-14z', 'M105 198h14v14h-14z'],
-  Legs: ['M96 218 C90 254 88 290 92 322 L117 322 C119 290 119 254 117 218Z', 'M93 332 C89 360 91 390 95 414 L111 414 C115 390 117 360 115 332Z'],
+  Back: ['M112 58 C108 66 98 71 84 76 C88 80 94 86 98 90 C104 84 110 76 112 68Z', 'M85 122 C90 128 94 130 98 136 C102 148 102 160 101 172 C96 168 90 150 85 122Z'],
+  Shoulders: ['M84 76 C70 74 56 84 52 102 C50 112 54 122 60 126 C68 122 76 114 82 104 C88 94 92 88 98 90 C94 86 88 80 84 76Z'],
+  Chest: ['M98 90 C106 88 114 90 119 94 L119 136 C110 142 98 138 92 126 C90 116 92 100 98 90Z'],
+  Core: ['M112 141H112Q118 141 118 147V152Q118 158 112 158H112Q106 158 106 152V147Q106 141 112 141Z', 'M111 161H112Q118 161 118 167V171Q118 177 112 177H111Q105 177 105 171V167Q105 161 111 161Z', 'M111 181H112Q118 181 118 187V191Q118 197 112 197H111Q105 197 105 191V187Q105 181 111 181Z', 'M111 201H113Q118 201 118 206V208Q118 213 113 213H111Q106 213 106 208V206Q106 201 111 201Z', 'M101 174 C103 186 103 198 100 211 L94 208 C93 196 95 184 97 177Z', 'M99 142 C102 152 102 164 101 172 C97 168 96 152 99 142Z'],
+  Arms: ['M58 126 C52 140 50 158 54 176 L66 178 C72 162 74 142 72 124 C68 126 62 127 58 126Z', 'M53 181 C48 195 44 215 42 237 L52 241 C58 223 64 201 67 183Z'],
+  Legs: ['M94 230 C86 254 87 292 94 321 L117 321 C120 292 120 258 118 230Z', 'M97 336 C90 358 90 384 96 410 L108 410 C114 390 116 360 114 336Z'],
 }
+const mapDead = ['M95 211 C100 216 110 220 119 222 L119 234 C108 232 98 226 93 218Z', 'M42 241 C40 253 42 263 48 265 C54 263 56 251 54 243Z', 'M96 322 C100 329 112 329 117 322 L115 335 C109 339 102 339 98 335Z', 'M96 412 C92 420 94 427 102 428 L111 426 L109 412Z']
+const mapDet = {
+  Chest: ['M119 104 C110 106 102 112 96 122'],
+  Shoulders: ['M64 100 C70 108 76 108 82 102'],
+  Arms: ['M58 140 C62 150 62 160 60 170'],
+  Legs: ['M102 246 C100 270 100 296 104 316', 'M104 350 C102 370 104 392 106 406'],
+  Back: ['M91 140 C94 156 95 172 94 190'],
+}
+const torso = 'M112 66 C100 72 88 78 84 90 C82 104 84 118 86 126 C90 150 92 190 95 212 L119 218 L119 66Z'
 const flip = 'translate(240 0) scale(-1 1)'
 
 function LiftRack() {
@@ -251,6 +260,7 @@ function LiftRack() {
         <svg viewBox="0 0 340 440" role="img" aria-label={`Muscle map, ${g} selected`}>
           <defs>
             <linearGradient id="rkGold" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#f6e4bd"/><stop offset=".6" stopColor="#d8b983"/><stop offset="1" stopColor="#a98550"/></linearGradient>
+            <linearGradient id="rkDim" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#2c2f35"/><stop offset="1" stopColor="#16181c"/></linearGradient>
             <linearGradient id="rkScan" x1="0" x2="1"><stop offset="0" stopColor="#d8b983" stopOpacity="0"/><stop offset=".5" stopColor="#f6e4bd"/><stop offset="1" stopColor="#d8b983" stopOpacity="0"/></linearGradient>
           </defs>
           <g className="rk-ruler" aria-hidden="true">
@@ -258,11 +268,16 @@ function LiftRack() {
             {Array.from({ length: 23 }, (_, i) => <line key={i} x1="334" x2={i % 5 === 0 ? 320 : 328} y1={20 + i * 19} y2={20 + i * 19} />)}
           </g>
           <g transform="translate(50 0)" className="rk-body">
-            <circle cx="120" cy="34" r="17" className="rk-dead" /><rect x="111" y="50" width="18" height="16" rx="4" className="rk-dead" />
+            <path d="M107 28 C107 12 133 12 133 28 C133 40 128 50 120 53 C112 50 107 40 107 28Z" className="rk-dead" />
+            <path d="M112 48 L128 48 L130 64 C124 69 116 69 110 64Z" className="rk-dead" />
+            <path d={torso} className="rk-base" /><path d={torso} transform={flip} className="rk-base" />
+            {mapDead.map((d, x) => <g key={x}><path d={d} className="rk-dead" /><path d={d} transform={flip} className="rk-dead" /></g>)}
             {groups.map((name, i) => (
               <g key={name} className={`rk-m${i === k ? ' on' : ''}`} role="button" tabIndex={0} aria-label={name} onClick={() => pick(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(i) } }}>
                 {mapParts[name].map((d, x) => <path key={x} d={d} />)}
                 {mapParts[name].map((d, x) => <path key={`m${x}`} d={d} transform={flip} />)}
+                {(mapDet[name] || []).map((d, x) => <path key={`d${x}`} d={d} className="rk-det" />)}
+                {(mapDet[name] || []).map((d, x) => <path key={`e${x}`} d={d} transform={flip} className="rk-det" />)}
               </g>
             ))}
           </g>
