@@ -96,3 +96,46 @@
 .gym .rk .rk-flip button.on{color:#14100a;background:linear-gradient(135deg,#f6e4bd,#d8b983)}
 .gym .rk-stage{-webkit-mask:none;mask:none;background:none}
 .gym .rk-spot::before{content:'';position:absolute;inset:0;background:radial-gradient(circle,rgb(216 185 131/14%) 1px,transparent 1.5px) 0 0/16px 16px;-webkit-mask:radial-gradient(closest-side,#000 55%,transparent);mask:radial-gradient(closest-side,#000 55%,transparent)}
+
+/* ===== Premium body: brushed-metal muscles, gold hot zone, HUD details ===== */
+.gym .rk-defs{position:absolute;width:0;height:0}
+.gym .rk-fig svg path[fill]{fill:url(#rkMetal);stroke:rgb(216 185 131/34%);stroke-width:.8}
+.gym .rk-fig svg path[fill="#16181c"]{fill:#121418;stroke:rgb(216 185 131/18%)}
+.gym .rk-fig svg path[fill="#f6e4bd"]{fill:url(#rkGoldG);stroke:#fff1cc;stroke-width:1;animation:rkPulse 2.6s ease-in-out infinite}
+@keyframes rkPulse{0%,100%{filter:drop-shadow(0 0 4px rgb(246 228 189/55%))}50%{filter:drop-shadow(0 0 14px rgb(246 228 189/95%))}}
+.gym .rk-fig svg{filter:drop-shadow(0 26px 30px rgb(0 0 0/70%))}
+
+/* Studio light, floor glow and slow orbit rings */
+.gym .rk-spot{background:
+  radial-gradient(55% 40% at 50% 36%,rgb(216 185 131/26%),transparent 70%),
+  radial-gradient(46% 10% at 50% 90%,rgb(216 185 131/34%),transparent 72%)}
+.gym .rk-orbit{position:absolute;inset:6% 4% 14%;pointer-events:none}
+.gym .rk-orbit i{position:absolute;inset:0;margin:auto;border:1px dashed rgb(216 185 131/18%);border-radius:50%;animation:rkSpin 40s linear infinite}
+.gym .rk-orbit i:last-child{inset:12%;border-style:solid;border-color:rgb(216 185 131/10%);animation-duration:60s;animation-direction:reverse}
+@keyframes rkSpin{to{transform:rotate(360deg)}}
+
+/* Scan line sweeping the body */
+.gym .rk-scanline{position:absolute;left:10%;right:10%;top:6%;height:70px;pointer-events:none;background:linear-gradient(180deg,transparent,rgb(216 185 131/16%) 70%,rgb(246 228 189/70%) 99%,transparent);animation:rkScan 4.4s cubic-bezier(.45,0,.55,1) infinite;mix-blend-mode:screen;opacity:.8}
+@keyframes rkScan{0%{transform:translateY(0);opacity:0}12%{opacity:.8}88%{opacity:.8}100%{transform:translateY(calc(var(--stage-h,380px) - 130px));opacity:0}}
+
+/* HUD corner brackets */
+.gym .rk-br{position:absolute;width:16px;height:16px;border:1px solid rgb(216 185 131/55%);pointer-events:none}
+.gym .rk-br.tl{top:6px;left:6px;border-right:0;border-bottom:0}
+.gym .rk-br.tr{top:6px;right:6px;border-left:0;border-bottom:0}
+.gym .rk-br.bl{bottom:6px;left:6px;border-right:0;border-top:0}
+.gym .rk-br.brr{bottom:6px;right:6px;border-left:0;border-top:0}
+
+/* Callout from the lit muscle to the edge of the card */
+.gym .rk-pin{position:absolute;inset:0;pointer-events:none;z-index:3}
+.gym .rk-pin b{position:absolute;left:var(--px);top:var(--py);width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:#fff4d6;box-shadow:0 0 0 3px rgb(246 228 189/30%),0 0 16px #f6e4bd;animation:rkPing 1.8s ease-out infinite}
+@keyframes rkPing{0%{box-shadow:0 0 0 0 rgb(246 228 189/70%),0 0 16px #f6e4bd}100%{box-shadow:0 0 0 16px rgb(246 228 189/0%),0 0 16px #f6e4bd}}
+.gym .rk-pin u{position:absolute;top:var(--py);left:calc(var(--pr) + 8px);right:8px;height:1px;background:linear-gradient(90deg,rgb(246 228 189/80%),rgb(246 228 189/10%));transform-origin:0 50%;animation:rkLine .7s .1s cubic-bezier(.2,.8,.2,1) both;text-decoration:none}
+@keyframes rkLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.gym .rk-pin em{position:absolute;top:calc(var(--py) - 22px);right:10px;color:var(--gold-hi);font:600 9.5px 'Manrope',sans-serif;letter-spacing:.24em;text-transform:uppercase;font-style:normal;background:none;-webkit-text-fill-color:currentColor;animation:rkIn .6s .35s both}
+@media (max-width:700px){.gym .rk-pin u{display:none}.gym .rk-pin em{display:none}}
+
+/* Card finish */
+.gym .rk-row h3{background:linear-gradient(180deg,#fff4d6,#d8b983);-webkit-background-clip:text;background-clip:text;color:transparent}
+@media (prefers-reduced-motion:reduce){.gym .rk-scanline,.gym .rk-orbit i,.gym .rk-fig svg path[fill="#f6e4bd"],.gym .rk-pin b{animation:none}}
+.gym .rk-scanline{left:14%;right:14%;height:44px;background:linear-gradient(180deg,transparent,rgb(216 185 131/10%) 75%,rgb(246 228 189/55%) 98%,transparent);-webkit-mask:linear-gradient(90deg,transparent,#000 25%,#000 75%,transparent);mask:linear-gradient(90deg,transparent,#000 25%,#000 75%,transparent);border-bottom:0;opacity:.9}
+@keyframes rkScan{0%{transform:translateY(0);opacity:0}12%{opacity:.9}88%{opacity:.9}100%{transform:translateY(calc(var(--stage-h,380px) - 100px));opacity:0}}

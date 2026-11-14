@@ -6,7 +6,7 @@ import { GoalPlans, PRTracker } from './Tracking'
 import Body from 'react-muscle-highlighter'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
-import { useReveal, useScrollState, usePointerGlow, CountUp, Marquee } from './Motion'
+import { useReveal, useScrollState, usePointerGlow, CountUp } from './Motion'
 import './App.css'
 import './polish.css'
 import './refine.css'
@@ -255,28 +255,61 @@ const flip = 'translate(240 0) scale(-1 1)'
 function LiftRack() {
   const groups = mapOrder.filter((g) => exercises[g])
   const [k, setK] = useState(0)
-  const [auto, setAuto] = useState(true)
+  const [view, setView] = useState(null)
+  const hold = useRef(0)
+  const stage = useRef(null)
+  const [pin, setPin] = useState(null)
+  // Keeps cycling forever; a tap or toggle only pauses it for a few seconds.
   useEffect(() => {
-    if (!auto) return undefined
-    const t = setInterval(() => setK((x) => (x + 1) % groups.length), 3600)
+    const t = setInterval(() => {
+      if (Date.now() - hold.current < 7000) return
+      setView(null)
+      setK((x) => (x + 1) % groups.length)
+    }, 3600)
     return () => clearInterval(t)
-  }, [auto, groups.length])
+  }, [groups.length])
   const g = groups[k]
   const list = exercises[g]
-  const pick = (i) => { setAuto(false); setK(i); setView(groups[i] === 'Back' ? 'back' : 'front') }
-  const [view, setView] = useState('front')
-  const side = auto ? (g === 'Back' ? 'back' : 'front') : view
+  const pick = (i) => { hold.current = Date.now(); setView(null); setK(i) }
+  const flip = (v) => { hold.current = Date.now(); setView(v) }
+  const side = view || (g === 'Back' ? 'back' : 'front')
   const bodyData = [
     ...['head', 'neck', 'hair', 'hands', 'feet', 'ankles', 'knees'].map((slug) => ({ slug, styles: { fill: '#16181c', stroke: 'rgb(216 185 131 / 22%)', strokeWidth: 0.6 } })),
     ...(GROUP_SLUGS[g] || []).map((slug) => ({ slug, intensity: 2 })),
   ]
 
+  useEffect(() => {
+    const measure = () => {
+      const root = stage.current
+      if (!root) return
+      const lit = root.querySelectorAll('.rk-fig svg path[fill="#f6e4bd"]')
+      if (!lit.length) { setPin(null); return }
+      const box = root.getBoundingClientRect()
+      let x1 = 1e9, y1 = 1e9, x2 = -1e9, y2 = -1e9
+      lit.forEach((p) => { const r = p.getBoundingClientRect(); x1 = Math.min(x1, r.left); y1 = Math.min(y1, r.top); x2 = Math.max(x2, r.right); y2 = Math.max(y2, r.bottom) })
+      setPin({ x: (x1 + x2) / 2 - box.left, y: (y1 + y2) / 2 - box.top, right: x2 - box.left, w: box.width })
+    }
+    const t1 = setTimeout(measure, 60)
+    const t2 = setTimeout(measure, 800)
+    window.addEventListener('resize', measure)
+    return () => { clearTimeout(t1); clearTimeout(t2); window.removeEventListener('resize', measure) }
+  }, [k, side])
+
   return (
     <div className="rk">
       <small>Interactive · Tap a muscle</small>
-      <div className="rk-stage">
+      <div className="rk-stage" ref={stage}>
         <div className="rk-bodies" role="group" aria-label={`Muscle map, ${g} selected`}>
+          <svg className="rk-defs" width="0" height="0" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="rkMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#4a4e57" /><stop offset=".45" stopColor="#2a2d33" /><stop offset="1" stopColor="#15171b" /></linearGradient>
+              <linearGradient id="rkGoldG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff4d6" /><stop offset=".5" stopColor="#e2c58f" /><stop offset="1" stopColor="#a7803f" /></linearGradient>
+            </defs>
+          </svg>
           <div className="rk-spot" aria-hidden="true" />
+          <div className="rk-orbit" aria-hidden="true"><i /><i /></div>
+          <div className="rk-scanline" aria-hidden="true" />
+          <span className="rk-br tl" aria-hidden="true" /><span className="rk-br tr" aria-hidden="true" /><span className="rk-br bl" aria-hidden="true" /><span className="rk-br brr" aria-hidden="true" />
           <div className="rk-fig" key={side}>
             <Body
               data={bodyData}
@@ -291,9 +324,14 @@ function LiftRack() {
               onBodyPartPress={(p) => { const i = groups.findIndex((n) => (GROUP_SLUGS[n] || []).includes(p.slug)); if (i >= 0) pick(i) }}
             />
           </div>
+          {pin && (
+            <div className="rk-pin" key={`${g}-${side}`} style={{ '--px': `${pin.x}px`, '--py': `${pin.y}px`, '--pr': `${pin.right}px`, '--pw': `${pin.w}px` }} aria-hidden="true">
+              <b /><u /><em>{g}</em>
+            </div>
+          )}
           <div className="rk-flip" role="group" aria-label="Body view">
             {['front', 'back'].map((v) => (
-              <button type="button" key={v} className={v === side ? 'on' : ''} aria-pressed={v === side} onClick={() => { setAuto(false); setView(v) }}>{v}</button>
+              <button type="button" key={v} className={v === side ? 'on' : ''} aria-pressed={v === side} onClick={() => flip(v)}>{v}</button>
             ))}
           </div>
         </div>
@@ -977,7 +1015,6 @@ export default function App() {
   useReveal()
   useScrollState(rootRef)
   usePointerGlow()
-  const liftNames = useMemo(() => Object.values(exercises).flat().map((x) => x.n).slice(0, 18), [])
   useEffect(() => {
     const onKey = (event) => {
       const el = event.target
@@ -1069,7 +1106,6 @@ export default function App() {
         </div>
       </header>
 
-      <Marquee items={liftNames} />
 
       <section className="amen" aria-label="What you get">
         <div className="wrap">
