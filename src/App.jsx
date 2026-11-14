@@ -121,6 +121,26 @@ const demoRows = [
   { ex: 'Deadlift', kg: 180, reps: 3, up: 10 },
 ]
 
+function HeroPulse() {
+  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+  const today = (new Date().getDay() + 6) % 7
+  return (
+    <aside className="hp" aria-label="Sample training session">
+      <svg className="hp-ring" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="26" className="hp-track" />
+        <circle cx="32" cy="32" r="26" className="hp-arc" pathLength="100" />
+      </svg>
+      <div className="hp-txt"><b>45<small> min</small></b><span><u />Today's session</span></div>
+      <svg className="hp-ecg" viewBox="0 0 220 36" aria-hidden="true">
+        <path pathLength="100" d="M0 20 H46 L54 20 L60 6 L68 32 L75 14 L80 20 H128 L136 20 L142 4 L150 33 L157 14 L162 20 H220" />
+      </svg>
+      <div className="hp-days" aria-hidden="true">
+        {days.map((d, i) => <span key={i} className={i < today ? 'hp-on' : i === today ? 'hp-now' : ''}>{d}</span>)}
+      </div>
+    </aside>
+  )
+}
+
 function Lifts() {
   const init = useRef(null)
   if (init.current === null) init.current = readLogs()
@@ -1091,6 +1111,7 @@ export default function App() {
               <a href="#trainer" className="btn gold">Choose your trainer</a>
               <a href="#exercises" className="btn ghost">Browse exercises</a>
             </div>
+            <HeroPulse />
           </div>
           <div className="hx-t hx-vid">
             <HeroMedia />
