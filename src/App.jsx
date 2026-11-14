@@ -393,6 +393,12 @@ function Reminders() {
   const user = useUser()
   const uid = user ? user.uid : ''
   const [syncStatus, setSyncStatus] = useState('idle')
+  const [syncError, setSyncError] = useState('')
+  const failSync = (error) => {
+    console.error('Sync error:', error)
+    setSyncError((error && (error.code || error.message)) || 'unknown error')
+    setSyncStatus('error')
+  }
   const [paidNote, setPaidNote] = useState('')
   const feeRef = useRef(fee)
   feeRef.current = fee
@@ -490,7 +496,7 @@ function Reminders() {
         lastSynced.current = remote.updatedAt
         setFeeRaw(withNext({ on: remote.on, plan: remote.plan, paidOn: remote.paidOn, time: remote.time, history: remote.history, updatedAt: remote.updatedAt }))
       }
-    }, () => setSyncStatus('error'))
+    }, failSync)
   }, [uid])
 
   useEffect(() => {
@@ -498,7 +504,7 @@ function Reminders() {
     const timer = window.setTimeout(() => {
       saveFee(uid, fee)
         .then(() => { lastSynced.current = fee.updatedAt; setSyncStatus('on') })
-        .catch(() => setSyncStatus('error'))
+        .catch(failSync)
     }, 600)
     return () => window.clearTimeout(timer)
   }, [uid, fee])
@@ -519,7 +525,7 @@ function Reminders() {
         setMealsRaw(remote.meals)
         setRemUpdated(remote.updatedAt)
       }
-    }, () => setSyncStatus('error'))
+    }, failSync)
   }, [uid])
 
   useEffect(() => {
@@ -527,7 +533,7 @@ function Reminders() {
     const timer = window.setTimeout(() => {
       saveReminders(uid, { water, meals, updatedAt: remUpdated })
         .then(() => { lastRemSynced.current = remUpdated })
-        .catch(() => setSyncStatus('error'))
+        .catch(failSync)
     }, 600)
     return () => window.clearTimeout(timer)
   }, [uid, remUpdated, water, meals])
@@ -548,7 +554,8 @@ function Reminders() {
     try {
       await signInWithGoogle()
     } catch (error) {
-      setSyncStatus(error && error.code === 'auth/popup-closed-by-user' ? 'idle' : 'error')
+      if (error && error.code === 'auth/popup-closed-by-user') setSyncStatus('idle')
+      else failSync(error)
     }
   }
 
@@ -724,7 +731,7 @@ function Reminders() {
                 <button className="btn gold" type="button" onClick={signInToSync} disabled={syncStatus === 'connecting'}>Sign in with Google to sync</button>
               )}
               {syncStatus === 'on' && <p className="fee-saved" role="status">Synced across your devices.</p>}
-              {syncStatus === 'error' && <p className="note" role="status">Sync is unavailable right now. Your info is still saved on this device.</p>}
+              {syncStatus === 'error' && <p className="note" role="status">Sync is unavailable right now ({syncError}). Your info is still saved on this device.</p>}
             </div>
             <p className="note">You paid for {fee.plan === 1 ? '1 month' : `${fee.plan} months`}, so the next payment is {fee.plan === 1 ? '1 month' : `${fee.plan} months`} after the date you paid. Tap "I paid today" after each payment to move it forward.</p>
           </div>
