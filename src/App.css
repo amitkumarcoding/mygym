@@ -54,7 +54,7 @@
 .gym .plates button:nth-child(n+5){grid-column:span 2}
 
 .gym .amen{padding:0 0 130px}
-.gym .amen .wrap{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.gym .amen .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .gym .amen .wrap>div{padding:32px 28px 36px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,rgb(255 255 255/4%),transparent),var(--card);transition:transform .35s,border-color .35s}
 .gym .amen .wrap>div:hover{transform:translateY(-6px);border-color:rgb(216 185 131/45%)}
 .gym .amen .n{display:block;margin-bottom:48px;color:var(--gold);font:italic 500 22px 'Cormorant Garamond',serif}
@@ -121,26 +121,14 @@
 .gym .meal input{width:auto;margin:0;padding:8px 12px;border:1px solid var(--line);border-radius:10px;color-scheme:dark;font-size:15px}
 .gym .reminder-test{margin-top:8px}
 
-.gym .free-card{position:relative;display:grid;grid-template-columns:1.1fr .9fr;align-items:end;gap:72px;padding:clamp(36px,6vw,80px);overflow:hidden;border:1px solid rgb(216 185 131/30%);border-radius:36px;background:radial-gradient(600px 360px at 0% 0%,rgb(216 185 131/16%),transparent 70%),var(--card)}
-.gym .free h2{font-size:clamp(52px,7vw,104px);line-height:.92}
-.gym .free .lead{margin-bottom:36px}
-.gym .perks{margin:0;padding:0;list-style:none}
-.gym .perks li{position:relative;padding:20px 0 20px 40px;border-bottom:1px solid var(--line);font-size:16px}
-.gym .perks li:first-child{border-top:1px solid var(--line)}
-.gym .perks li::before{position:absolute;top:50%;left:6px;width:10px;height:10px;transform:translateY(-50%) rotate(45deg);background:linear-gradient(135deg,var(--gold-hi),var(--gold-lo));content:''}
 
-.gym .join{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:80px}
-.gym .card,.gym .ok{padding:clamp(28px,4vw,48px);border:1px solid var(--line2);border-radius:32px;background:linear-gradient(160deg,rgb(255 255 255/6%),transparent 60%),var(--card);box-shadow:0 40px 80px -40px #000}
+.gym .card{padding:clamp(28px,4vw,48px);border:1px solid var(--line2);border-radius:32px;background:linear-gradient(160deg,rgb(255 255 255/6%),transparent 60%),var(--card);box-shadow:0 40px 80px -40px #000}
 .gym label{display:block;margin-bottom:26px;color:var(--mute);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
 .gym input,.gym select{display:block;width:100%;margin-top:8px;padding:14px 0;border:0;border-bottom:1px solid var(--line2);border-radius:0;background:transparent;color:var(--txt);font:500 17px 'Manrope',sans-serif;letter-spacing:0;text-transform:none;transition:border-color .2s}
 .gym input:focus,.gym select:focus{border-bottom-color:var(--gold);outline:0}
 .gym select option{color:#111}
 .gym .err{margin:-8px 0 22px;color:#ff9f9f;font-size:14px}
 .gym .card .btn{width:100%}
-.gym .ok{border-color:rgb(216 185 131/45%)}
-.gym .ok h3{margin-bottom:12px;font-size:44px}
-.gym .ok p{margin:0;color:var(--mute)}
-.gym .ok a{color:var(--gold-hi);text-decoration:underline}
 
 .gym footer{overflow:hidden;padding:80px 0 0;border-top:1px solid var(--line);color:var(--mute);font-size:14px}
 .gym footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:32px}
@@ -169,10 +157,9 @@
   .gym section{padding:88px 0}
   .gym .amen{padding-bottom:88px}
   .gym .hero{padding:48px 0 80px}
-  .gym .hero .wrap,.gym .split,.gym .rem,.gym .free-card,.gym .join,.gym .trainers{grid-template-columns:1fr}
+  .gym .hero .wrap,.gym .split,.gym .rem,.gym .trainers{grid-template-columns:1fr}
   .gym .hero .wrap{gap:56px}
-  .gym .split,.gym .rem,.gym .join{gap:40px}
-  .gym .free-card{gap:40px}
+  .gym .split,.gym .rem{gap:40px}
   .gym .split .sec-head{position:static}
   .gym .amen .wrap{grid-template-columns:1fr 1fr}
   .gym #schedule-panel{grid-template-columns:1fr 1fr}
@@ -312,8 +299,7 @@
   .gym .plan{border-radius:26px}
   .gym .step-nav .btn{flex:1}
   .gym .rem-card{padding:22px}
-  .gym .free-card{padding:28px 22px;border-radius:28px}
-  .gym .card,.gym .ok{padding:24px 20px;border-radius:26px}
+  .gym .card{padding:24px 20px;border-radius:26px}
   .gym .calc h3{font-size:32px}
   .gym .results b{font-size:34px}
   .gym .wordmark{margin-top:36px}
@@ -591,11 +577,11 @@
 }
 
 /* Mobile and responsive fixes */
-.gym .hero .wrap>*,.gym .split>*,.gym .rem>*,.gym .free-card>*,.gym .join>*,.gym .trainers>*,.gym .cards>*,.gym .calc-grid>*,.gym .goal-cols>*,.gym .prog-top>*{min-width:0}
+.gym .hero .wrap>*,.gym .split>*,.gym .rem>*,.gym .trainers>*,.gym .cards>*,.gym .calc-grid>*,.gym .goal-cols>*,.gym .prog-top>*{min-width:0}
 .gym img,.gym svg,.gym video{max-width:100%}
 .gym h1,.gym h2,.gym h3,.gym p{overflow-wrap:break-word}
 @media (max-width:980px){
-  .gym .hero .wrap,.gym .split,.gym .rem,.gym .free-card,.gym .join,.gym .trainers{grid-template-columns:minmax(0,1fr)}
+  .gym .hero .wrap,.gym .split,.gym .rem,.gym .trainers{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:560px){
   .gym .wrap{width:min(100% - 32px,1180px)}

@@ -10,8 +10,6 @@ import './App.css'
 const BRAND = 'Ironline'
 const REMINDER_KEY = 'ironline-reminders'
 
-const goals = goalNames
-
 const plans = {
   'Beginner full body': [['Mon', 'Full body A', 'Squat, bench press, lat pulldown, plank'], ['Wed', 'Full body B', 'Deadlift, overhead press, seated row, lunge'], ['Fri', 'Full body C', 'Leg press, incline press, cable row, cable crunch']],
   'Push Pull Legs': [['Day 1', 'Push', 'Bench press, overhead press, incline press, lateral raise, pushdown'], ['Day 2', 'Pull', 'Deadlift, lat pulldown, cable row, face pull, barbell curl'], ['Day 3', 'Legs', 'Squat, Romanian deadlift, lunge, calf raise, plank'], ['Day 4', 'Rest', 'Walk 30 minutes and stretch. Repeat the cycle.']],
@@ -25,7 +23,7 @@ const diets = {
 }
 
 const faqs = [
-  { name: 'Is it really free?', text: 'Yes. Every exercise guide, workout plan, diet plan and calculator is free, with no sign-up needed and no hidden fees.' },
+  { name: 'Is it really free?', text: 'Yes. Every exercise guide, workout plan, diet plan and calculator is free, with no sign-up needed and no hidden fees. Signing in with Google is optional and only syncs your records across devices.' },
   { name: 'How many days should I train?', text: 'Beginners do well with 3 full body days. Add a fourth or fifth day only when you recover well and your lifts keep going up.' },
   { name: 'How much protein do I need?', text: 'Aim for 1.6 to 2.2 g per kg of bodyweight a day. The calculator below works out your exact number.' },
   { name: 'Should I check with a doctor first?', text: 'If you have an injury, a health condition or have not trained in years, speak to a doctor or qualified trainer before starting.' },
@@ -235,8 +233,8 @@ function Library() {
 
 const levels = [
   { id: 'Simple', coach: 'Aarav', role: 'Calm and beginner friendly', bolts: 1, n: 3, sets: 3, reps: '10–12', hold: 30, rest: 90, say: (f, n) => `Easy does it. Today is ${f}: ${n} moves with light weight and clean form. Breathe, enjoy it, and rest a full 90 seconds.` },
-  { id: 'Hard', coach: 'Riya', role: 'Strict and sharp', bolts: 2, n: 4, sets: 4, reps: '8–10', hold: 45, rest: 60, say: (f, n) => `Let's work. ${f} day: ${n} exercises, 4 sets each, 60 seconds rest. Take every set close to failure.` },
-  { id: 'Very hard', coach: 'Vikram', role: 'No excuses, no mercy', bolts: 3, n: 4, sets: 5, reps: '6–8', hold: 60, rest: 45, finisher: true, say: (f, n) => `No excuses. ${f}: ${n} exercises, 5 heavy sets each, only 45 seconds rest, and a finisher at the end. Earn it.` },
+  { id: 'Hard', coach: 'Riya', role: 'Strict and sharp', bolts: 2, n: 4, sets: 4, reps: '8–10', hold: 45, rest: 60, say: (f, n) => `Let's work. ${f} day: ${n} exercises, 4 sets each, 60 seconds rest. Push every set hard and keep your form clean.` },
+  { id: 'Very hard', coach: 'Vikram', role: 'Intense and demanding', bolts: 3, n: 4, sets: 5, reps: '6–8', hold: 60, rest: 45, finisher: true, say: (f, n) => `Time to push. ${f}: ${n} exercises, 5 heavy sets each, only 45 seconds rest, and a finisher at the end. Make it count.` },
 ]
 
 const pickPlan = (lv, focus) => {
@@ -322,56 +320,6 @@ function Plans() {
         ))}
       </div>
     </>
-  )
-}
-
-function Join() {
-  const [interest, setInterest] = useState(goals[0])
-  const [form, setForm] = useState({ name: '', email: '' })
-  const [error, setError] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-
-  const submit = (event) => {
-    event.preventDefault()
-    if (form.name.trim().length < 2) return setError('Enter your full name.')
-    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) return setError('Enter a valid email address.')
-    setError('')
-    setSubmitted(true)
-  }
-
-  return (
-    <div className="join">
-      <div>
-        <p className="eyebrow"><i aria-hidden="true" />Get started</p>
-        <h2>Get your free plan. <em>Start this week.</em></h2>
-        <p className="lead">Everything here is free. Tell us your goal and we will email you a starter workout and diet plan.</p>
-      </div>
-      {submitted ? (
-        <div className="ok" role="status">
-          <h3>Thanks, {form.name.trim().split(/\s+/)[0]}.</h3>
-          <p>Your request is ready, but this demo does not send bookings yet. Email <a href={`mailto:hello@ironline.example?subject=${encodeURIComponent('Free starter plan')}&body=${encodeURIComponent(`Name: ${form.name.trim()}\nEmail: ${form.email.trim()}\nInterest: ${interest}`)}`}>hello@ironline.example</a> to get your {interest} starter plan.</p>
-        </div>
-      ) : (
-        <form className="card" onSubmit={submit} noValidate>
-          <label>
-            Full name
-            <input name="name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} autoComplete="name" />
-          </label>
-          <label>
-            Email
-            <input name="email" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} autoComplete="email" />
-          </label>
-          <label>
-            Your goal
-            <select value={interest} onChange={(event) => setInterest(event.target.value)}>
-              {goals.map((item) => <option key={item}>{item}</option>)}
-            </select>
-          </label>
-          {error && <p className="err" role="alert">{error}</p>}
-          <button className="btn gold" type="submit">Get free plan</button>
-        </form>
-      )}
-    </div>
   )
 }
 
@@ -895,7 +843,7 @@ export default function App() {
             <a className="only-menu" href="#faq" onClick={closeMenu}>FAQ</a>
           </div>
           <button type="button" className="nav-search" onClick={() => { closeMenu(); setSearchOpen(true) }} aria-label="Search (press slash)" aria-haspopup="dialog"><Icon n="search" /><span>Search</span><kbd aria-hidden="true">/</kbd></button>
-          <a href="#join" className="btn gold sm nav-cta" onClick={closeMenu}>Start free</a>
+          <a href="#trainer" className="btn gold sm nav-cta" onClick={closeMenu}>Start training</a>
           <button className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="site-links" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'} onClick={() => setMenuOpen((isOpen) => !isOpen)}>
             <span />
             <span />
@@ -908,7 +856,7 @@ export default function App() {
         <Icon n="dumbbell" cls="hero-ic" />
         <div className="wrap">
           <div className="hero-content">
-            <p className="eyebrow"><i aria-hidden="true" />Free gym training platform</p>
+            <p className="eyebrow"><i aria-hidden="true" />Gym training guide</p>
             <h1>Train hard.<br /><em>Eat right.</em></h1>
             <p className="hero-copy">Animated exercise guides, workout plans, diet plans and calculators for everyone who lifts. Free, always.</p>
             <div className="actions">
@@ -926,7 +874,6 @@ export default function App() {
             <div><dt>{Object.values(exercises).flat().length}</dt><dd>Exercises</dd></div>
             <div><dt>{Object.keys(plans).length}</dt><dd>Workout plans</dd></div>
             <div><dt>{Object.keys(diets).length}</dt><dd>Diet plans</dd></div>
-            <div><dt>Free</dt><dd>Always</dd></div>
           </dl>
           <a href="#trainer" className="scroll-cue" aria-label="Scroll to your trainer"><span>Scroll</span><i aria-hidden="true" /></a>
         </div>
@@ -1006,31 +953,10 @@ export default function App() {
         </div>
       </section>
 
-      <section id="free" className="alt">
-        <div className="wrap">
-          <div className="free-card">
-            <div>
-              <p className="eyebrow"><i aria-hidden="true" />Always free</p>
-              <h2>Free to use.<br /><em>Free forever.</em></h2>
-              <p className="lead">No joining fee, no subscription, no ads. Pick a goal and start training.</p>
-              <a href="#join" className="btn gold">Get free plan</a>
-            </div>
-            <ul className="perks">
-              {['Full exercise library', 'Workout plans for every level', 'Diet plans and macro calculator', 'Water and meal reminders'].map((perk) => <li key={perk}>{perk}</li>)}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section id="join">
-        <div className="wrap"><Join /></div>
-      </section>
-
       <footer>
         <div className="wrap">
           <div><strong>{BRAND}</strong><br />Free training, exercise and diet guides.</div>
           <div>Check with a doctor before starting<br />a new training or diet program.</div>
-          <div><a href="mailto:hello@ironline.example">hello@ironline.example</a></div>
         </div>
         <div className="wordmark" aria-hidden="true">{BRAND}</div>
       </footer>
