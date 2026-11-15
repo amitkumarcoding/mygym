@@ -1,0 +1,18 @@
+.gym .calc{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(20px,3vw,40px);padding:clamp(18px,3vw,36px)}
+.gym .calc-in{display:grid;gap:16px;align-content:start}
+.gym .calc-in label{display:grid;gap:6px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.gym .calc-in input,.gym .calc-in select{min-height:48px;padding:0 14px;border:1px solid var(--line2);border-radius:14px;background:var(--bg2);color:var(--txt);font-size:1rem;text-transform:none;letter-spacing:0}
+.gym .calc-in input:focus-visible,.gym .calc-in select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.gym .calc-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.gym .calc-out{border:1px solid var(--line);border-radius:20px;padding:clamp(18px,2.4vw,28px);background:linear-gradient(160deg,rgb(216 185 131/8%),transparent 60%);display:grid;gap:12px;align-content:center}
+.gym .calc-kcal{margin:0;line-height:1}
+.gym .calc-kcal b{font:500 clamp(2.8rem,6vw,4.4rem)/1 'Cormorant Garamond',serif;color:var(--gold-hi)}
+.gym .calc-kcal small{color:var(--mute);font-size:.9rem}
+.gym .calc-sub,.gym .calc-empty{margin:0;color:var(--mute);font-size:.88rem}
+.gym .calc-mac{list-style:none;margin:4px 0;padding:0;display:grid;gap:12px}
+.gym .calc-mac li{display:grid;grid-template-columns:1fr auto;gap:4px 12px}
+.gym .calc-mac i{grid-column:1/-1;height:6px;border-radius:6px;background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi));transition:width .5s var(--ease)}
+.gym .calc-mac li::after{content:"";grid-column:1/-1;grid-row:2;height:6px;border-radius:6px;background:var(--line)}
+.gym .calc-mac i{grid-row:2;z-index:1}
+@media(max-width:820px){.gym .calc{grid-template-columns:1fr}}
+@media(max-width:420px){.gym .calc-row{grid-template-columns:1fr 1fr}.gym .calc-row label:last-child{grid-column:1/-1}}

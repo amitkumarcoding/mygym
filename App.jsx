@@ -5,9 +5,12 @@ import Figure from './Figure'
 import { goalNames } from './goals'
 import { GoalPlans, PRTracker } from './Tracking'
 import Body from 'react-muscle-highlighter'
+import Calculator from './Calculator'
 import Ambient from './Ambient'
 import Preloader from './Preloader'
 import BodyExplorer from './BodyExplorer'
+import HabitIcon from './HabitIcon'
+import './reminders.css'
 import { getLiftLogs } from './liftStore'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
@@ -23,12 +26,6 @@ const plans = {
   'Beginner full body': [['Mon', 'Full body A', 'Squat, bench press, lat pulldown, plank'], ['Wed', 'Full body B', 'Deadlift, overhead press, seated row, lunge'], ['Fri', 'Full body C', 'Leg press, incline press, cable row, cable crunch']],
   'Push Pull Legs': [['Day 1', 'Push', 'Bench press, overhead press, incline press, lateral raise, pushdown'], ['Day 2', 'Pull', 'Deadlift, lat pulldown, cable row, face pull, barbell curl'], ['Day 3', 'Legs', 'Squat, Romanian deadlift, lunge, calf raise, plank'], ['Day 4', 'Rest', 'Walk 30 minutes and stretch. Repeat the cycle.']],
   'Upper / Lower': [['Mon', 'Upper', 'Bench press, row, overhead press, curl, pushdown'], ['Tue', 'Lower', 'Squat, Romanian deadlift, lunge, calf raise'], ['Thu', 'Upper', 'Incline press, pulldown, lateral raise, face pull'], ['Fri', 'Lower', 'Deadlift, leg press, hamstring curl, plank']],
-}
-
-const diets = {
-  'Muscle gain': { note: 'About 300 kcal above maintenance, 1.8–2.2 g protein per kg bodyweight.', meals: [['Breakfast', 'Oats with milk, banana, 3 eggs'], ['Lunch', 'Rice, dal, paneer or chicken, salad'], ['Snack', 'Curd with peanuts, one fruit'], ['Dinner', 'Roti, sabzi, chicken or soya, curd'], ['Before bed', 'Glass of milk, handful of almonds']] },
-  'Fat loss': { note: 'About 400 kcal below maintenance, high protein, plenty of fibre.', meals: [['Breakfast', 'Veg omelette, 1 toast, green tea'], ['Lunch', '2 rotis, dal, large salad, curd'], ['Snack', 'Roasted chana or sprouts, fruit'], ['Dinner', 'Grilled chicken or paneer, sauteed veg'], ['Hydration', '3–4 litres of water through the day']] },
-  Maintain: { note: 'Eat at maintenance calories, balanced plate, 1.6 g protein per kg.', meals: [['Breakfast', 'Poha or upma, boiled eggs, fruit'], ['Lunch', 'Rice, dal, sabzi, curd'], ['Snack', 'Nuts, buttermilk or fruit'], ['Dinner', 'Roti, paneer or fish, vegetables']] },
 }
 
 const faqs = [
@@ -117,26 +114,6 @@ const demoRows = [
   { ex: 'Squat', kg: 140, reps: 5, up: 10 },
   { ex: 'Deadlift', kg: 180, reps: 3, up: 10 },
 ]
-
-function HeroPulse() {
-  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-  const today = (new Date().getDay() + 6) % 7
-  return (
-    <aside className="hp" aria-label="Sample training session">
-      <svg className="hp-ring" viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r="26" className="hp-track" />
-        <circle cx="32" cy="32" r="26" className="hp-arc" pathLength="100" />
-      </svg>
-      <div className="hp-txt"><b>45<small> min</small></b><span><u />Today's session</span></div>
-      <svg className="hp-ecg" viewBox="0 0 220 36" aria-hidden="true">
-        <path pathLength="100" d="M0 20 H46 L54 20 L60 6 L68 32 L75 14 L80 20 H128 L136 20 L142 4 L150 33 L157 14 L162 20 H220" />
-      </svg>
-      <div className="hp-days" aria-hidden="true">
-        {days.map((d, i) => <span key={i} className={i < today ? 'hp-on' : i === today ? 'hp-now' : ''}>{d}</span>)}
-      </div>
-    </aside>
-  )
-}
 
 function Lifts() {
   const init = useRef(null)
@@ -431,6 +408,25 @@ const pickPlan = (lv, focus) => {
   return lv.finisher && focus !== 'Core' ? [...list, exercises.Core[0]] : list
 }
 
+function RestTimer({ secs, sets }) {
+  const [done, setDone] = useState(0)
+  const [left, setLeft] = useState(0)
+  useEffect(() => {
+    if (left <= 0) return undefined
+    const t = setTimeout(() => setLeft((x) => x - 1), 1000)
+    return () => clearTimeout(t)
+  }, [left])
+  const finish = () => { setDone((d) => Math.min(d + 1, sets)); if (done + 1 < sets) setLeft(secs) }
+  return (
+    <div className="rest" role="group" aria-label="Set tracker">
+      <div className="rest-sets" aria-hidden="true">{Array.from({ length: sets }, (_, i) => <i key={i} className={i < done ? 'on' : ''} />)}</div>
+      <button type="button" className="btn gold sm" disabled={done >= sets} onClick={finish}>{done >= sets ? 'All sets done' : `Set ${done + 1} done`}</button>
+      <span className="rest-t" role="timer" aria-live="off">{left > 0 ? `Rest ${left}s` : done >= sets ? 'Move on' : `${secs}s rest`}</span>
+      {left > 0 && <button type="button" className="btn ghost sm" onClick={() => setLeft(0)}>Skip</button>}
+    </div>
+  )
+}
+
 function Trainer() {
   const [levelId, setLevelId] = useState(levels[0].id)
   const [focus, setFocus] = useState('Full body')
@@ -459,6 +455,7 @@ function Trainer() {
           <span className="coach-av sm">{lv.coach[0]}</span>
           <p><b>{lv.coach} says</b>{lv.say(focus, list.length)}</p>
         </div>
+        {!done && step === 0 && <p className="warm">Warm up first: 5 minutes of light cardio, then 1–2 lighter sets of your first exercise.</p>}
         {done ? (
           <div className="done">
             <h3>Workout <em>complete</em></h3>
@@ -473,6 +470,7 @@ function Trainer() {
               <h3>{ex.n}</h3>
               <ul className="facts"><li>{volume}</li><li>{lv.rest} s rest</li></ul>
               <p>{ex.t}</p>
+              <RestTimer key={`${lv.id}-${focus}-${ex.n}`} secs={lv.rest} sets={lv.sets} />
               <div className="step-nav">
                 <button type="button" className="btn ghost sm" disabled={step === 0} onClick={() => setStep(step - 1)}>Back</button>
                 <button type="button" className="btn gold sm" onClick={() => setStep(step + 1)}>{last ? 'Finish' : 'Next exercise'}</button>
@@ -746,127 +744,131 @@ function Reminders() {
 
   return (
     <>
-      <div className="rem">
-        <div className="rem-intro">
-          <p className="eyebrow"><i aria-hidden="true" />Good habits, built in</p>
-          <h2>Stay <em>on plan</em></h2>
-          <p className="lead">Set water, meal and gym fee reminders. Turn on notifications and we'll send them to your device even when this site is closed.</p>
-          {permission === 'default' && <button className="btn gold" onClick={enableNotifications}>Turn on notifications</button>}
-          {permission === 'granted' && <p className="note">Browser notifications are on.</p>}
-          {permission === 'denied' && <p className="note">Notifications are blocked. Allow them in your browser&apos;s site settings, or rely on on-page alerts.</p>}
-          {permission === 'unsupported' && <p className="note">This browser does not support notifications. On-page reminders remain available.</p>}
-          {pushStatus === 'on' && <p className="note">Background reminders are connected.</p>}
-          {pushStatus === 'error' && <p className="note" role="status">Background reminders are unavailable. Check your Firebase and web-push configuration; on-page reminders remain available.</p>}
-          {storageError && <p className="note" role="status">Reminder settings could not be saved in this browser.</p>}
-          <button className="btn ghost reminder-test" onClick={() => notify('Test reminder', 'This is how your reminders will look.')}>Send a test reminder</button>
-        </div>
-        <div className="rem-settings">
-          <div className="rem-card">
-            <div className="rem-head">
+      <div className="hb">
+        <header className="hb-head">
+          <div>
+            <p className="eyebrow"><i aria-hidden="true" />Good habits, built in</p>
+            <h2>Stay <em>on plan</em></h2>
+            <p className="lead">Set water, meal and gym fee reminders. Turn on notifications and we'll send them to your device even when this site is closed.</p>
+          </div>
+          <div className="hb-actions">
+            <div className="hb-pills">
+              {permission === 'granted' && <span className="hb-pill on"><i />Notifications on</span>}
+              {permission === 'denied' && <span className="hb-pill bad"><i />Notifications blocked</span>}
+              {permission === 'unsupported' && <span className="hb-pill"><i />Notifications unsupported</span>}
+              {pushStatus === 'on' && <span className="hb-pill on"><i />Background reminders connected</span>}
+              {pushStatus === 'error' && <span className="hb-pill bad"><i />Background reminders unavailable</span>}
+            </div>
+            <div className="hb-btns">
+              {permission === 'default' && <button className="btn gold" type="button" onClick={enableNotifications}>Turn on notifications</button>}
+              <button className="btn ghost reminder-test" type="button" onClick={() => notify('Test reminder', 'This is how your reminders will look.')}>Send a test reminder</button>
+            </div>
+            {permission === 'denied' && <p className="hb-note">Allow notifications in your browser&apos;s site settings, or rely on on-page alerts.</p>}
+            {pushStatus === 'error' && <p className="hb-note" role="status">Check your Firebase and web-push configuration; on-page reminders still work.</p>}
+            {storageError && <p className="hb-note" role="status">Reminder settings could not be saved in this browser.</p>}
+          </div>
+        </header>
+
+        <div className="hb-grid">
+          <article className="hb-card">
+            <div className="hb-top">
+              <HabitIcon k="water" />
               <h3>Water</h3>
-              <button
-                className="switch"
-                type="button"
-                role="switch"
-                aria-checked={water.on}
-                aria-label="Water reminders"
-                onClick={() => setWater((current) => ({ ...current, on: !current.on, since: Date.now() }))}
-              />
+              <button className="switch" type="button" role="switch" aria-checked={water.on} aria-label="Water reminders" onClick={() => setWater((current) => ({ ...current, on: !current.on, since: Date.now() }))} />
             </div>
-            <label>
-              Remind me every
-              <select value={water.mins} onChange={(event) => setWater((current) => ({ ...current, mins: Number(event.target.value), since: Date.now() }))}>
-                {[30, 45, 60, 90, 120].map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
-              </select>
-            </label>
-          </div>
-          <div className="rem-card">
-            <div className="rem-head"><h3>Meals</h3></div>
-            {meals.map((meal) => (
-              <div className="meal" key={meal.id}>
-                <span>{meal.label}</span>
-                <input type="time" aria-label={`${meal.label} time`} value={meal.time} onChange={(event) => updateMeal(meal.id, { time: event.target.value })} />
-                <button
-                  className="switch"
-                  type="button"
-                  role="switch"
-                  aria-checked={meal.on}
-                  aria-label={`${meal.label} reminder`}
-                  onClick={() => updateMeal(meal.id, { on: !meal.on })}
-                />
-              </div>
-            ))}
-            <p className="note">Each meal reminder fires once a day at the time you set.</p>
-          </div>
-          <div className="rem-card">
-            <div className="rem-head">
+            <div className="hb-big"><span>Every</span><b>{water.mins}</b><span>min</span></div>
+            <div className="hb-chips" role="group" aria-label="Water reminder interval">
+              {[30, 45, 60, 90, 120].map((minutes) => (
+                <button key={minutes} type="button" aria-pressed={water.mins === minutes} onClick={() => setWater((current) => ({ ...current, mins: minutes, since: Date.now() }))}>{minutes} min</button>
+              ))}
+            </div>
+            <p className="hb-note">{water.on ? 'Reminders are on. Keep a bottle within reach.' : 'Switch on to get a sip reminder.'}</p>
+          </article>
+
+          <article className="hb-card">
+            <div className="hb-top"><HabitIcon k="meal" /><h3>Meals</h3></div>
+            <div className="hb-rows">
+              {meals.map((meal) => (
+                <div className="hb-row" key={meal.id}>
+                  <span>{meal.label}</span>
+                  <input type="time" aria-label={`${meal.label} time`} value={meal.time} onChange={(event) => updateMeal(meal.id, { time: event.target.value })} />
+                  <button className="switch" type="button" role="switch" aria-checked={meal.on} aria-label={`${meal.label} reminder`} onClick={() => updateMeal(meal.id, { on: !meal.on })} />
+                </div>
+              ))}
+            </div>
+            <p className="hb-note">Each meal reminder fires once a day at the time you set.</p>
+          </article>
+
+          <article className="hb-card fee">
+            <div className="hb-top">
+              <HabitIcon k="fee" />
               <h3>Gym fee</h3>
-              <button
-                className="switch"
-                type="button"
-                role="switch"
-                aria-checked={fee.on}
-                aria-label="Gym fee reminder"
-                onClick={() => setFee((current) => ({ ...current, on: !current.on }))}
-              />
-            </div>
-            <label>
-              Plan you paid for
-              <select value={fee.plan} onChange={(event) => setFee((current) => ({ ...current, plan: Number(event.target.value) }))}>
-                {FEE_PLANS.map((n) => <option key={n} value={n}>{n === 1 ? '1 month' : `${n} months`}</option>)}
-              </select>
-            </label>
-            <div className="meal">
-              <span>Paid on</span>
-              <input type="date" aria-label="Date you paid" value={fee.paidOn} max={toDateStr(new Date())} onChange={(event) => event.target.value && setFee((current) => ({ ...current, paidOn: event.target.value }))} />
-            </div>
-            <div className="meal">
-              <span>Reminder time</span>
-              <input type="time" aria-label="Gym fee reminder time" value={fee.time} onChange={(event) => setFee((current) => ({ ...current, time: event.target.value }))} />
+              <button className="switch" type="button" role="switch" aria-checked={fee.on} aria-label="Gym fee reminder" onClick={() => setFee((current) => ({ ...current, on: !current.on }))} />
             </div>
             {(() => {
               const due = feeDueDate(fee)
               const days = Math.ceil((due - new Date()) / 86_400_000)
-              const dateText = due.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+              const dateText = due.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
               return (
-                <p className={`fee-next${days < 0 ? ' late' : ''}`}>
-                  {days < 0 ? 'Payment overdue since ' : 'Next payment: '}<strong>{dateText}</strong>
-                  {days >= 0 && ` (${days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`})`}
-                </p>
+                <div className={`hb-due${days < 0 ? ' late' : ''}`}>
+                  <b>{days === 0 ? '0' : Math.abs(days)}</b>
+                  <div>
+                    <span>{days < 0 ? 'days overdue' : days === 0 ? 'due today' : days === 1 ? 'day left' : 'days left'}</span>
+                    <strong>{days < 0 ? 'Was due ' : 'Next payment '}{dateText}</strong>
+                  </div>
+                </div>
               )
             })()}
-            <button className="btn ghost" type="button" onClick={markPaid}>I paid today</button>
-            {paidNote && <p className="fee-saved" role="status">{paidNote}</p>}
-            {fee.history.length > 0 && (
-              <ul className="fee-history" aria-label="Payment history">
-                {fee.history.map((item) => (
-                  <li key={item.paidOn}><span>Paid {showDate(item.paidOn)} · {item.plan === 1 ? '1 month' : `${item.plan} months`}</span><strong>Next: {showDate(item.nextDue)}</strong></li>
-                ))}
-              </ul>
-            )}
-            <p className="fee-saved" role="status">
-              {storageError
-                ? 'Could not save on this device. Private browsing blocks saving.'
-                : `Payment info saved on this device${savedAt ? ` at ${savedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : ''}.`}
-            </p>
-            <div className="fee-sync">
-              <h4>Sync across devices</h4>
-              <p className="note">Sign in with Google and your gym fee, PR records, and water and meal reminders save automatically and appear on every device you sign in on.</p>
-              {user ? (
-                <>
-                  <p className="note">Signed in as {user.email || user.displayName}. Changes sync automatically.</p>
-                  <div className="sync-actions">
-                    <button className="btn ghost" type="button" onClick={signOutUser}>Sign out</button>
-                  </div>
-                </>
-              ) : (
-                <button className="btn gold" type="button" onClick={signInToSync} disabled={syncStatus === 'connecting'}>Sign in with Google to sync</button>
-              )}
-              {syncStatus === 'on' && <p className="fee-saved" role="status">Synced across your devices.</p>}
-              {syncStatus === 'error' && <p className="note" role="status">Sync is unavailable right now ({syncError}). Your info is still saved on this device.</p>}
+            <div className="hb-chips" role="group" aria-label="Plan you paid for">
+              {FEE_PLANS.map((n) => (
+                <button key={n} type="button" aria-pressed={fee.plan === n} onClick={() => setFee((current) => ({ ...current, plan: n }))}>{n === 1 ? '1 month' : `${n} months`}</button>
+              ))}
             </div>
-            <p className="note">You paid for {fee.plan === 1 ? '1 month' : `${fee.plan} months`}, so the next payment is {fee.plan === 1 ? '1 month' : `${fee.plan} months`} after the date you paid. Tap "I paid today" after each payment to move it forward.</p>
+            <div className="hb-rows">
+              <div className="hb-row two">
+                <span>Paid on</span>
+                <input type="date" aria-label="Date you paid" value={fee.paidOn} max={toDateStr(new Date())} onChange={(event) => event.target.value && setFee((current) => ({ ...current, paidOn: event.target.value }))} />
+              </div>
+              <div className="hb-row two">
+                <span>Reminder time</span>
+                <input type="time" aria-label="Gym fee reminder time" value={fee.time} onChange={(event) => setFee((current) => ({ ...current, time: event.target.value }))} />
+              </div>
+            </div>
+            {fee.history.length > 0 && (
+              <details>
+                <summary>Payment history</summary>
+                <ul className="fee-history" aria-label="Payment history">
+                  {fee.history.map((item) => (
+                    <li key={item.paidOn}><span>Paid {showDate(item.paidOn)} · {item.plan === 1 ? '1 month' : `${item.plan} months`}</span><strong>Next: {showDate(item.nextDue)}</strong></li>
+                  ))}
+                </ul>
+              </details>
+            )}
+            <div className="hb-foot">
+              <button className="btn gold" type="button" onClick={markPaid}>I paid today</button>
+              {paidNote && <p className="hb-note" role="status">{paidNote}</p>}
+              <p className="hb-note" role="status">
+                {storageError
+                  ? 'Could not save on this device. Private browsing blocks saving.'
+                  : `Saved on this device${savedAt ? ` at ${savedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : ''}. Tap "I paid today" after each payment to move the due date forward.`}
+              </p>
+            </div>
+          </article>
+        </div>
+
+        <div className="hb-sync">
+          <HabitIcon k="cloud" />
+          <div>
+            <h3>Sync across devices</h3>
+            <p>{user ? `Signed in as ${user.email || user.displayName}. Changes sync automatically.` : 'Sign in with Google and your lifts, gym fee, and water and meal reminders save automatically on every device.'}</p>
           </div>
+          <div className="hb-btns">
+            {user
+              ? <button className="btn ghost" type="button" onClick={signOutUser}>Sign out</button>
+              : <button className="btn gold" type="button" onClick={signInToSync} disabled={syncStatus === 'connecting'}>Sign in with Google</button>}
+          </div>
+          {syncStatus === 'on' && <p className="hb-msg" role="status">Synced across your devices.</p>}
+          {syncStatus === 'error' && <p className="hb-msg" role="status">Sync is unavailable right now ({syncError}). Your info is still saved on this device.</p>}
         </div>
       </div>
       {toast && (
@@ -912,7 +914,7 @@ function HeroMedia() {
 }
 
 // Tracks which page section is under the middle of the screen, so the phone tab bar can highlight it.
-const SECTION_IDS = ['trainer', 'exercises', 'goals', 'plans', 'gear', 'avoid', 'records', 'reminders']
+const SECTION_IDS = ['trainer', 'body', 'exercises', 'goals', 'calc', 'plans', 'gear', 'avoid', 'records', 'reminders']
 function useActiveSection() {
   const [active, setActive] = useState('')
   useEffect(() => {
@@ -1033,9 +1035,11 @@ export default function App() {
           <a href="#top" className="logo" onClick={closeMenu}><Icon n="dumbbell" />{BRAND}</a>
           <div className={`links${menuOpen ? ' is-open' : ''}`} id="site-links">
             <a href="#trainer" onClick={closeMenu}>Trainer</a>
+            <a href="#body" onClick={closeMenu}>Body map</a>
             <a href="#exercises" onClick={closeMenu}>Exercises</a>
             <a href="#goals" onClick={closeMenu}>Goals</a>
             <a href="#gear" onClick={closeMenu}>Gear</a>
+            <a className="only-menu" href="#calc" onClick={closeMenu}>Calculator</a>
             <a className="only-menu" href="#records" onClick={closeMenu}>PRs</a>
             <a className="only-menu" href="#plans" onClick={closeMenu}>Workout plans</a>
             <a className="only-menu" href="#avoid" onClick={closeMenu}>What to avoid</a>
@@ -1056,19 +1060,14 @@ export default function App() {
           <div className="hx-t hx-head">
             <p className="hx-tag"><span aria-hidden="true" />Gym training guide<b>Free · Always</b></p>
             <div className="hx-hl">
-              <div className="hx-seal" aria-hidden="true">
-                <svg viewBox="0 0 120 120"><defs><path id="hxSealPath" d="M60,60 m-45,0 a45,45 0 1,1 90,0 a45,45 0 1,1 -90,0" /></defs><text><textPath href="#hxSealPath" textLength="280" lengthAdjust="spacing">TRAIN HARD · EAT RIGHT · REPEAT · </textPath></text></svg>
-                <span><Icon n="dumbbell" /></span>
-              </div>
               <h1 className="hx-title"><span>Train hard.</span><em>Eat right.</em></h1>
               <p className="hx-copy">Animated exercise guides, workout plans, diet plans and calculators for everyone who lifts.</p>
             </div>
             <Lifts />
             <div className="hx-cta">
               <a href="#trainer" className="btn gold">Choose your trainer</a>
-              <a href="#exercises" className="btn ghost">Browse exercises</a>
+              <a href="#body" className="btn ghost">Explore body map</a>
             </div>
-            <HeroPulse />
           </div>
           <div className="hx-t hx-vid">
             <HeroMedia />
@@ -1078,7 +1077,7 @@ export default function App() {
           <dl className="hx-t hx-stats">
             <div><dt><CountUp to={Object.values(exercises).flat().length} /></dt><dd>Exercises</dd></div>
             <div><dt><CountUp to={Object.keys(plans).length} /></dt><dd>Workout plans</dd></div>
-            <div><dt><CountUp to={Object.keys(diets).length} /></dt><dd>Diet plans</dd></div>
+            <div><dt><CountUp to={goalNames.length} /></dt><dd>Goal plans</dd></div>
           </dl>
           <div className="hx-t hx-bar"><LiftRack /></div>
         </div>
@@ -1123,6 +1122,13 @@ export default function App() {
         <div className="wrap">
           {head('Your goal', 'Pick your', 'goal', 'Get in shape, get lean, build muscle or lose weight. Every goal comes with its own exercise week and diet plan.')}
           <GoalPlans goal={goal} setGoal={setGoal} />
+        </div>
+      </section>
+
+      <section id="calc">
+        <div className="wrap">
+          {head('Calculator', 'Your calories and', 'macros', 'Enter your numbers to get a daily calorie target, protein, carbs, fat and water for your goal.')}
+          <Calculator />
         </div>
       </section>
 
@@ -1175,7 +1181,7 @@ export default function App() {
       </footer>
       {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} onGear={setGearTab} Figure={Figure} />}
       <nav className="tabbar" aria-label="Quick navigation">
-        {[['user', 'trainer', 'Train', ['trainer', 'exercises', 'plans']], ['calendar', 'goals', 'Goals', ['goals']], ['trophy', 'records', 'Track', ['records', 'reminders']], ['bag', 'gear', 'Gear', ['gear', 'avoid']]].map(([icon, id, label, group]) => (
+        {[['user', 'trainer', 'Train', ['trainer', 'body', 'exercises', 'plans']], ['calendar', 'goals', 'Goals', ['goals', 'calc']], ['trophy', 'records', 'Track', ['records', 'reminders']], ['bag', 'gear', 'Gear', ['gear', 'avoid']]].map(([icon, id, label, group]) => (
           <a key={id} href={`#${id}`} aria-current={group.includes(activeSection) ? 'true' : undefined}><Icon n={icon} /><span>{label}</span></a>
         ))}
         <button type="button" onClick={() => setSearchOpen(true)} aria-haspopup="dialog"><Icon n="search" /><span>Search</span></button>

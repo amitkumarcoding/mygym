@@ -245,3 +245,11 @@
   .gym .lift-foot{grid-template-columns:1fr}
   .gym .lift-foot .btn{width:100%}
 }
+
+.gym .warm{margin:0 0 14px;padding:10px 14px;border-left:2px solid var(--gold);background:rgb(216 185 131/7%);border-radius:0 12px 12px 0;color:var(--mute);font-size:.86rem}
+.gym .rest{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;margin:14px 0}
+.gym .rest-sets{display:flex;gap:6px}
+.gym .rest-sets i{width:22px;height:6px;border-radius:6px;background:var(--line2);transition:background .3s}
+.gym .rest-sets i.on{background:var(--gold)}
+.gym .rest-t{font-variant-numeric:tabular-nums;color:var(--gold-hi);font-weight:600;font-size:.9rem}
+.gym .hx-head .hx-hl{padding-right:0}
