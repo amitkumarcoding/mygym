@@ -7,6 +7,7 @@ import { GoalPlans, PRTracker } from './Tracking'
 import Body from 'react-muscle-highlighter'
 import Ambient from './Ambient'
 import Preloader from './Preloader'
+import BodyExplorer from './BodyExplorer'
 import { getLiftLogs } from './liftStore'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
@@ -1101,6 +1102,13 @@ export default function App() {
         <div className="wrap">
           {head('Your trainer', 'Choose your', 'trainer', 'Pick a coach and a focus. Your trainer builds today\'s workout and walks you through it, one exercise at a time.')}
           <Trainer />
+        </div>
+      </section>
+
+      <section id="body" className="alt">
+        <div className="wrap">
+          {head('Body map', 'Tap a', 'muscle', 'Choose men or women, tap any muscle on the body and see how to train it, with a live demo of every exercise.')}
+          <BodyExplorer />
         </div>
       </section>
 

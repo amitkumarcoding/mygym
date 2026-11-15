@@ -6,6 +6,8 @@ import { goalNames } from './goals'
 import { GoalPlans, PRTracker } from './Tracking'
 import Body from 'react-muscle-highlighter'
 import Ambient from './Ambient'
+import Preloader from './Preloader'
+import BodyExplorer from './BodyExplorer'
 import { getLiftLogs } from './liftStore'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
@@ -910,7 +912,7 @@ function HeroMedia() {
 }
 
 // Tracks which page section is under the middle of the screen, so the phone tab bar can highlight it.
-const SECTION_IDS = ['trainer', 'exercises', 'goals', 'plans', 'gear', 'avoid', 'records', 'reminders']
+const SECTION_IDS = ['trainer', 'body', 'exercises', 'goals', 'plans', 'gear', 'avoid', 'records', 'reminders']
 function useActiveSection() {
   const [active, setActive] = useState('')
   useEffect(() => {
@@ -1022,6 +1024,7 @@ export default function App() {
 
   return (
     <div className="gym" ref={rootRef}>
+      <Preloader />
       <Ambient />
       <div className="progress" aria-hidden="true" />
       <div className="aura" aria-hidden="true" />
@@ -1030,6 +1033,7 @@ export default function App() {
           <a href="#top" className="logo" onClick={closeMenu}><Icon n="dumbbell" />{BRAND}</a>
           <div className={`links${menuOpen ? ' is-open' : ''}`} id="site-links">
             <a href="#trainer" onClick={closeMenu}>Trainer</a>
+            <a href="#body" onClick={closeMenu}>Body map</a>
             <a href="#exercises" onClick={closeMenu}>Exercises</a>
             <a href="#goals" onClick={closeMenu}>Goals</a>
             <a href="#gear" onClick={closeMenu}>Gear</a>
@@ -1063,7 +1067,7 @@ export default function App() {
             <Lifts />
             <div className="hx-cta">
               <a href="#trainer" className="btn gold">Choose your trainer</a>
-              <a href="#exercises" className="btn ghost">Browse exercises</a>
+              <a href="#body" className="btn ghost">Explore body map</a>
             </div>
             <HeroPulse />
           </div>
@@ -1099,6 +1103,13 @@ export default function App() {
         <div className="wrap">
           {head('Your trainer', 'Choose your', 'trainer', 'Pick a coach and a focus. Your trainer builds today\'s workout and walks you through it, one exercise at a time.')}
           <Trainer />
+        </div>
+      </section>
+
+      <section id="body" className="alt">
+        <div className="wrap">
+          {head('Body map', 'Tap a', 'muscle', 'Choose men or women, tap any muscle on the body and see how to train it, with a live demo of every exercise.')}
+          <BodyExplorer />
         </div>
       </section>
 
@@ -1165,7 +1176,7 @@ export default function App() {
       </footer>
       {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} onGear={setGearTab} Figure={Figure} />}
       <nav className="tabbar" aria-label="Quick navigation">
-        {[['user', 'trainer', 'Train', ['trainer', 'exercises', 'plans']], ['calendar', 'goals', 'Goals', ['goals']], ['trophy', 'records', 'Track', ['records', 'reminders']], ['bag', 'gear', 'Gear', ['gear', 'avoid']]].map(([icon, id, label, group]) => (
+        {[['user', 'trainer', 'Train', ['trainer', 'body', 'exercises', 'plans']], ['calendar', 'goals', 'Goals', ['goals']], ['trophy', 'records', 'Track', ['records', 'reminders']], ['bag', 'gear', 'Gear', ['gear', 'avoid']]].map(([icon, id, label, group]) => (
           <a key={id} href={`#${id}`} aria-current={group.includes(activeSection) ? 'true' : undefined}><Icon n={icon} /><span>{label}</span></a>
         ))}
         <button type="button" onClick={() => setSearchOpen(true)} aria-haspopup="dialog"><Icon n="search" /><span>Search</span></button>

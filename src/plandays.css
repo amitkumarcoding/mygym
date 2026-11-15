@@ -1,0 +1,11 @@
+.gym .goal-cols{grid-template-columns:1.35fr 1fr}
+.gym .pd-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+.gym .pd-tile{display:grid;gap:8px;padding:6px 6px 10px;border:1px solid rgb(255 255 255/10%);border-radius:16px;background:#0c0e11;color:#d6d2ca;font:600 12.5px/1.25 'Manrope',sans-serif;text-align:left;cursor:pointer;transition:border-color .25s,background .25s,transform .2s}
+.gym .pd-tile:hover{border-color:rgb(216 185 131/45%)}
+.gym .pd-tile:active{transform:scale(.98)}
+.gym .pd-tile[aria-pressed='true']{border-color:#d8b983;background:rgb(216 185 131/09%);color:#efd9ac}
+.gym .pd-tile .fig-wrap{margin:0;aspect-ratio:3/2;border-radius:12px}
+.gym .pd-tile span{padding:0 4px}
+.gym .pd-cue{margin:0;padding:12px 14px;border-left:2px solid #d8b983;border-radius:0 12px 12px 0;background:rgb(216 185 131/06%);color:#b8bac0;font-size:14px;line-height:1.5}
+.gym .pd-cue b{display:block;margin-bottom:2px;color:#efd9ac;font-weight:600}
+@media (max-width:980px){.gym .goal-cols{grid-template-columns:1fr}}

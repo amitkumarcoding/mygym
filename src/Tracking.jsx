@@ -3,6 +3,9 @@ import { savePrs, watchUserData, useUser, signInWithGoogle } from './push'
 import { setLiftLogs } from './liftStore'
 import { exercises } from './exercises'
 import { goalNames, goalPlans } from './goals'
+import Figure from './Figure'
+import { exercisesIn } from './planExercises'
+import './plandays.css'
 
 function useStored(key, fallback) {
   const [value, setValue] = useState(() => {
@@ -43,6 +46,32 @@ export function Pills({ items, value, onChange, label }) {
   )
 }
 
+function PlanDay({ day, title, detail }) {
+  const list = useMemo(() => exercisesIn(detail), [detail])
+  const [sel, setSel] = useState(0)
+  const cur = list[Math.min(sel, list.length - 1)]
+  return (
+    <div className="slot goal-slot">
+      <span className="slot-time">{day}</span>
+      <strong>{title}</strong>
+      <span className="slot-note">{detail}</span>
+      {list.length > 0 && (
+        <>
+          <div className="pd-strip">
+            {list.map((ex, i) => (
+              <button key={ex.n} type="button" className="pd-tile" aria-pressed={i === sel} onClick={() => setSel(i)}>
+                <div className="fig-wrap"><Figure key={i === sel ? 'play' : 'still'} ex={ex} at={i === sel ? undefined : 0.72} /></div>
+                <span>{ex.n}</span>
+              </button>
+            ))}
+          </div>
+          <p className="pd-cue"><b>{cur.n} · {cur.s}</b>{cur.t}</p>
+        </>
+      )}
+    </div>
+  )
+}
+
 export function GoalPlans({ goal, setGoal }) {
   const plan = goalPlans[goal]
   return (
@@ -57,11 +86,7 @@ export function GoalPlans({ goal, setGoal }) {
           <h3 className="goal-sub">Exercise</h3>
           <div className="goal-list">
             {plan.train.map(([day, title, detail]) => (
-              <div className="slot goal-slot" key={day + title}>
-                <span className="slot-time">{day}</span>
-                <strong>{title}</strong>
-                <span className="slot-note">{detail}</span>
-              </div>
+              <PlanDay key={`${goal}-${day}-${title}`} day={day} title={title} detail={detail} />
             ))}
           </div>
         </div>
