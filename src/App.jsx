@@ -8,6 +8,8 @@ import Body from 'react-muscle-highlighter'
 import Ambient from './Ambient'
 import Preloader from './Preloader'
 import BodyExplorer from './BodyExplorer'
+import HabitIcon from './HabitIcon'
+import './reminders.css'
 import { getLiftLogs } from './liftStore'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
@@ -746,127 +748,131 @@ function Reminders() {
 
   return (
     <>
-      <div className="rem">
-        <div className="rem-intro">
-          <p className="eyebrow"><i aria-hidden="true" />Good habits, built in</p>
-          <h2>Stay <em>on plan</em></h2>
-          <p className="lead">Set water, meal and gym fee reminders. Turn on notifications and we'll send them to your device even when this site is closed.</p>
-          {permission === 'default' && <button className="btn gold" onClick={enableNotifications}>Turn on notifications</button>}
-          {permission === 'granted' && <p className="note">Browser notifications are on.</p>}
-          {permission === 'denied' && <p className="note">Notifications are blocked. Allow them in your browser&apos;s site settings, or rely on on-page alerts.</p>}
-          {permission === 'unsupported' && <p className="note">This browser does not support notifications. On-page reminders remain available.</p>}
-          {pushStatus === 'on' && <p className="note">Background reminders are connected.</p>}
-          {pushStatus === 'error' && <p className="note" role="status">Background reminders are unavailable. Check your Firebase and web-push configuration; on-page reminders remain available.</p>}
-          {storageError && <p className="note" role="status">Reminder settings could not be saved in this browser.</p>}
-          <button className="btn ghost reminder-test" onClick={() => notify('Test reminder', 'This is how your reminders will look.')}>Send a test reminder</button>
-        </div>
-        <div className="rem-settings">
-          <div className="rem-card">
-            <div className="rem-head">
+      <div className="hb">
+        <header className="hb-head">
+          <div>
+            <p className="eyebrow"><i aria-hidden="true" />Good habits, built in</p>
+            <h2>Stay <em>on plan</em></h2>
+            <p className="lead">Set water, meal and gym fee reminders. Turn on notifications and we'll send them to your device even when this site is closed.</p>
+          </div>
+          <div className="hb-actions">
+            <div className="hb-pills">
+              {permission === 'granted' && <span className="hb-pill on"><i />Notifications on</span>}
+              {permission === 'denied' && <span className="hb-pill bad"><i />Notifications blocked</span>}
+              {permission === 'unsupported' && <span className="hb-pill"><i />Notifications unsupported</span>}
+              {pushStatus === 'on' && <span className="hb-pill on"><i />Background reminders connected</span>}
+              {pushStatus === 'error' && <span className="hb-pill bad"><i />Background reminders unavailable</span>}
+            </div>
+            <div className="hb-btns">
+              {permission === 'default' && <button className="btn gold" type="button" onClick={enableNotifications}>Turn on notifications</button>}
+              <button className="btn ghost reminder-test" type="button" onClick={() => notify('Test reminder', 'This is how your reminders will look.')}>Send a test reminder</button>
+            </div>
+            {permission === 'denied' && <p className="hb-note">Allow notifications in your browser&apos;s site settings, or rely on on-page alerts.</p>}
+            {pushStatus === 'error' && <p className="hb-note" role="status">Check your Firebase and web-push configuration; on-page reminders still work.</p>}
+            {storageError && <p className="hb-note" role="status">Reminder settings could not be saved in this browser.</p>}
+          </div>
+        </header>
+
+        <div className="hb-grid">
+          <article className="hb-card">
+            <div className="hb-top">
+              <HabitIcon k="water" />
               <h3>Water</h3>
-              <button
-                className="switch"
-                type="button"
-                role="switch"
-                aria-checked={water.on}
-                aria-label="Water reminders"
-                onClick={() => setWater((current) => ({ ...current, on: !current.on, since: Date.now() }))}
-              />
+              <button className="switch" type="button" role="switch" aria-checked={water.on} aria-label="Water reminders" onClick={() => setWater((current) => ({ ...current, on: !current.on, since: Date.now() }))} />
             </div>
-            <label>
-              Remind me every
-              <select value={water.mins} onChange={(event) => setWater((current) => ({ ...current, mins: Number(event.target.value), since: Date.now() }))}>
-                {[30, 45, 60, 90, 120].map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
-              </select>
-            </label>
-          </div>
-          <div className="rem-card">
-            <div className="rem-head"><h3>Meals</h3></div>
-            {meals.map((meal) => (
-              <div className="meal" key={meal.id}>
-                <span>{meal.label}</span>
-                <input type="time" aria-label={`${meal.label} time`} value={meal.time} onChange={(event) => updateMeal(meal.id, { time: event.target.value })} />
-                <button
-                  className="switch"
-                  type="button"
-                  role="switch"
-                  aria-checked={meal.on}
-                  aria-label={`${meal.label} reminder`}
-                  onClick={() => updateMeal(meal.id, { on: !meal.on })}
-                />
-              </div>
-            ))}
-            <p className="note">Each meal reminder fires once a day at the time you set.</p>
-          </div>
-          <div className="rem-card">
-            <div className="rem-head">
+            <div className="hb-big"><span>Every</span><b>{water.mins}</b><span>min</span></div>
+            <div className="hb-chips" role="group" aria-label="Water reminder interval">
+              {[30, 45, 60, 90, 120].map((minutes) => (
+                <button key={minutes} type="button" aria-pressed={water.mins === minutes} onClick={() => setWater((current) => ({ ...current, mins: minutes, since: Date.now() }))}>{minutes} min</button>
+              ))}
+            </div>
+            <p className="hb-note">{water.on ? 'Reminders are on. Keep a bottle within reach.' : 'Switch on to get a sip reminder.'}</p>
+          </article>
+
+          <article className="hb-card">
+            <div className="hb-top"><HabitIcon k="meal" /><h3>Meals</h3></div>
+            <div className="hb-rows">
+              {meals.map((meal) => (
+                <div className="hb-row" key={meal.id}>
+                  <span>{meal.label}</span>
+                  <input type="time" aria-label={`${meal.label} time`} value={meal.time} onChange={(event) => updateMeal(meal.id, { time: event.target.value })} />
+                  <button className="switch" type="button" role="switch" aria-checked={meal.on} aria-label={`${meal.label} reminder`} onClick={() => updateMeal(meal.id, { on: !meal.on })} />
+                </div>
+              ))}
+            </div>
+            <p className="hb-note">Each meal reminder fires once a day at the time you set.</p>
+          </article>
+
+          <article className="hb-card fee">
+            <div className="hb-top">
+              <HabitIcon k="fee" />
               <h3>Gym fee</h3>
-              <button
-                className="switch"
-                type="button"
-                role="switch"
-                aria-checked={fee.on}
-                aria-label="Gym fee reminder"
-                onClick={() => setFee((current) => ({ ...current, on: !current.on }))}
-              />
-            </div>
-            <label>
-              Plan you paid for
-              <select value={fee.plan} onChange={(event) => setFee((current) => ({ ...current, plan: Number(event.target.value) }))}>
-                {FEE_PLANS.map((n) => <option key={n} value={n}>{n === 1 ? '1 month' : `${n} months`}</option>)}
-              </select>
-            </label>
-            <div className="meal">
-              <span>Paid on</span>
-              <input type="date" aria-label="Date you paid" value={fee.paidOn} max={toDateStr(new Date())} onChange={(event) => event.target.value && setFee((current) => ({ ...current, paidOn: event.target.value }))} />
-            </div>
-            <div className="meal">
-              <span>Reminder time</span>
-              <input type="time" aria-label="Gym fee reminder time" value={fee.time} onChange={(event) => setFee((current) => ({ ...current, time: event.target.value }))} />
+              <button className="switch" type="button" role="switch" aria-checked={fee.on} aria-label="Gym fee reminder" onClick={() => setFee((current) => ({ ...current, on: !current.on }))} />
             </div>
             {(() => {
               const due = feeDueDate(fee)
               const days = Math.ceil((due - new Date()) / 86_400_000)
-              const dateText = due.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+              const dateText = due.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
               return (
-                <p className={`fee-next${days < 0 ? ' late' : ''}`}>
-                  {days < 0 ? 'Payment overdue since ' : 'Next payment: '}<strong>{dateText}</strong>
-                  {days >= 0 && ` (${days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`})`}
-                </p>
+                <div className={`hb-due${days < 0 ? ' late' : ''}`}>
+                  <b>{days === 0 ? '0' : Math.abs(days)}</b>
+                  <div>
+                    <span>{days < 0 ? 'days overdue' : days === 0 ? 'due today' : days === 1 ? 'day left' : 'days left'}</span>
+                    <strong>{days < 0 ? 'Was due ' : 'Next payment '}{dateText}</strong>
+                  </div>
+                </div>
               )
             })()}
-            <button className="btn ghost" type="button" onClick={markPaid}>I paid today</button>
-            {paidNote && <p className="fee-saved" role="status">{paidNote}</p>}
-            {fee.history.length > 0 && (
-              <ul className="fee-history" aria-label="Payment history">
-                {fee.history.map((item) => (
-                  <li key={item.paidOn}><span>Paid {showDate(item.paidOn)} · {item.plan === 1 ? '1 month' : `${item.plan} months`}</span><strong>Next: {showDate(item.nextDue)}</strong></li>
-                ))}
-              </ul>
-            )}
-            <p className="fee-saved" role="status">
-              {storageError
-                ? 'Could not save on this device. Private browsing blocks saving.'
-                : `Payment info saved on this device${savedAt ? ` at ${savedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : ''}.`}
-            </p>
-            <div className="fee-sync">
-              <h4>Sync across devices</h4>
-              <p className="note">Sign in with Google and your gym fee, PR records, and water and meal reminders save automatically and appear on every device you sign in on.</p>
-              {user ? (
-                <>
-                  <p className="note">Signed in as {user.email || user.displayName}. Changes sync automatically.</p>
-                  <div className="sync-actions">
-                    <button className="btn ghost" type="button" onClick={signOutUser}>Sign out</button>
-                  </div>
-                </>
-              ) : (
-                <button className="btn gold" type="button" onClick={signInToSync} disabled={syncStatus === 'connecting'}>Sign in with Google to sync</button>
-              )}
-              {syncStatus === 'on' && <p className="fee-saved" role="status">Synced across your devices.</p>}
-              {syncStatus === 'error' && <p className="note" role="status">Sync is unavailable right now ({syncError}). Your info is still saved on this device.</p>}
+            <div className="hb-chips" role="group" aria-label="Plan you paid for">
+              {FEE_PLANS.map((n) => (
+                <button key={n} type="button" aria-pressed={fee.plan === n} onClick={() => setFee((current) => ({ ...current, plan: n }))}>{n === 1 ? '1 month' : `${n} months`}</button>
+              ))}
             </div>
-            <p className="note">You paid for {fee.plan === 1 ? '1 month' : `${fee.plan} months`}, so the next payment is {fee.plan === 1 ? '1 month' : `${fee.plan} months`} after the date you paid. Tap "I paid today" after each payment to move it forward.</p>
+            <div className="hb-rows">
+              <div className="hb-row two">
+                <span>Paid on</span>
+                <input type="date" aria-label="Date you paid" value={fee.paidOn} max={toDateStr(new Date())} onChange={(event) => event.target.value && setFee((current) => ({ ...current, paidOn: event.target.value }))} />
+              </div>
+              <div className="hb-row two">
+                <span>Reminder time</span>
+                <input type="time" aria-label="Gym fee reminder time" value={fee.time} onChange={(event) => setFee((current) => ({ ...current, time: event.target.value }))} />
+              </div>
+            </div>
+            {fee.history.length > 0 && (
+              <details>
+                <summary>Payment history</summary>
+                <ul className="fee-history" aria-label="Payment history">
+                  {fee.history.map((item) => (
+                    <li key={item.paidOn}><span>Paid {showDate(item.paidOn)} · {item.plan === 1 ? '1 month' : `${item.plan} months`}</span><strong>Next: {showDate(item.nextDue)}</strong></li>
+                  ))}
+                </ul>
+              </details>
+            )}
+            <div className="hb-foot">
+              <button className="btn gold" type="button" onClick={markPaid}>I paid today</button>
+              {paidNote && <p className="hb-note" role="status">{paidNote}</p>}
+              <p className="hb-note" role="status">
+                {storageError
+                  ? 'Could not save on this device. Private browsing blocks saving.'
+                  : `Saved on this device${savedAt ? ` at ${savedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : ''}. Tap "I paid today" after each payment to move the due date forward.`}
+              </p>
+            </div>
+          </article>
+        </div>
+
+        <div className="hb-sync">
+          <HabitIcon k="cloud" />
+          <div>
+            <h3>Sync across devices</h3>
+            <p>{user ? `Signed in as ${user.email || user.displayName}. Changes sync automatically.` : 'Sign in with Google and your lifts, gym fee, and water and meal reminders save automatically on every device.'}</p>
           </div>
+          <div className="hb-btns">
+            {user
+              ? <button className="btn ghost" type="button" onClick={signOutUser}>Sign out</button>
+              : <button className="btn gold" type="button" onClick={signInToSync} disabled={syncStatus === 'connecting'}>Sign in with Google</button>}
+          </div>
+          {syncStatus === 'on' && <p className="hb-msg" role="status">Synced across your devices.</p>}
+          {syncStatus === 'error' && <p className="hb-msg" role="status">Sync is unavailable right now ({syncError}). Your info is still saved on this device.</p>}
         </div>
       </div>
       {toast && (

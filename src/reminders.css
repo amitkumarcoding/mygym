@@ -1,0 +1,58 @@
+.gym .hb{display:grid;gap:clamp(28px,4vw,48px)}
+.gym .hb-head{display:grid;grid-template-columns:1.2fr 1fr;gap:28px 48px;align-items:end}
+.gym .hb-head h2{margin:0 0 14px}
+.gym .hb-head .lead{max-width:56ch;margin:0}
+.gym .hb-actions{display:grid;gap:16px;justify-items:start}
+.gym .hb-pills{display:flex;flex-wrap:wrap;gap:8px}
+.gym .hb-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid rgb(255 255 255/14%);border-radius:999px;color:#b4b6bb;font-size:12px;font-weight:600;letter-spacing:.04em}
+.gym .hb-pill i{width:7px;height:7px;border-radius:50%;background:#6d7076}
+.gym .hb-pill.on{border-color:rgb(216 185 131/40%);color:#efd9ac}
+.gym .hb-pill.on i{background:#7bd88f;box-shadow:0 0 8px #7bd88f}
+.gym .hb-pill.bad{color:#ff8a7a}.gym .hb-pill.bad i{background:#ff8a7a}
+.gym .hb-btns{display:flex;flex-wrap:wrap;gap:10px}
+.gym .hb-note{margin:0;color:#9a9ca1;font-size:13px}
+
+.gym .hb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}
+.gym .hb-card{position:relative;display:flex;flex-direction:column;gap:20px;padding:clamp(22px,2.4vw,32px);border:1px solid rgb(255 255 255/10%);border-radius:28px;background:radial-gradient(120% 70% at 0 0,rgb(216 185 131/08%),transparent 60%),#101317;box-shadow:0 24px 50px -36px #000;transition:border-color .3s}
+.gym .hb-card:hover{border-color:rgb(216 185 131/30%)}
+.gym .hb-top{display:flex;align-items:center;gap:14px}
+.gym .hb-top h3{flex:1;margin:0;font:500 clamp(28px,2.4vw,34px)/1 'Cormorant Garamond',serif}
+.gym .hb-ico{display:grid;place-items:center;width:46px;height:46px;flex:none;border:1px solid rgb(216 185 131/35%);border-radius:14px;background:linear-gradient(145deg,rgb(216 185 131/16%),rgb(216 185 131/04%));color:#efd9ac}
+.gym .hb-ico svg{width:22px;height:22px}
+.gym .hb-big{display:flex;align-items:baseline;gap:10px;color:#9a9ca1;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.gym .hb-big b{font:500 clamp(54px,5vw,72px)/1 'Cormorant Garamond',serif;color:#efd9ac;letter-spacing:0;text-transform:none}
+.gym .hb-chips{display:flex;flex-wrap:wrap;gap:8px}
+.gym .hb-chips button{min-height:40px;padding:8px 16px;border:1px solid rgb(255 255 255/14%);border-radius:999px;background:transparent;color:#c4c6cb;font:600 13px 'Manrope',sans-serif;cursor:pointer;transition:background .25s,color .25s,border-color .25s}
+.gym .hb-chips button:hover{border-color:#d8b983;color:#efd9ac}
+.gym .hb-chips button[aria-pressed='true']{border-color:transparent;background:linear-gradient(135deg,#efd9ac,#a98550);color:#14100a}
+.gym .hb-rows{display:grid;gap:10px}
+.gym .hb-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:10px 12px 10px 16px;border:1px solid rgb(255 255 255/09%);border-radius:16px;background:#0c0e11}
+.gym .hb-row.two{grid-template-columns:1fr auto}
+.gym .hb-row span{color:#e6e2da;font-size:14px;font-weight:600}
+.gym .hb-row input{min-height:40px;width:auto;padding:4px 10px;border-radius:10px;color-scheme:dark}
+.gym .hb-due{display:flex;align-items:center;gap:18px;padding:16px 18px;border:1px solid rgb(216 185 131/25%);border-radius:18px;background:rgb(216 185 131/06%)}
+.gym .hb-due.late{border-color:rgb(255 138 122/45%);background:rgb(255 138 122/07%)}
+.gym .hb-due b{font:500 52px/1 'Cormorant Garamond',serif;color:#efd9ac}
+.gym .hb-due.late b{color:#ff8a7a}
+.gym .hb-due div{display:grid;gap:2px;color:#b8bac0;font-size:13px}
+.gym .hb-due strong{color:#f2eee7;font-size:14px}
+.gym .hb-card details{border:1px solid rgb(255 255 255/09%);border-radius:14px;padding:10px 14px;color:#b8bac0;font-size:13px}
+.gym .hb-card summary{cursor:pointer;font-weight:600;color:#d6d2ca}
+.gym .hb-card .fee-history{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.gym .hb-card .fee-history li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px}
+.gym .hb-foot{margin-top:auto;display:grid;gap:10px}
+.gym .hb-foot .btn{width:100%}
+
+.gym .hb-sync{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px 24px;padding:clamp(20px,2.4vw,30px);border:1px solid rgb(216 185 131/25%);border-radius:28px;background:linear-gradient(120deg,rgb(216 185 131/09%),transparent 60%),#101317}
+.gym .hb-sync h3{margin:0 0 4px;font:500 30px/1.1 'Cormorant Garamond',serif}
+.gym .hb-sync p{margin:0;color:#b8bac0;font-size:14px}
+.gym .hb-sync .hb-msg{grid-column:2/-1;color:#efd9ac;font-size:13px}
+
+@media (max-width:1100px){.gym .hb-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gym .hb-card.fee{grid-column:1/-1}}
+@media (max-width:820px){
+  .gym .hb-head{grid-template-columns:1fr}
+  .gym .hb-grid{grid-template-columns:1fr}
+  .gym .hb-sync{grid-template-columns:auto 1fr}
+  .gym .hb-sync .hb-btns{grid-column:1/-1}
+  .gym .hb-sync .hb-msg{grid-column:1/-1}
+}
