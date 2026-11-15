@@ -6,6 +6,7 @@ import { goalNames } from './goals'
 import { GoalPlans, PRTracker } from './Tracking'
 import Body from 'react-muscle-highlighter'
 import Calculator from './Calculator'
+import ProgressCharts from './Progress'
 import Ambient from './Ambient'
 import Preloader from './Preloader'
 import BodyExplorer from './BodyExplorer'
@@ -1158,6 +1159,7 @@ export default function App() {
         <div className="wrap">
           {head('Personal records', 'Track your', 'PRs', 'Log every heavy set. We find your best lift, estimate your one rep max and show how far you are from your goal max.')}
           <PRTracker />
+          <ProgressCharts />
         </div>
       </section>
 

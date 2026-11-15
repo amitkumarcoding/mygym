@@ -1,0 +1,27 @@
+.gym .pg{margin-top:clamp(28px,4vw,56px);display:grid;gap:16px}
+.gym .pg .goal-sub{margin:8px 0 0}
+.gym .pg-card{padding:clamp(16px,2.6vw,30px);display:grid;gap:16px}
+.gym .pg-head{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;justify-content:space-between}
+.gym .pg-head label{display:grid;gap:6px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);min-width:min(100%,240px)}
+.gym .pg-head select{min-height:46px;padding:0 14px;border:1px solid var(--line2);border-radius:14px;background:var(--bg2);color:var(--txt);font-size:1rem;text-transform:none;letter-spacing:0}
+.gym .pg-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.gym .pg-stats div{padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:rgb(255 255 255/2%);display:grid}
+.gym .pg-stats b{font:500 1.6rem/1.1 'Cormorant Garamond',serif;color:var(--gold-hi)}
+.gym .pg-stats b.up{color:#8fd19e}.gym .pg-stats b.down{color:#e58f8f}
+.gym .pg-stats span{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.gym .pg-read{margin:0;color:var(--mute);font-size:.9rem;min-height:1.5em}
+.gym .pg-read b{color:var(--txt)}
+.gym .pg-svg{width:100%;height:auto;display:block;overflow:visible}
+.gym .pg-grid{stroke:var(--line);stroke-dasharray:3 5}
+.gym .pg-goal{stroke:var(--gold-lo);stroke-dasharray:5 5}
+.gym .pg-txt{fill:var(--mute);font:500 11px 'Manrope',sans-serif}
+.gym .pg-txt.hi{fill:var(--txt);font-weight:700}
+.gym .pg-line{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.gym .pg-dot{fill:var(--bg);stroke:var(--gold);stroke-width:2;cursor:pointer;outline:none;transition:r .15s}
+.gym .pg-dot.pr{fill:var(--gold)}
+.gym .pg-dot.on,.gym .pg-dot:focus-visible{stroke:var(--gold-hi);stroke-width:3}
+.gym .pg-bar{fill:rgb(216 185 131/35%)}
+.gym .pg-bar.hit{fill:var(--gold)}
+.gym .pg-key{margin:0;font-size:.78rem;color:var(--mute);display:flex;align-items:center;gap:8px}
+.gym .pg-key i{width:10px;height:10px;border-radius:50%;background:var(--gold)}
+@media(max-width:520px){.gym .pg-txt{font-size:13px}}
