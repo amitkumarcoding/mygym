@@ -3,7 +3,10 @@ import { registerPush, saveSubscription, saveFee, saveReminders, watchUserData, 
 import { exercises } from './exercises'
 import Figure from './Figure'
 import { goalNames } from './goals'
-import { GoalPlans, PRTracker } from './Tracking'
+import { GoalDiet, PRTracker, useProfile } from './Tracking'
+import { goalOf, buildWeek } from './profile'
+import { Onboarding, StartCard, SplitWeek } from './Flow'
+import { plans } from './splits'
 import Body from 'react-muscle-highlighter'
 import Calculator from './Calculator'
 import ProgressCharts from './Progress'
@@ -12,22 +15,17 @@ import Preloader from './Preloader'
 import BodyExplorer from './BodyExplorer'
 import HabitIcon from './HabitIcon'
 import './reminders.css'
-import { getLiftLogs } from './liftStore'
+import { getLiftLogs, getLastLift, addLifts, markTrainedToday, todayIso } from './liftStore'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
 import { useReveal, useScrollState, usePointerGlow, CountUp } from './Motion'
 import './App.css'
 import './polish.css'
 import './refine.css'
+import './trainer.css'
 
 const BRAND = 'Ironline'
 const REMINDER_KEY = 'ironline-reminders'
-
-const plans = {
-  'Beginner full body': [['Mon', 'Full body A', 'Squat, bench press, lat pulldown, plank'], ['Wed', 'Full body B', 'Deadlift, overhead press, seated row, lunge'], ['Fri', 'Full body C', 'Leg press, incline press, cable row, cable crunch']],
-  'Push Pull Legs': [['Day 1', 'Push', 'Bench press, overhead press, incline press, lateral raise, pushdown'], ['Day 2', 'Pull', 'Deadlift, lat pulldown, cable row, face pull, barbell curl'], ['Day 3', 'Legs', 'Squat, Romanian deadlift, lunge, calf raise, plank'], ['Day 4', 'Rest', 'Walk 30 minutes and stretch. Repeat the cycle.']],
-  'Upper / Lower': [['Mon', 'Upper', 'Bench press, row, overhead press, curl, pushdown'], ['Tue', 'Lower', 'Squat, Romanian deadlift, lunge, calf raise'], ['Thu', 'Upper', 'Incline press, pulldown, lateral raise, face pull'], ['Fri', 'Lower', 'Deadlift, leg press, hamstring curl, plank']],
-}
 
 const faqs = [
   { name: 'Is it really free?', text: 'Yes. Every exercise guide, workout plan, diet plan and calculator is free, with no sign-up needed and no hidden fees. Signing in with Google is optional and only syncs your records across devices.' },
@@ -428,12 +426,83 @@ function RestTimer({ secs, sets }) {
   )
 }
 
-function Trainer() {
-  const [levelId, setLevelId] = useState(levels[0].id)
-  const [focus, setFocus] = useState('Full body')
+const startReps = (range) => Number(String(range).match(/\d+/)?.[0]) || 10
+const logId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
+
+// Shown after a workout: weights and reps start from the last logged set for each exercise.
+function WeightLog({ list, lv }) {
+  const [rows, setRows] = useState(() => list.filter((e) => !e.s.endsWith('s')).map((e) => {
+    const last = getLastLift(e.n)
+    return { n: e.n, kg: last ? String(last.kg) : '', reps: String(last ? last.reps : startReps(lv.reps)), last }
+  }))
+  const [result, setResult] = useState(null)
+  const [skipped, setSkipped] = useState(false)
+  const patch = (i, key, value) => setRows((rs) => rs.map((r, j) => (j === i ? { ...r, [key]: value } : r)))
+  const bump = (i, key, step, min) => setRows((rs) => rs.map((r, j) => (j === i ? { ...r, [key]: String(Math.max(min, Math.round(((Number(r[key]) || 0) + step) * 10) / 10)) } : r)))
+
+  if (!rows.length || skipped) return null
+  if (result) {
+    return (
+      <p className="wl-done" role="status">
+        {result === 'failed' ? 'Could not save. Your browser is blocking storage.' : result === 'local' ? 'Saved on this device. Sign in with Google in the records section to keep them in the cloud.' : 'Saved to your records.'}
+      </p>
+    )
+  }
+  const save = () => {
+    const date = todayIso()
+    const entries = rows
+      .filter((r) => Number(r.kg) > 0 && Number(r.reps) >= 1 && Number(r.reps) <= 50)
+      .map((r) => ({ id: logId(), ex: r.n, kg: Number(r.kg), reps: Math.floor(Number(r.reps)), date }))
+    if (!entries.length) { setSkipped(true); return }
+    setResult(addLifts(entries))
+  }
+
+  return (
+    <div className="wl">
+      <h4>Log your weights</h4>
+      <p className="note">One top set per exercise. Leave the weight empty to skip a move or for bodyweight work.</p>
+      <ul className="wl-list">
+        {rows.map((r, i) => (
+          <li key={r.n}>
+            <div className="wl-name"><b>{r.n}</b><small>{r.last ? `Last time: ${r.last.kg} kg × ${r.last.reps}` : 'First time logging this'}</small></div>
+            <div className="wl-nums">
+              <div className="stepper-f">
+                <span>Weight (kg)</span>
+                <div>
+                  <button type="button" aria-label={`Decrease ${r.n} weight`} onClick={() => bump(i, 'kg', -2.5, 0)}>−</button>
+                  <input type="number" min="0" step="0.5" inputMode="decimal" placeholder="0" value={r.kg} aria-label={`${r.n} weight in kilograms`} onChange={(e) => patch(i, 'kg', e.target.value)} />
+                  <button type="button" aria-label={`Increase ${r.n} weight`} onClick={() => bump(i, 'kg', 2.5, 0)}>+</button>
+                </div>
+              </div>
+              <div className="stepper-f">
+                <span>Reps</span>
+                <div>
+                  <button type="button" aria-label={`Decrease ${r.n} reps`} onClick={() => bump(i, 'reps', -1, 0)}>−</button>
+                  <input type="number" min="1" max="50" inputMode="numeric" placeholder="0" value={r.reps} aria-label={`${r.n} reps`} onChange={(e) => patch(i, 'reps', e.target.value)} />
+                  <button type="button" aria-label={`Increase ${r.n} reps`} onClick={() => bump(i, 'reps', 1, 0)}>+</button>
+                </div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div className="wl-actions">
+        <button type="button" className="btn gold" onClick={save}>Save weights</button>
+        <button type="button" className="btn ghost" onClick={() => setSkipped(true)}>Skip</button>
+      </div>
+    </div>
+  )
+}
+
+function Trainer({ levelId, setLevelId, workout, onFinish }) {
+  const [custom, setCustom] = useState(null)
   const [step, setStep] = useState(0)
-  const lv = levels.find((level) => level.id === levelId)
-  const list = pickPlan(lv, focus)
+  const [round, setRound] = useState(0)
+  const lv = levels.find((level) => level.id === levelId) || levels[0]
+  const focus = custom || (workout ? 'Planned' : 'Full body')
+  const planned = focus === 'Planned'
+  const list = planned ? plannedList(lv, workout.list) : pickPlan(lv, focus)
+  const title = planned ? workout.title : focus
   const done = step >= list.length
   const ex = list[Math.min(step, list.length - 1)]
   const last = step === list.length - 1
@@ -443,38 +512,40 @@ function Trainer() {
     <>
       <div className="coaches" role="radiogroup" aria-label="Choose your trainer">
         {levels.map((level) => (
-          <button key={level.id} type="button" className="coach" role="radio" aria-checked={levelId === level.id} onClick={() => { setLevelId(level.id); setStep(0) }}>
+          <button key={level.id} type="button" className="coach" role="radio" aria-checked={lv.id === level.id} onClick={() => { setLevelId(level.id); setStep(0) }}>
             <span className="coach-av">{level.coach[0]}</span>
             <span className="coach-info"><b>{level.coach}</b><small>{level.role}</small></span>
             <span className="level">{Array.from({ length: level.bolts }, (_, i) => <Icon key={i} n="bolt" />)}{level.id}</span>
           </button>
         ))}
       </div>
-      <Tabs items={['Full body', ...Object.keys(exercises)]} value={focus} onChange={(value) => { setFocus(value); setStep(0) }} label="Workout focus" />
+      <Tabs items={[...(workout ? ['Planned'] : []), 'Full body', ...Object.keys(exercises)]} value={focus} onChange={(value) => { setCustom(value === 'Planned' ? null : value); setStep(0) }} label="Workout focus" />
       <div className="plan card">
         <div className="say">
           <span className="coach-av sm">{lv.coach[0]}</span>
-          <p><b>{lv.coach} says</b>{lv.say(focus, list.length)}</p>
+          <p><b>{lv.coach} says</b>{lv.say(title, list.length)}</p>
         </div>
         {!done && step === 0 && <p className="warm">Warm up first: 5 minutes of light cardio, then 1–2 lighter sets of your first exercise.</p>}
         {done ? (
           <div className="done">
             <h3>Workout <em>complete</em></h3>
             <p>{lv.coach}: great work today. Drink water, eat your protein, and come back stronger.</p>
-            <button type="button" className="btn gold" onClick={() => setStep(0)}>Do it again</button>
+            <p className="wl-trained" role="status">✓ Marked as trained today</p>
+            <WeightLog key={`${round}-${lv.id}-${title}`} list={list} lv={lv} />
+            <button type="button" className="btn gold" onClick={() => { setStep(0); setRound((r) => r + 1) }}>Do it again</button>
           </div>
         ) : (
           <div className="stepper">
             <div className="fig-wrap"><Figure key={ex.n} ex={ex} /></div>
             <div className="step-info">
-              <p className="eyebrow"><i aria-hidden="true" />Exercise {step + 1} of {list.length}{lv.finisher && focus !== 'Full body' && last && focus !== 'Core' ? ' · Finisher' : ''}</p>
+              <p className="eyebrow"><i aria-hidden="true" />Exercise {step + 1} of {list.length}{lv.finisher && !planned && focus !== 'Full body' && last && focus !== 'Core' ? ' · Finisher' : ''}</p>
               <h3>{ex.n}</h3>
               <ul className="facts"><li>{volume}</li><li>{lv.rest} s rest</li></ul>
               <p>{ex.t}</p>
-              <RestTimer key={`${lv.id}-${focus}-${ex.n}`} secs={lv.rest} sets={lv.sets} />
+              <RestTimer key={`${lv.id}-${title}-${ex.n}`} secs={lv.rest} sets={lv.sets} />
               <div className="step-nav">
                 <button type="button" className="btn ghost sm" disabled={step === 0} onClick={() => setStep(step - 1)}>Back</button>
-                <button type="button" className="btn gold sm" onClick={() => setStep(step + 1)}>{last ? 'Finish' : 'Next exercise'}</button>
+                <button type="button" className="btn gold sm" onClick={() => { if (last) { markTrainedToday(); if (planned && onFinish) onFinish() } setStep(step + 1) }}>{last ? 'Finish' : 'Next exercise'}</button>
               </div>
             </div>
           </div>
@@ -487,21 +558,41 @@ function Trainer() {
   )
 }
 
-function Plans() {
-  const names = Object.keys(plans)
-  const [plan, setPlan] = useState(names[0])
+// Today's workout from the chosen split, trimmed to the coach's level.
+const plannedList = (lv, exs) => {
+  const base = exs.slice(0, lv.id === 'Simple' ? 4 : 6)
+  return lv.finisher && !base.some((e) => e.n === exercises.Core[0].n) && base.length < 7 ? [...base, exercises.Core[0]] : base
+}
+
+// Goal -> split -> today's workout, in one flow.
+function Plan() {
+  const [profile, setProfile] = useProfile()
+  const [editing, setEditing] = useState(false)
+  const [skipped, setSkipped] = useState(false)
+  const onboarded = !!(profile && profile.done)
+  const week = useMemo(() => buildWeek(profile), [profile])
+  const lv = levels.find((level) => level.id === (profile && profile.level)) || levels[0]
+  const patch = (next) => setProfile((p) => ({ ...(p || {}), ...next }))
+  const showForm = editing || (!onboarded && !skipped)
+
   return (
     <>
-      <Tabs items={names} value={plan} onChange={setPlan} label="Workout plan" />
-      <div className="cards">
-        {plans[plan].map(([day, focus, list]) => (
-          <div className="slot" key={day}>
-            <span className="slot-time">{day}</span>
-            <strong>{focus}</strong>
-            <span className="slot-note">{list}</span>
-          </div>
-        ))}
-      </div>
+      {showForm && (
+        <Onboarding
+          initial={profile}
+          onSave={(next) => { setProfile(next); setEditing(false) }}
+          onSkip={editing ? () => setEditing(false) : () => setSkipped(true)}
+        />
+      )}
+      {onboarded && !showForm && <StartCard profile={profile} coach={lv.coach} today={week.today} onEdit={() => setEditing(true)} />}
+      {onboarded && <SplitWeek week={week} onSplit={(key) => patch({ split: key, pos: 0 })} onPick={(pos) => patch({ pos })} />}
+      <h3 className="goal-sub" id="today">Today&rsquo;s workout</h3>
+      <Trainer
+        levelId={lv.id}
+        setLevelId={(level) => patch({ level })}
+        workout={onboarded ? week.today : null}
+        onFinish={() => patch({ pos: week.pos + 1 })}
+      />
     </>
   )
 }
@@ -915,7 +1006,7 @@ function HeroMedia() {
 }
 
 // Tracks which page section is under the middle of the screen, so the phone tab bar can highlight it.
-const SECTION_IDS = ['trainer', 'body', 'exercises', 'goals', 'calc', 'plans', 'gear', 'avoid', 'records', 'reminders']
+const SECTION_IDS = ['trainer', 'body', 'exercises', 'goals', 'calc', 'gear', 'avoid', 'records', 'reminders']
 function useActiveSection() {
   const [active, setActive] = useState('')
   useEffect(() => {
@@ -933,26 +1024,6 @@ function useActiveSection() {
     return () => observer.disconnect()
   }, [])
   return active
-}
-
-function useStoredGoal() {
-  const [goal, setGoal] = useState(() => {
-    try {
-      const saved = localStorage.getItem('ironline-goal')
-      return goalNames.includes(saved) ? saved : goalNames[0]
-    } catch {
-      return goalNames[0]
-    }
-  })
-  const update = (next) => {
-    setGoal(next)
-    try {
-      localStorage.setItem('ironline-goal', next)
-    } catch {
-      // Ignore blocked storage.
-    }
-  }
-  return [goal, update]
 }
 
 function Accordion({ items }) {
@@ -985,7 +1056,7 @@ function Accordion({ items }) {
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [goal, setGoal] = useStoredGoal()
+  const [profile] = useProfile()
   const [searchOpen, setSearchOpen] = useState(false)
   const [gearTab, setGearTab] = useState('Wearables')
   const activeSection = useActiveSection()
@@ -1035,14 +1106,13 @@ export default function App() {
         <div className="nav-pill">
           <a href="#top" className="logo" onClick={closeMenu}><Icon n="dumbbell" />{BRAND}</a>
           <div className={`links${menuOpen ? ' is-open' : ''}`} id="site-links">
-            <a href="#trainer" onClick={closeMenu}>Trainer</a>
+            <a href="#trainer" onClick={closeMenu}>My plan</a>
             <a href="#body" onClick={closeMenu}>Body map</a>
             <a href="#exercises" onClick={closeMenu}>Exercises</a>
-            <a href="#goals" onClick={closeMenu}>Goals</a>
+            <a href="#goals" onClick={closeMenu}>Diet</a>
             <a href="#gear" onClick={closeMenu}>Gear</a>
             <a className="only-menu" href="#calc" onClick={closeMenu}>Calculator</a>
             <a className="only-menu" href="#records" onClick={closeMenu}>PRs</a>
-            <a className="only-menu" href="#plans" onClick={closeMenu}>Workout plans</a>
             <a className="only-menu" href="#avoid" onClick={closeMenu}>What to avoid</a>
             <a className="only-menu" href="#reminders" onClick={closeMenu}>Reminders</a>
             <a className="only-menu" href="#faq" onClick={closeMenu}>FAQ</a>
@@ -1066,7 +1136,7 @@ export default function App() {
             </div>
             <Lifts />
             <div className="hx-cta">
-              <a href="#trainer" className="btn gold">Choose your trainer</a>
+              <a href="#trainer" className="btn gold">Build your plan</a>
               <a href="#body" className="btn ghost">Explore body map</a>
             </div>
           </div>
@@ -1088,9 +1158,9 @@ export default function App() {
       <section className="amen" aria-label="What you get">
         <div className="wrap">
           {[
-            ['user', 'trainer', 'Your trainer', 'Pick simple, hard or very hard and follow along.'],
+            ['user', 'trainer', 'Your plan', 'Goal, split and a guided workout for today.'],
             ['dumbbell', 'exercises', 'Exercise library', 'Animated demos with sets, reps and form cues.'],
-            ['calendar', 'plans', 'Workout plans', 'Full body, push pull legs and upper lower.'],
+            ['apple', 'goals', 'Diet plans', 'A meal plan matched to your goal.'],
             ['trophy', 'records', 'PR tracker', 'Log lifts, beat your best and track progress.'],
           ].map(([icon, id, title, text], i) => (
             <div key={id}><span className="n" aria-hidden="true">0{i + 1}</span><span className="ic"><Icon n={icon} /></span><h3><a href={`#${id}`}>{title}</a></h3><p>{text}</p></div>
@@ -1100,8 +1170,8 @@ export default function App() {
 
       <section id="trainer">
         <div className="wrap">
-          {head('Your trainer', 'Choose your', 'trainer', 'Pick a coach and a focus. Your trainer builds today\'s workout and walks you through it, one exercise at a time.')}
-          <Trainer />
+          {head('Your plan', 'Build your', 'plan', 'Answer three questions, pick a split, and your trainer walks you through today\'s workout one exercise at a time.')}
+          <Plan />
         </div>
       </section>
 
@@ -1121,8 +1191,8 @@ export default function App() {
 
       <section id="goals">
         <div className="wrap">
-          {head('Your goal', 'Pick your', 'goal', 'Get in shape, get lean, build muscle or lose weight. Every goal comes with its own exercise week and diet plan.')}
-          <GoalPlans goal={goal} setGoal={setGoal} />
+          {head('Your diet', 'Eat for your', 'goal', 'Every goal comes with its own meal plan. Change your goal in the plan section and this updates.')}
+          <GoalDiet goal={goalOf(profile)} />
         </div>
       </section>
 
@@ -1130,13 +1200,6 @@ export default function App() {
         <div className="wrap">
           {head('Calculator', 'Your calories and', 'macros', 'Enter your numbers to get a daily calorie target, protein, carbs, fat and water for your goal.')}
           <Calculator />
-        </div>
-      </section>
-
-      <section id="plans" className="alt">
-        <div className="wrap">
-          {head('Workout plans', 'Follow a', 'plan', 'Choose the split that fits your week. Add weight whenever you hit the top of the rep range.')}
-          <Plans />
         </div>
       </section>
 
@@ -1183,7 +1246,7 @@ export default function App() {
       </footer>
       {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} onGear={setGearTab} Figure={Figure} />}
       <nav className="tabbar" aria-label="Quick navigation">
-        {[['user', 'trainer', 'Train', ['trainer', 'body', 'exercises', 'plans']], ['calendar', 'goals', 'Goals', ['goals', 'calc']], ['trophy', 'records', 'Track', ['records', 'reminders']], ['bag', 'gear', 'Gear', ['gear', 'avoid']]].map(([icon, id, label, group]) => (
+        {[['user', 'trainer', 'Train', ['trainer', 'body', 'exercises']], ['apple', 'goals', 'Diet', ['goals', 'calc']], ['trophy', 'records', 'Track', ['records', 'reminders']], ['bag', 'gear', 'Gear', ['gear', 'avoid']]].map(([icon, id, label, group]) => (
           <a key={id} href={`#${id}`} aria-current={group.includes(activeSection) ? 'true' : undefined}><Icon n={icon} /><span>{label}</span></a>
         ))}
         <button type="button" onClick={() => setSearchOpen(true)} aria-haspopup="dialog"><Icon n="search" /><span>Search</span></button>

@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { savePrs, watchUserData, useUser, signInWithGoogle } from './push'
-import { setLiftLogs } from './liftStore'
+import { setLiftLogs, setLiftSaver } from './liftStore'
 import { exercises } from './exercises'
-import { goalNames, goalPlans } from './goals'
+import { goalPlans } from './goals'
 import Figure from './Figure'
 import { exercisesIn } from './planExercises'
 import './plandays.css'
 
-function useStored(key, fallback) {
+export function useStored(key, fallback) {
   const [value, setValue] = useState(() => {
     try {
       const raw = localStorage.getItem(key)
@@ -24,8 +24,29 @@ function useStored(key, fallback) {
       // Storage can be blocked (private mode). The tracker still works for this visit.
     }
   }, [key, value])
+  // Pick up changes made elsewhere (for example the Trainer marking today as trained).
+  const fallbackRef = useRef(fallback)
+  useEffect(() => {
+    const reload = () => {
+      try {
+        const raw = localStorage.getItem(key)
+        const next = raw === null ? fallbackRef.current : JSON.parse(raw)
+        setValue((cur) => (JSON.stringify(cur) === JSON.stringify(next) ? cur : next))
+      } catch {
+        // keep the current value
+      }
+    }
+    window.addEventListener('ironline-store', reload)
+    window.addEventListener('storage', reload)
+    return () => {
+      window.removeEventListener('ironline-store', reload)
+      window.removeEventListener('storage', reload)
+    }
+  }, [key])
   return [value, setValue]
 }
+
+export const useProfile = () => useStored('ironline-profile', null)
 
 const today = () => {
   const now = new Date()
@@ -46,7 +67,7 @@ export function Pills({ items, value, onChange, label }) {
   )
 }
 
-function PlanDay({ day, title, detail }) {
+export function PlanDay({ day, title, detail, children }) {
   const list = useMemo(() => exercisesIn(detail), [detail])
   const [sel, setSel] = useState(0)
   const cur = list[Math.min(sel, list.length - 1)]
@@ -68,42 +89,28 @@ function PlanDay({ day, title, detail }) {
           <p className="pd-cue"><b>{cur.n} · {cur.s}</b>{cur.t}</p>
         </>
       )}
+      {children}
     </div>
   )
 }
 
-export function GoalPlans({ goal, setGoal }) {
+export function GoalDiet({ goal }) {
   const plan = goalPlans[goal]
   return (
     <>
-      <Pills items={goalNames} value={goal} onChange={setGoal} label="Fitness goal" />
       <div className="goal-head">
         <p className="diet-note">{plan.blurb}</p>
-        <span className="goal-days">{plan.days}</span>
       </div>
-      <div className="goal-cols">
-        <div>
-          <h3 className="goal-sub">Exercise</h3>
-          <div className="goal-list">
-            {plan.train.map(([day, title, detail]) => (
-              <PlanDay key={`${goal}-${day}-${title}`} day={day} title={title} detail={detail} />
-            ))}
+      <p className="goal-diet-note">{plan.diet.note}</p>
+      <div className="goal-list">
+        {plan.diet.meals.map(([meal, food]) => (
+          <div className="slot goal-slot" key={meal}>
+            <span className="slot-time">{meal}</span>
+            <strong>{food}</strong>
           </div>
-        </div>
-        <div>
-          <h3 className="goal-sub">Diet</h3>
-          <p className="goal-diet-note">{plan.diet.note}</p>
-          <div className="goal-list">
-            {plan.diet.meals.map(([meal, food]) => (
-              <div className="slot goal-slot" key={meal}>
-                <span className="slot-time">{meal}</span>
-                <strong>{food}</strong>
-              </div>
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
-      <p className="note">Your goal is saved on this device and shows up in the progress tracker below.</p>
+      <p className="note">Your goal comes from your start card in the plan section above.</p>
     </>
   )
 }
@@ -156,7 +163,7 @@ export function PRTracker() {
   }
 
   useEffect(() => {
-    if (!userId) { setReady(false); setLogs([]); setTargets({}); setLiftLogs([]); return undefined }
+    if (!userId) { setLiftSaver(null); setReady(false); setLogs([]); setTargets({}); setLiftLogs([]); return undefined }
     let migrated = false
     const stop = watchUserData(userId, 'prs', (remote) => {
       let rl = remote?.logs || []
@@ -181,8 +188,19 @@ export function PRTracker() {
       setLiftLogs(rl)
       setReady(true)
       setSyncState('on')
+      // Lets the Trainer add lifts here once the cloud copy has loaded (never before, or it could overwrite it).
+      setLiftSaver((entries) => {
+        const cur = latest.current
+        const next = [...entries, ...cur.logs]
+        latest.current = { ...cur, logs: next }
+        setLogs(next)
+        setLiftLogs(next)
+        savePrs(userId, { logs: next, targets: cur.targets, updatedAt: Date.now() })
+          .then(() => setSyncState('on'))
+          .catch(() => setSyncState('error'))
+      })
     }, () => setSyncState('error'))
-    return () => { stop(); window.clearTimeout(timer.current) }
+    return () => { stop(); setLiftSaver(null); window.clearTimeout(timer.current) }
   }, [userId])
 
   const [f, setF] = useState({ ex: 'Barbell bench press', kg: '', reps: '', date: today() })
