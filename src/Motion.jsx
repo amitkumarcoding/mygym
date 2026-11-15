@@ -50,14 +50,18 @@ export function useScrollState(rootRef) {
   useEffect(() => {
     const root = rootRef.current
     if (!root) return undefined
+    const bar = root.querySelector('.progress')
+    const coarse = window.matchMedia?.('(pointer: coarse)').matches
     let frame = 0
+    let scrolled = null
     const update = () => {
       frame = 0
       const max = document.documentElement.scrollHeight - window.innerHeight
       const y = window.scrollY
-      root.style.setProperty('--sp', max > 0 ? String(Math.min(1, y / max)) : '0')
-      root.style.setProperty('--sy', String(Math.min(y, 900)))
-      root.toggleAttribute('data-scrolled', y > 24)
+      if (bar) bar.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`
+      if (!coarse) root.style.setProperty('--sy', String(Math.min(y, 900)))
+      const next = y > 24
+      if (next !== scrolled) { scrolled = next; root.toggleAttribute('data-scrolled', next) }
     }
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(update) }
     update()

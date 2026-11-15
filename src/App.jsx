@@ -6,6 +6,7 @@ import { goalNames } from './goals'
 import { GoalPlans, PRTracker } from './Tracking'
 import Body from 'react-muscle-highlighter'
 import Ambient from './Ambient'
+import { getLiftLogs } from './liftStore'
 import SearchModal from './Search'
 import { Checklist, Gear, Avoid } from './Gear'
 import { useReveal, useScrollState, usePointerGlow, CountUp } from './Motion'
@@ -97,15 +98,7 @@ function readReminderSettings() {
   }
 }
 
-const PR_KEY = 'ironline-prs'
-const readLogs = () => {
-  try {
-    const a = JSON.parse(localStorage.getItem(PR_KEY) || '[]')
-    return Array.isArray(a) ? a.filter((l) => l && l.ex && l.kg > 0) : []
-  } catch {
-    return []
-  }
-}
+const readLogs = () => getLiftLogs().filter((l) => l && l.ex && l.kg > 0)
 const est1 = (kg, reps) => (reps <= 1 ? kg : kg * (1 + reps / 30))
 const topLifts = (logs) => {
   const m = {}

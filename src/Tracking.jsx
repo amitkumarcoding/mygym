@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { savePrs, watchUserData, useUser } from './push'
+import { savePrs, watchUserData, useUser, signInWithGoogle } from './push'
+import { setLiftLogs } from './liftStore'
 import { exercises } from './exercises'
 import { goalNames, goalPlans } from './goals'
 
@@ -82,63 +83,95 @@ export function GoalPlans({ goal, setGoal }) {
   )
 }
 
+function Stepper({ label, value, onChange, onStep, ...rest }) {
+  return (
+    <div className="stepper-f">
+      <span>{label}</span>
+      <div>
+        <button type="button" aria-label={`Decrease ${label}`} onClick={() => onStep(-1)}>−</button>
+        <input value={value} onChange={onChange} aria-label={label} {...rest} />
+        <button type="button" aria-label={`Increase ${label}`} onClick={() => onStep(1)}>+</button>
+      </div>
+    </div>
+  )
+}
+
+const groups = Object.keys(exercises)
 const allLifts = Object.values(exercises).flat().map((ex) => ex.n)
 
 export function PRTracker() {
-  const [logs, setLogs] = useStored('ironline-prs', [])
-  const [targets, setTargets] = useStored('ironline-pr-targets', {})
-  const [updatedAt, setUpdatedAt] = useStored('ironline-prs-updated', 0)
   const user = useUser()
-  const uid = user ? user.uid : ''
-  const [syncState, setSyncState] = useState('off')
-  const lastSynced = useRef(0)
-  const latest = useRef({ logs, targets, updatedAt })
-  latest.current = { logs, targets, updatedAt }
-  // Edits made on this device are time-stamped so the newest edit wins when devices sync.
-  const editLogs = (next) => { setLogs(next); setUpdatedAt(Date.now()) }
-  const editTargets = (next) => { setTargets((t) => (typeof next === 'function' ? next(t) : next)); setUpdatedAt(Date.now()) }
+  const userId = user ? user.uid : ''
+  const [logs, setLogs] = useState([])
+  const [targets, setTargets] = useState({})
+  const [ready, setReady] = useState(false)
+  const [syncState, setSyncState] = useState('loading')
+  const [authErr, setAuthErr] = useState('')
+  const timer = useRef(0)
+  const latest = useRef({ logs, targets })
+  latest.current = { logs, targets }
+
+  const write = (nextLogs, nextTargets) => {
+    setLogs(nextLogs)
+    setTargets(nextTargets)
+    setLiftLogs(nextLogs)
+    savePrs(userId, { logs: nextLogs, targets: nextTargets, updatedAt: Date.now() })
+      .then(() => setSyncState('on'))
+      .catch(() => setSyncState('error'))
+  }
+  const editLogs = (next) => write(next, latest.current.targets)
+  const editTargets = (next) => {
+    const t = typeof next === 'function' ? next(latest.current.targets) : next
+    setTargets(t)
+    latest.current = { ...latest.current, targets: t }
+    window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => {
+      savePrs(userId, { logs: latest.current.logs, targets: t, updatedAt: Date.now() }).catch(() => setSyncState('error'))
+    }, 600)
+  }
 
   useEffect(() => {
-    if (!uid) { setSyncState('off'); return undefined }
-    return watchUserData(uid, 'prs', (remote) => {
-      const cur = latest.current
-      const localHas = cur.logs.length > 0 || Object.keys(cur.targets).length > 0
-      if (!remote) {
-        if (localHas) setUpdatedAt(Date.now())
-      } else if (!cur.updatedAt && localHas) {
-        // Records saved here before signing in: keep both sides instead of overwriting.
-        const known = new Set((remote.logs || []).map((l) => l.id))
-        setLogs([...(remote.logs || []), ...cur.logs.filter((l) => !known.has(l.id))].sort((a, b) => (a.date < b.date ? 1 : -1)))
-        setTargets({ ...(remote.targets || {}), ...cur.targets })
-        setUpdatedAt(Date.now())
-      } else if ((remote.updatedAt || 0) > cur.updatedAt) {
-        lastSynced.current = remote.updatedAt
-        setLogs(remote.logs || [])
-        setTargets(remote.targets || {})
-        setUpdatedAt(remote.updatedAt)
+    if (!userId) { setReady(false); setLogs([]); setTargets({}); setLiftLogs([]); return undefined }
+    let migrated = false
+    const stop = watchUserData(userId, 'prs', (remote) => {
+      let rl = remote?.logs || []
+      const rt = remote?.targets || {}
+      if (!migrated) {
+        migrated = true
+        try {
+          const old = JSON.parse(localStorage.getItem('ironline-prs') || '[]')
+          if (Array.isArray(old) && old.length) {
+            const known = new Set(rl.map((l) => l.id))
+            rl = [...rl, ...old.filter((l) => l && l.id && !known.has(l.id))]
+            const ot = JSON.parse(localStorage.getItem('ironline-pr-targets') || '{}')
+            savePrs(userId, { logs: rl, targets: { ...ot, ...rt }, updatedAt: Date.now() })
+          }
+          ;['ironline-prs', 'ironline-pr-targets', 'ironline-prs-updated'].forEach((k) => localStorage.removeItem(k))
+        } catch {
+          // legacy local data is optional
+        }
       }
+      setLogs(rl)
+      setTargets(rt)
+      setLiftLogs(rl)
+      setReady(true)
       setSyncState('on')
     }, () => setSyncState('error'))
-  }, [uid])
-
-  useEffect(() => {
-    if (!uid || !updatedAt || updatedAt === lastSynced.current) return undefined
-    const timer = window.setTimeout(() => {
-      savePrs(uid, { logs, targets, updatedAt })
-        .then(() => { lastSynced.current = updatedAt; setSyncState('on') })
-        .catch(() => setSyncState('error'))
-    }, 600)
-    return () => window.clearTimeout(timer)
-  }, [uid, updatedAt, logs, targets])
+    return () => { stop(); window.clearTimeout(timer.current) }
+  }, [userId])
 
   const [f, setF] = useState({ ex: 'Barbell bench press', kg: '', reps: '', date: today() })
   const [msg, setMsg] = useState(null)
+  const [group, setGroup] = useState(() => groups.find((g) => exercises[g].some((e) => e.n === 'Barbell bench press')) || groups[0])
   const set = (key) => (event) => setF({ ...f, [key]: event.target.value })
+  const pickGroup = (g) => { setGroup(g); setF({ ...f, ex: exercises[g][0].n }) }
+  const bump = (key, step, min) => (dir) => setF((p) => ({ ...p, [key]: String(Math.max(min, round1((Number(p[key]) || 0) + dir * step))) }))
 
   const submit = (event) => {
     event.preventDefault()
     const kg = Number(f.kg)
     const reps = Math.floor(Number(f.reps))
+    if (!ready) return setMsg({ bad: true, text: 'Still connecting to the cloud. Try again in a moment.' })
     if (!(kg > 0) || !(reps >= 1) || reps > 50) return setMsg({ bad: true, text: 'Enter a weight above 0 and reps between 1 and 50.' })
     const prev = logs.filter((l) => l.ex === f.ex)
     const bestPrev = prev.reduce((m, l) => Math.max(m, oneRm(l.kg, l.reps)), 0)
@@ -151,6 +184,8 @@ export function PRTracker() {
     else setMsg({ text: 'Logged. Keep pushing for the next PR.' })
     setF({ ...f, kg: '', reps: '' })
   }
+
+  const lastBest = useMemo(() => logs.filter((l) => l.ex === f.ex).reduce((m, l) => (!m || l.kg > m.kg ? l : m), null), [logs, f.ex])
 
   const records = useMemo(() => {
     const map = {}
@@ -166,31 +201,46 @@ export function PRTracker() {
 
   const setTarget = (ex, value) => editTargets((t) => ({ ...t, [ex]: value }))
 
+  if (user === undefined) return <p className="pr-sync" role="status">Loading…</p>
+  if (!user) {
+    return (
+      <div className="card pr-form lift">
+        <div className="lift-head"><h3>Log a lift</h3></div>
+        <p className="note">Your lifts are saved in the cloud, so sign in with Google to log them.</p>
+        {authErr && <p className="err" role="alert">{authErr}</p>}
+        <button className="btn gold" type="button" onClick={() => { setAuthErr(''); signInWithGoogle().catch((e) => setAuthErr(e?.code === 'auth/popup-closed-by-user' ? '' : 'Sign-in failed. Check that Google sign-in is enabled in Firebase.')) }}>Sign in with Google</button>
+      </div>
+    )
+  }
+
   return (
     <>
-      <p className={`pr-sync${syncState === 'error' ? ' bad' : ''}`} role="status">
-        {syncState === 'on' && 'Your records are saved in the cloud and synced across your devices.'}
-        {syncState === 'off' && 'Records are saved on this device. Sign in with Google in the Reminders section to save them across devices.'}
-        {syncState === 'error' && 'Cloud sync is unavailable right now. Your records are still saved on this device.'}
-      </p>
-      <form className="card pr-form" onSubmit={submit} noValidate>
-        <h3>Log a lift</h3>
-        <div className="pr-grid">
-          <label>Exercise
-            <select value={f.ex} onChange={set('ex')}>
-              {Object.entries(exercises).map(([group, list]) => (
-                <optgroup label={group} key={group}>
-                  {list.map((ex) => <option key={ex.n} value={ex.n}>{ex.n}</option>)}
-                </optgroup>
-              ))}
-            </select>
-          </label>
-          <label>Weight (kg)<input type="number" min="0" step="0.5" inputMode="decimal" value={f.kg} onChange={set('kg')} /></label>
-          <label>Reps<input type="number" min="1" max="50" inputMode="numeric" value={f.reps} onChange={set('reps')} /></label>
-          <label>Date<input type="date" max={today()} value={f.date} onChange={set('date')} /></label>
+      <form className="card pr-form lift" onSubmit={submit} noValidate>
+        <div className="lift-head">
+          <h3>Log a lift</h3>
+          <span className={`sync-badge ${syncState}`} role="status">
+            <i />{syncState === 'on' ? 'Saved to cloud' : syncState === 'error' ? 'Cloud unavailable' : 'Connecting…'}
+          </span>
         </div>
-        {msg && <p className={msg.bad ? 'err' : msg.pr ? 'pr-win' : 'note'} role="status">{msg.text}</p>}
-        <button className="btn gold" type="submit">Save lift</button>
+        <Pills items={groups} value={group} onChange={pickGroup} label="Muscle group" />
+        <label className="lift-ex">Exercise
+          <select value={f.ex} onChange={set('ex')}>
+            {exercises[group].map((ex) => <option key={ex.n} value={ex.n}>{ex.n}</option>)}
+          </select>
+        </label>
+        <div className="lift-nums">
+          <Stepper label="Weight (kg)" type="number" min="0" step="0.5" inputMode="decimal" placeholder="0" value={f.kg} onChange={set('kg')} onStep={bump('kg', 2.5, 0)} />
+          <Stepper label="Reps" type="number" min="1" max="50" inputMode="numeric" placeholder="0" value={f.reps} onChange={set('reps')} onStep={bump('reps', 1, 0)} />
+          <label className="lift-date">Date<input type="date" max={today()} value={f.date} onChange={set('date')} /></label>
+        </div>
+        <div className="lift-foot">
+          <div className="lift-info">
+            {Number(f.kg) > 0 && Number(f.reps) >= 1 && <span>Est. 1RM <b>{round1(oneRm(Number(f.kg), Number(f.reps)))} kg</b></span>}
+            {lastBest && <span>Your best <b>{lastBest.kg} kg × {lastBest.reps}</b></span>}
+          </div>
+          {msg && <p className={msg.bad ? 'err' : msg.pr ? 'pr-win' : 'note'} role="status">{msg.text}</p>}
+          <button className="btn gold" type="submit">Save lift</button>
+        </div>
       </form>
 
       {records.length === 0 ? (

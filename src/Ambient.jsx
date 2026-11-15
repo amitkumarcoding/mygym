@@ -33,6 +33,7 @@ export default function Ambient() {
   useEffect(() => {
     const canvas = ref.current
     if (!canvas) return undefined
+    if (window.matchMedia?.('(max-width: 980px), (pointer: coarse)').matches) return undefined
     const ctx = canvas.getContext('2d')
     const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     const small = window.matchMedia?.('(max-width: 700px)').matches

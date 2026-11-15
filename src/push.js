@@ -47,9 +47,9 @@ const db = () => getFirestore(getFirebaseApp())
 const userDoc = (uid, name) => doc(db(), 'users', uid, 'data', name)
 
 export function useUser() {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(undefined)
   useEffect(() => {
-    try { return onAuthStateChanged(getAuth(getFirebaseApp()), setUser) } catch { return undefined }
+    try { return onAuthStateChanged(getAuth(getFirebaseApp()), setUser) } catch { setUser(null); return undefined }
   }, [])
   return user
 }

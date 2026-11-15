@@ -1,0 +1,247 @@
+/* Ironline refinement layer: readability, rhythm, density. Loaded last. */
+.gym{--mute:#b4b6bb;--line:rgb(255 255 255/11%);--line2:rgb(255 255 255/20%)}
+
+/* Readability: lift the tiniest, dimmest text */
+.gym .lead{color:#c0c2c7;font-size:clamp(16px,1.2vw,18px);line-height:1.7}
+.gym .eyebrow{font-size:12px}
+.gym p,.gym li{text-wrap:pretty}
+.gym h1,.gym h2,.gym h3{text-wrap:balance}
+.gym h2{letter-spacing:-.015em;line-height:1.05}
+
+/* Section rhythm: a consistent hairline gold divider and more air */
+.gym section{padding-block:clamp(72px,10vw,128px)}
+.gym .alt{background:
+  radial-gradient(900px 420px at 85% 0,rgb(216 185 131/06%),transparent 70%),
+  linear-gradient(180deg,var(--bg2),var(--bg))}
+
+/* Hero: graceful fallback if media fails to load, stronger CTA presence */
+.gym .hx-vid{background:radial-gradient(120% 90% at 50% 20%,rgb(216 185 131/16%),transparent 60%),linear-gradient(160deg,#14161a,#0a0b0d)}
+.gym .hero .btn.gold{padding-block:18px;box-shadow:0 16px 40px -14px rgb(216 185 131/65%)}
+
+/* Exercise library: denser 3-col grid with shorter media so more fits on screen */
+.gym .cards.ex{grid-template-columns:repeat(3,1fr);gap:18px}
+.gym .ex-card{padding:12px 12px 24px;border-radius:24px;box-shadow:0 24px 50px -34px #000}
+.gym .ex-card h3{font-size:28px;line-height:1.1;margin-top:18px}
+.gym .ex-card p{color:#b8bac0;font-size:14.5px}
+@media (max-width:1020px){.gym .cards.ex{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.gym .cards.ex{grid-template-columns:1fr}}
+
+/* Cards: unify border, hover and depth */
+.gym .card,.gym .slot,.gym .rem-card{border-color:var(--line);box-shadow:0 20px 44px -34px #000}
+.gym .card:hover,.gym .slot:hover{border-color:rgb(216 185 131/38%)}
+
+/* Tabs: clearer active state, horizontal scroll instead of wrapping on phones */
+.gym .tabs{max-width:100%}
+.gym .tabs button{font-size:13px;color:#c4c6cb}
+.gym .tabs button[aria-selected="true"],.gym .tabs button.on{color:#14100a}
+@media (max-width:700px){
+  .gym .tabs{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .gym .tabs::-webkit-scrollbar{display:none}
+  .gym .tabs button{flex:none;white-space:nowrap}
+}
+
+/* Forms: visible focus, comfortable inputs */
+.gym input,.gym select,.gym textarea{min-height:44px;border-radius:14px;transition:border-color .2s,box-shadow .2s,background .2s}
+.gym input:focus,.gym select:focus,.gym textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgb(216 185 131/18%)}
+.gym label{color:#c4c6cb}
+
+/* Footer: quieter wordmark, better link contrast */
+.gym footer{color:#a9abb0}
+.gym footer a{color:#d0d2d6}
+
+/* Mobile polish */
+@media (max-width:700px){
+  .gym section{padding-block:64px}
+  .gym h2{font-size:clamp(34px,10vw,44px)}
+  .gym .hero .btn{width:100%}
+  .gym .ex-card h3{font-size:26px}
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion:reduce){.gym *,.gym *::before,.gym *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+
+/* Hero body map: one large figure, studio lighting, front/back switch */
+.gym .rk-bodies{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.gym .rk-spot{position:absolute;inset:0;background:
+  radial-gradient(60% 45% at 50% 38%,rgb(216 185 131/22%),transparent 70%),
+  radial-gradient(40% 14% at 50% 92%,rgb(216 185 131/18%),transparent 70%)}
+.gym .rk-spot::after{content:'';position:absolute;left:18%;right:18%;bottom:8%;height:1px;background:linear-gradient(90deg,transparent,rgb(216 185 131/60%),transparent)}
+.gym .rk-fig{position:relative;height:100%;display:flex;align-items:center;justify-content:center;animation:rkIn .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rkIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.gym .rk-fig svg{position:static;width:auto;height:100%;max-height:100%;transform:scale(1.06);transform-origin:50% 50%;filter:drop-shadow(0 18px 28px rgb(0 0 0/65%)) drop-shadow(0 0 22px rgb(216 185 131/10%))}
+.gym .rk-fig svg path{transition:fill .6s,stroke .4s;cursor:pointer}
+.gym .rk-fig svg path:hover{filter:brightness(1.4)}
+.gym .rk-flip{position:absolute;top:2px;right:0;display:flex;gap:2px;padding:3px;border:1px solid var(--line2);border-radius:999px;background:rgb(10 11 13/70%);backdrop-filter:blur(8px)}
+.gym .rk-flip button{padding:6px 12px;border:0;border-radius:999px;background:transparent;color:#c4c6cb;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:background .25s,color .25s}
+.gym .rk-flip button.on{background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:#14100a}
+
+/* Feature strip: even padding on every card, contained hover (no flush edge, no square ring) */
+.gym .amen .wrap{gap:8px}
+.gym .amen .wrap>div,.gym .amen .wrap>div:first-child{padding:48px 28px 52px;border-right:0;border-radius:20px;overflow:hidden}
+.gym .amen .wrap>div:hover{box-shadow:none;background:linear-gradient(180deg,rgb(216 185 131/09%),rgb(216 185 131/02%) 80%);box-shadow:inset 0 0 0 1px rgb(216 185 131/22%)}
+.gym .amen .wrap>div:hover .ic{transform:translateY(-2px);border-color:rgb(216 185 131/60%)}
+.gym .amen .ic{transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s}
+@media (max-width:980px){.gym .amen .wrap>div,.gym .amen .wrap>div:nth-child(odd){padding:32px 24px 36px;border-bottom:0}}
+@media (max-width:700px){
+  .gym .amen .wrap>div,.gym .amen .wrap>div:nth-child(odd){padding:20px 16px}
+  .gym .amen .wrap>div:hover{box-shadow:none}
+}
+.gym .rk-flip{top:auto;right:auto;left:50%;bottom:4px;transform:translateX(-50%);z-index:4}
+.gym .rk-fig svg{transform:scale(1.18)}
+.gym .rk-stage{min-height:340px}
+@media (max-width:700px){.gym .rk-stage{min-height:380px}.gym .rk-fig svg{transform:scale(1.12)}}
+.gym .rk .rk-bodies{bottom:0;padding-bottom:40px}
+.gym .rk .rk-flip{bottom:6px;background:rgb(10 11 13/85%)}
+.gym .rk .rk-flip button{min-height:30px;padding:6px 14px;color:#d6d8dc;background:transparent;box-shadow:none}
+.gym .rk .rk-flip button.on{color:#14100a;background:linear-gradient(135deg,#f6e4bd,#d8b983)}
+.gym .rk-stage{-webkit-mask:none;mask:none;background:none}
+.gym .rk-spot::before{content:'';position:absolute;inset:0;background:radial-gradient(circle,rgb(216 185 131/14%) 1px,transparent 1.5px) 0 0/16px 16px;-webkit-mask:radial-gradient(closest-side,#000 55%,transparent);mask:radial-gradient(closest-side,#000 55%,transparent)}
+
+/* ===== Premium body: brushed-metal muscles, gold hot zone, HUD details ===== */
+.gym .rk-defs{position:absolute;width:0;height:0}
+.gym .rk-fig svg path[fill]{fill:url(#rkMetal);stroke:rgb(216 185 131/34%);stroke-width:.8}
+.gym .rk-fig svg path[fill="#16181c"]{fill:#121418;stroke:rgb(216 185 131/18%)}
+.gym .rk-fig svg path[fill="#f6e4bd"]{fill:url(#rkGoldG);stroke:#fff1cc;stroke-width:1;animation:rkPulse 2.6s ease-in-out infinite}
+@keyframes rkPulse{0%,100%{filter:drop-shadow(0 0 4px rgb(246 228 189/55%))}50%{filter:drop-shadow(0 0 14px rgb(246 228 189/95%))}}
+.gym .rk-fig svg{filter:drop-shadow(0 26px 30px rgb(0 0 0/70%))}
+
+/* Studio light, floor glow and slow orbit rings */
+.gym .rk-spot{background:
+  radial-gradient(55% 40% at 50% 36%,rgb(216 185 131/26%),transparent 70%),
+  radial-gradient(46% 10% at 50% 90%,rgb(216 185 131/34%),transparent 72%)}
+.gym .rk-orbit{position:absolute;inset:6% 4% 14%;pointer-events:none}
+.gym .rk-orbit i{position:absolute;inset:0;margin:auto;border:1px dashed rgb(216 185 131/18%);border-radius:50%;animation:rkSpin 40s linear infinite}
+.gym .rk-orbit i:last-child{inset:12%;border-style:solid;border-color:rgb(216 185 131/10%);animation-duration:60s;animation-direction:reverse}
+@keyframes rkSpin{to{transform:rotate(360deg)}}
+
+/* Scan line sweeping the body */
+.gym .rk-scanline{position:absolute;left:10%;right:10%;top:6%;height:70px;pointer-events:none;background:linear-gradient(180deg,transparent,rgb(216 185 131/16%) 70%,rgb(246 228 189/70%) 99%,transparent);animation:rkScan 4.4s cubic-bezier(.45,0,.55,1) infinite;mix-blend-mode:screen;opacity:.8}
+@keyframes rkScan{0%{transform:translateY(0);opacity:0}12%{opacity:.8}88%{opacity:.8}100%{transform:translateY(calc(var(--stage-h,380px) - 130px));opacity:0}}
+
+/* HUD corner brackets */
+.gym .rk-br{position:absolute;width:16px;height:16px;border:1px solid rgb(216 185 131/55%);pointer-events:none}
+.gym .rk-br.tl{top:6px;left:6px;border-right:0;border-bottom:0}
+.gym .rk-br.tr{top:6px;right:6px;border-left:0;border-bottom:0}
+.gym .rk-br.bl{bottom:6px;left:6px;border-right:0;border-top:0}
+.gym .rk-br.brr{bottom:6px;right:6px;border-left:0;border-top:0}
+
+/* Callout from the lit muscle to the edge of the card */
+.gym .rk-pin{position:absolute;inset:0;pointer-events:none;z-index:3}
+.gym .rk-pin b{position:absolute;left:var(--px);top:var(--py);width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:#fff4d6;box-shadow:0 0 0 3px rgb(246 228 189/30%),0 0 16px #f6e4bd;animation:rkPing 1.8s ease-out infinite}
+@keyframes rkPing{0%{box-shadow:0 0 0 0 rgb(246 228 189/70%),0 0 16px #f6e4bd}100%{box-shadow:0 0 0 16px rgb(246 228 189/0%),0 0 16px #f6e4bd}}
+.gym .rk-pin u{position:absolute;top:var(--py);left:calc(var(--pr) + 8px);right:8px;height:1px;background:linear-gradient(90deg,rgb(246 228 189/80%),rgb(246 228 189/10%));transform-origin:0 50%;animation:rkLine .7s .1s cubic-bezier(.2,.8,.2,1) both;text-decoration:none}
+@keyframes rkLine{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.gym .rk-pin em{position:absolute;top:calc(var(--py) - 22px);right:10px;color:var(--gold-hi);font:600 9.5px 'Manrope',sans-serif;letter-spacing:.24em;text-transform:uppercase;font-style:normal;background:none;-webkit-text-fill-color:currentColor;animation:rkIn .6s .35s both}
+@media (max-width:700px){.gym .rk-pin u{display:none}.gym .rk-pin em{display:none}}
+
+/* Card finish */
+.gym .rk-row h3{background:linear-gradient(180deg,#fff4d6,#d8b983);-webkit-background-clip:text;background-clip:text;color:transparent}
+@media (prefers-reduced-motion:reduce){.gym .rk-scanline,.gym .rk-orbit i,.gym .rk-fig svg path[fill="#f6e4bd"],.gym .rk-pin b{animation:none}}
+.gym .rk-scanline{left:14%;right:14%;height:44px;background:linear-gradient(180deg,transparent,rgb(216 185 131/10%) 75%,rgb(246 228 189/55%) 98%,transparent);-webkit-mask:linear-gradient(90deg,transparent,#000 25%,#000 75%,transparent);mask:linear-gradient(90deg,transparent,#000 25%,#000 75%,transparent);border-bottom:0;opacity:.9}
+@keyframes rkScan{0%{transform:translateY(0);opacity:0}12%{opacity:.9}88%{opacity:.9}100%{transform:translateY(calc(var(--stage-h,380px) - 100px));opacity:0}}
+
+/* ===== Left hero: live session strip ===== */
+.gym .hp{display:flex;align-items:center;gap:14px;padding:12px 18px;border:1px solid rgb(216 185 131/24%);border-radius:20px;background:linear-gradient(160deg,rgb(255 255 255/07%),rgb(255 255 255/02%)),rgb(13 15 19/70%);box-shadow:0 24px 50px -28px #000,inset 0 1px 0 rgb(255 255 255/09%)}
+.gym .hp-ring{width:42px;height:42px;flex:none;transform:rotate(-90deg)}
+.gym .hp-ring circle{fill:none;stroke-width:5;stroke-linecap:round}
+.gym .hp-track{stroke:rgb(255 255 255/09%)}
+.gym .hp-arc{stroke:#e6cb97;stroke-dasharray:100;stroke-dashoffset:100;filter:drop-shadow(0 0 5px rgb(246 228 189/65%));animation:hpArc 2.2s .6s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes hpArc{to{stroke-dashoffset:22}}
+.gym .hp-txt{display:grid;flex:none;line-height:1.1}
+.gym .hp-txt b{color:#fff4d6;font:500 24px 'Cormorant Garamond',serif}
+.gym .hp-txt b small{color:var(--gold);font:600 10px 'Manrope',sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.gym .hp-txt span{display:inline-flex;align-items:center;gap:6px;color:#b4b6bb;font-size:10.5px;letter-spacing:.06em;white-space:nowrap}
+.gym .hp-txt u{width:6px;height:6px;border-radius:50%;background:#7ee0a1;box-shadow:0 0 8px #7ee0a1;animation:hpBlink 1.6s ease-in-out infinite;text-decoration:none}
+@keyframes hpBlink{50%{opacity:.3}}
+.gym .hp-ecg{flex:1;min-width:60px;height:28px;overflow:visible}
+.gym .hp-ecg path{fill:none;stroke:#e6cb97;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:45 55;filter:drop-shadow(0 0 4px rgb(246 228 189/70%));animation:hpEcg 2.4s linear infinite}
+@keyframes hpEcg{from{stroke-dashoffset:45}to{stroke-dashoffset:-55}}
+.gym .hp-days{display:flex;flex:none;gap:5px}
+.gym .hp-days span{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1px solid rgb(255 255 255/12%);color:#8d9096;font-size:9px;font-weight:600;line-height:1}
+.gym .hp-days .hp-on{background:linear-gradient(135deg,#f6e4bd,#c9a266);border-color:transparent;color:#14100a}
+.gym .hp-days .hp-now{border-color:var(--gold);color:var(--gold-hi);box-shadow:0 0 0 3px rgb(216 185 131/16%)}
+@media (max-width:520px){.gym .hp{gap:10px;padding:10px 12px}.gym .hp-ecg{display:none}.gym .hp-days{margin-left:auto;gap:3px}.gym .hp-days span{width:18px;height:18px}}
+
+/* Slow gold sweep across "Eat right." */
+.gym .hx-title em{background:linear-gradient(110deg,#a98550 20%,#fff1cc 45%,#d8b983 55%,#a98550 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hxSheen 6s ease-in-out infinite}
+@keyframes hxSheen{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.gym .hp-ecg path,.gym .hp-txt u,.gym .hx-title em{animation:none}.gym .hp-arc{animation:none;stroke-dashoffset:22}}
+
+/* Keep the hero card inside one screen after adding the strip */
+.gym .hx-head{gap:16px}
+.gym .hx-title{margin-bottom:clamp(10px,2vh,18px)}
+.gym .hp{padding:9px 16px}
+.gym .hp-ring{width:38px;height:38px}
+.gym .hp-ecg{width:100px;flex:1 1 100px;max-width:160px}
+
+/* ===== Ambient background: particles, section auras, animated dividers ===== */
+.gym{isolation:isolate}
+.gym .ambient{position:fixed;inset:0;z-index:-1;width:100vw;height:100vh;pointer-events:none}
+/* let the ambient layer show through full-width section backgrounds */
+.gym .alt{background:linear-gradient(180deg,rgb(12 14 17/55%),rgb(7 8 10/0%));backdrop-filter:none}
+.gym .amen{background:linear-gradient(180deg,transparent,rgb(12 14 17/50%))}
+.gym footer{background:linear-gradient(180deg,transparent,rgb(7 8 10/70%))}
+
+/* soft gold aura behind each section, alternating sides */
+.gym main>section,.gym section{--aura-x:12%}
+.gym section::before{content:'';position:absolute;z-index:-1;top:6%;left:var(--aura-x);width:min(620px,70vw);height:min(620px,70vw);border-radius:50%;background:radial-gradient(circle,rgb(216 185 131/09%),transparent 68%);pointer-events:none;filter:blur(8px)}
+.gym section:nth-of-type(even){--aura-x:auto}
+.gym section:nth-of-type(even)::before{left:auto;right:6%}
+
+/* glowing divider line that draws itself between sections */
+.gym section::after{content:'';position:absolute;top:0;left:50%;width:min(520px,60%);height:1px;transform:translateX(-50%) scaleX(.2);opacity:0;background:linear-gradient(90deg,transparent,rgb(216 185 131/60%),transparent);transition:transform 1.4s cubic-bezier(.2,.8,.2,1),opacity 1.2s;pointer-events:none}
+.gym section.in::after,.gym section[data-in]::after,.gym section:has(.in)::after{transform:translateX(-50%) scaleX(1);opacity:1}
+
+/* section titles: gold sweep on the italic word, eyebrow line grows */
+.gym .sec-head h2 em,.gym section h2 em{background:linear-gradient(110deg,#a98550 20%,#fff1cc 45%,#d8b983 55%,#a98550 80%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hxSheen 7s ease-in-out infinite}
+.gym .eyebrow i{transform-origin:0 50%;animation:rkLine 1.2s .2s cubic-bezier(.2,.8,.2,1) both}
+@media (prefers-reduced-motion:reduce){.gym section h2 em,.gym .eyebrow i{animation:none}.gym section::after{transition:none;opacity:1;transform:translateX(-50%)}}
+
+/* Mobile scroll performance: no live blur, no filter animations, no always-on repaint loops */
+@media (max-width:980px),(pointer:coarse){
+  .gym .nav-pill,.gym .tabbar,.gym .rack,.gym .toast,.gym .chip,.gym .hx-chip,.gym .hx-seal,
+  .gym .hero .btn.ghost,.gym .hero-search,.gym .rk-flip,.gym .links.is-open,.gym .srch{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .gym .nav-pill,.gym .tabbar{background:rgb(12 14 17/94%)}
+  .gym .srch{background:rgb(4 5 7/90%)}
+  .gym section::before{display:none}
+  .gym [data-rv=""]{filter:none;transform:translateY(18px)}
+  .gym [data-rv="in"]{animation:rvInM .55s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--rv-i,0) * 40ms)}
+  @keyframes rvInM{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .gym section h2 em,.gym .hx-title>em,.gym .wordmark{animation:none}
+  .gym .hx-vid .hero-img{animation:none}
+}
+
+/* Log a lift redesign */
+.gym .lift{padding:clamp(24px,3vw,40px);background:radial-gradient(120% 90% at 0 0,rgb(216 185 131/08%),transparent 55%),var(--card)}
+.gym .lift-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+.gym .lift-head h3{margin:0}
+.gym .sync-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border:1px solid var(--line2);border-radius:999px;color:var(--mute);font-size:12px;font-weight:600;letter-spacing:.04em}
+.gym .sync-badge i{width:7px;height:7px;border-radius:50%;background:var(--mute)}
+.gym .sync-badge.on{color:var(--gold-hi);border-color:rgb(216 185 131/40%)}
+.gym .sync-badge.on i{background:#7bd88f;box-shadow:0 0 8px #7bd88f}
+.gym .sync-badge.error{color:#ff8a7a}.gym .sync-badge.error i{background:#ff8a7a}
+.gym .lift .tabs{margin-bottom:20px}
+.gym .lift-ex{display:grid;gap:8px;margin-bottom:20px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.gym .lift select{appearance:none;-webkit-appearance:none;color-scheme:dark;width:100%;padding:0 46px 0 18px;border:1px solid var(--line2);background:#0b0d10 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' fill='none' stroke='%23d8b983' stroke-width='2'%3E%3Cpath d='m1 1 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 18px center;color:var(--txt);font-size:17px;text-transform:none;letter-spacing:0}
+.gym .lift option{background:#101317;color:var(--txt)}
+.gym .lift input[type=date]{color-scheme:dark}
+.gym .lift-nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px}
+.gym .stepper-f,.gym .lift-date{display:grid;gap:8px;align-content:start;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#c4c6cb}
+.gym .stepper-f>div{display:grid;grid-template-columns:48px 1fr 48px;border:1px solid var(--line2);border-radius:14px;background:#0b0d10;overflow:hidden}
+.gym .stepper-f:focus-within>div{border-color:var(--gold);box-shadow:0 0 0 3px rgb(216 185 131/18%)}
+.gym .stepper-f input{min-height:48px;border:0;border-radius:0;background:transparent;text-align:center;font:500 26px/1 'Cormorant Garamond',serif;color:var(--gold-hi);box-shadow:none!important;-moz-appearance:textfield}
+.gym .stepper-f input::-webkit-outer-spin-button,.gym .stepper-f input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.gym .stepper-f button{border:0;background:transparent;color:var(--gold);font-size:22px;cursor:pointer;transition:background .2s,color .2s}
+.gym .stepper-f button:hover{background:rgb(216 185 131/10%);color:var(--gold-hi)}
+.gym .stepper-f button:active{background:rgb(216 185 131/20%)}
+.gym .lift-foot{display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px 24px}
+.gym .lift-info{display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--mute);font-size:13px}
+.gym .lift-info b{color:var(--gold-hi);font-weight:600}
+.gym .lift-foot .pr-win,.gym .lift-foot .note,.gym .lift-foot .err{grid-column:1/-1;margin:0;order:3}
+.gym .lift-foot .btn{min-width:200px}
+@media (max-width:700px){
+  .gym .lift-nums{grid-template-columns:1fr 1fr}
+  .gym .lift-date{grid-column:1/-1}
+  .gym .lift-foot{grid-template-columns:1fr}
+  .gym .lift-foot .btn{width:100%}
+}
